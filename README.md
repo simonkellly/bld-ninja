@@ -1,5 +1,11 @@
 # BLD Ninja
 
+![Bun Badge](https://img.shields.io/badge/Bun-000000.svg?style=for-the-badge&logo=Bun&logoColor=white)
+![Typescript Badge](https://img.shields.io/badge/TypeScript-3178C6.svg?style=for-the-badge&logo=TypeScript&logoColor=white)
+![Bluetooth Badge](https://img.shields.io/badge/Bluetooth-0082FC.svg?style=for-the-badge&logo=Bluetooth&logoColor=white)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/:user/:repo/:workflow?style=for-the-badge)
+![Gitea Last Commit](https://img.shields.io/gitea/last-commit/simonkellly/bld-ninja?style=for-the-badge)
+
 ![BLD Ninja logo](https://raw.githubusercontent.com/simonkellly/bld-ninja/main/public/bldninja-logo-v1.svg?token=GHSAT0AAAAAACQ5KLGAIGCCQ7WF6OZIWAZMZSBA6ZA)
 
 This is a work in progress 3BLD trainer. It is designed to be used with a smart cube to analyse solves and identify places to improve.
