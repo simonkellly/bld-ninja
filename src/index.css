@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-white max-w-2xl mx-auto my-10 px-2.5 py-0;
+  }
+}
