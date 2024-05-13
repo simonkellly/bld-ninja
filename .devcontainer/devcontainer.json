@@ -2,10 +2,8 @@
   "name": "Bun",
   "image": "ghcr.io/nhaef/devcontainer-bun:latest",
   "customizations": {
-      "vscode": {
-          "extensions": [
-              "dbaeumer.vscode-eslint"
-          ]
-      }
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint"]
+    }
   }
 }
