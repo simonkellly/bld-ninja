@@ -7,13 +7,15 @@
 ![Bluetooth Badge](https://img.shields.io/badge/Bluetooth-0082FC.svg?style=for-the-badge&logo=Bluetooth&logoColor=white)
 ![Tailwind Badge](https://img.shields.io/badge/Tailwind%20CSS-06B6D4.svg?style=for-the-badge&logo=Tailwind-CSS&logoColor=white)
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/:user/:repo/:workflow?style=for-the-badge)
-![Gitea Last Commit](https://img.shields.io/gitea/last-commit/simonkellly/bld-ninja?style=for-the-badge)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/simonkellly/bld-ninja/pages.yml?style=for-the-badge)
+![GitHub Last Commit](https://img.shields.io/github/last-commit/simonkellly/bld-ninja?style=for-the-badge)
 
 ![BLD Ninja logo](https://simonkellly.github.io/bld-ninja/bldninja-logo-v1.svg)
 
 This is a work in progress 3BLD trainer. It is designed to be used with a smart cube to analyse solves and identify places to improve.
 This is a more fully featured replacement for my previous trainer [BLD Tools](https://github.com/simonkellly/bld-tools).
+
+Check it out [here](https://simonkellly.github.io/bld-ninja/)
 
 ## Planned features
 
