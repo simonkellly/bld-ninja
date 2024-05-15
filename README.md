@@ -44,3 +44,9 @@ To run:
 ```bash
 bun run dev
 ```
+
+To run tests:
+
+```bash
+bun test
+```

@@ -1,7 +1,7 @@
 import { Alg } from 'cubing/alg';
 import type { KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
-import commutator from '../src/lib/commutator';
+import commutator from './commutator';
 
 const puzzle = await cube3x3x3.kpuzzle();
 
@@ -79,72 +79,45 @@ function uncancelTransformation(
   return null;
 }
 
-/*
-// Memo: 5.72
-y
+export function extractAlgs(solution: string): string[] {
+  const moveSet = [...solution.split(' ')];
+  const comms: string[] = [];
 
-// Edges: 4.00 (10.00 STPS)
-E' R E R2' E' R E // [E' R: [E, R2']]
-l' U' l' S l U l' S' l2 // [l': [U', l' S l]]
-R S2' R' U R S2' R' // [R S2' R', U] cancel into
-L U M U' L' U M' U2' // [U: [L, U M U']]
-U R' E R U2 R' E' R U // [U: [R' E R, U2]]
+  let moves = '';
+  let count = 0;
 
-// Corners: 3.10 (10.97 STPS)
-R' U2 R' D' R U2 R' D R // [R': [U2, R' D' R]] cancel into
-U R2 D' R' U R D R' U' R' U' R2 // [R' U R: [R D' R', U]] cancel into
-D' R' D R U' R' R R' D' R D U R' // [R D': [R' D R, U']] lose grip before last R'
+  while (moveSet.length > 0) {
+    const move = moveSet.shift()!;
+    moves += ' ' + move;
+    if (count++ < 4 || moveSet.length === 0) continue;
 
-// Total Execution: 7.10 (10.42 STPS)
-*/
-//                                      (Converted to no rotations)
+    const uncancelled = uncancelTransformation(
+      puzzle.algToTransformation(moves),
+      2
+    );
+    if (uncancelled == null) continue;
+    if (uncancelled.length > 0 && moveSet[0][0] === uncancelled.alg[0]) continue;
 
-const start = performance.now();
+    if (uncancelled.length > 0)
+      comms.push((moves + ' ' + uncancelled.alg + '').trim());
+    else comms.push((moves + ' ' + uncancelled.alg).trim());
 
-const edgeSolution =
-  "E' R E R2' E' R E R' F' R' S' R F R' S R2 R S2' R' U R S2' R' L U M U' L' U M' U2' U R' E R U2 R' E' R U";
-const cornerSolution =
-  "R' U2 R' D' R U2 R' D R U R2 D' R' U R D R' U' R' U' R2 D' R' D R U' R' R R' D' R D U R'";
-
-const moveSet = [...edgeSolution.split(' '), ...cornerSolution.split(' ')];
-
-const comms: string[] = [];
-
-let moves = '';
-let count = 0;
-
-while (moveSet.length > 0) {
-  const move = moveSet.shift()!;
-  moves += ' ' + move;
-  if (count++ < 4 || moveSet.length === 0) continue;
-
-  const uncancelled = uncancelTransformation(
-    puzzle.algToTransformation(moves),
-    2
-  );
-  if (uncancelled == null) continue;
-  if (uncancelled.length > 0 && moveSet[0][0] === uncancelled.alg[0]) continue;
-
-  if (uncancelled.length > 0)
-    comms.push((moves + ' ' + uncancelled.alg + '').trim());
-  else comms.push((moves + ' ' + uncancelled.alg).trim());
-
-  count = uncancelled.length;
-  // TODO: There might be a flaw in the logic....
-  // Like a cancel of R2 + R = R' vs R' + R = nothing but this is not implemented
-  moves = Alg.fromString(uncancelled.alg).invert().toString();
-}
-
-console.log('Original: ' + edgeSolution + " " + cornerSolution);
-comms.forEach((comm, i) => {
-  const comms = commutator.search({
-    algorithm: comm,
-    outerBracket: true,
-  }, );
-  if (comms.length > 0) {
-    const foundComm = comms[0].replaceAll(',', ', ').replaceAll(':', ": ")
-    console.log('Alg ' + (i + 1) + ': ' + foundComm + ' // ' + comm);
-  } else {
-    console.log('Alg ' + (i + 1) + ': ' + comm);
+    count = uncancelled.length;
+    // TODO: There might be a flaw in the logic....
+    // Like a cancel of R2 + R = R' vs R' + R = nothing but this is not implemented
+    moves = Alg.fromString(uncancelled.alg).invert().toString();
   }
-});
+
+  console.log(moves);
+  if (moves.length > 0) comms.push(moves);
+
+  return comms.map(comm => {
+    const foundComms = commutator.search({
+      algorithm: comm,
+      outerBracket: true,
+    });
+    const foundComm = foundComms[0];
+    if (foundComm.endsWith('.')) return comm.trim();
+    return foundComm.replaceAll(',', ', ').replaceAll(':', ": ");
+  })
+}
