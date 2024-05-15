@@ -8,6 +8,7 @@ import {
 import {
   Box,
   Home,
+  LayoutDashboard,
   LifeBuoy,
   LucideProps,
   Share,
@@ -71,6 +72,25 @@ function SidebarButton({
   );
 }
 
+const cube = 'GAN i carry 2_78CC';
+function CubeStatus() {
+  if (cube) {
+    return (
+      <div>
+        <span className="inline-flex align-[1.5px] h-2 w-2 rounded-full bg-green-600" />{' '}
+        {cube}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <span className="inline-flex align-[1.5px] h-2 w-2 rounded-full bg-red-600" />{' '}
+      No cube connected
+    </div>
+  );
+}
+
 export const Route = createRootRoute({
   component: () => (
     <TooltipProvider>
@@ -85,6 +105,11 @@ export const Route = createRootRoute({
           </div>
           <nav className="grid gap-1 p-2">
             <SidebarButton label="Home" icon={Home} link="/" />
+            <SidebarButton
+              label="Dashboard"
+              icon={LayoutDashboard}
+              link="/dashboard"
+            />
             <SidebarButton label="Cube" icon={Box} link="/twisty" />
           </nav>
           <nav className="mt-auto grid gap-1 p-2">
@@ -97,13 +122,10 @@ export const Route = createRootRoute({
           </nav>
         </aside>
         <div className="flex flex-col">
-          <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 border-b bg-background px-4">
+          <header className="sticky top-0 z-10 h-[57px] gap-1 border-b bg-background px-4 flex justify-between items-center">
             <img src={bldNinjaLogo} className="h-10" />
-            <Button
-              variant="outline"
-              size="sm"
-              className="ml-auto gap-1.5 text-sm"
-            >
+            <CubeStatus />
+            <Button variant="outline" size="sm" className="gap-1.5 text-sm">
               <Share className="size-3.5" />
               Share
             </Button>
