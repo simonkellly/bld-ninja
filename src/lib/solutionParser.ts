@@ -96,7 +96,8 @@ export function extractAlgs(solution: string): string[] {
       2
     );
     if (uncancelled == null) continue;
-    if (uncancelled.length > 0 && moveSet[0][0] === uncancelled.alg[0]) continue;
+    if (uncancelled.length > 0 && moveSet[0][0] === uncancelled.alg[0])
+      continue;
 
     if (uncancelled.length > 0)
       comms.push((moves + ' ' + uncancelled.alg + '').trim());
@@ -112,12 +113,13 @@ export function extractAlgs(solution: string): string[] {
   if (moves.length > 0) comms.push(moves);
 
   return comms.map(comm => {
+    // TODO: This is a good place to handle slice moves
     const foundComms = commutator.search({
       algorithm: comm,
       outerBracket: true,
     });
     const foundComm = foundComms[0];
     if (foundComm.endsWith('.')) return comm.trim();
-    return foundComm.replaceAll(',', ', ').replaceAll(':', ": ");
-  })
+    return foundComm.replaceAll(',', ', ').replaceAll(':', ': ');
+  });
 }
