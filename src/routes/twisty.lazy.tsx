@@ -7,8 +7,6 @@ export const Route = createLazyFileRoute('/twisty')({
 
 function TwistyExample() {
   return (
-    <div className="w-64 h-64">
-      <Twisty />
-    </div>
+    <Twisty className="w-64 h-64" />
   );
 }

@@ -21,7 +21,6 @@ import {
   BluetoothConnected as BTConnected,
 } from 'lucide-react';
 import React from 'react';
-import { Suspense, lazy } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -29,21 +28,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { CubeStore } from '@/lib/smartCube';
+import { CubeStore, setPuzzle } from '@/lib/smartCube';
 import { cn } from '@/lib/utils';
 import { routeTree } from '@/routeTree.gen';
 import bldNinjaLogo from '/bldninja-logo-v1.svg';
 
 type ValidRoutes = ParseRoute<typeof routeTree>['fullPath'];
-
-const TanStackRouterDevtools =
-  process.env.NODE_ENV === 'production'
-    ? () => null
-    : lazy(() =>
-        import('@tanstack/router-devtools').then(res => ({
-          default: res.TanStackRouterDevtools,
-        }))
-      );
 
 function SidebarButton({
   label,
@@ -87,7 +77,7 @@ function CubeStatus() {
     try {
       newCube = await Bluetooth.connectSmartPuzzle();
     } finally {
-      CubeStore.setState(state => ({ ...state, cube: newCube }));
+      setPuzzle(newCube);
     }
   };
 
@@ -152,9 +142,6 @@ export const Route = createRootRoute({
           </main>
         </div>
       </div>
-      <Suspense>
-        <TanStackRouterDevtools position="bottom-right" />
-      </Suspense>
     </TooltipProvider>
   ),
 });
