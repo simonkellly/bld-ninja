@@ -1,52 +1,41 @@
-import { createLazyFileRoute } from '@tanstack/react-router';
-import * as Bluetooth from 'cubing/bluetooth';
-import * as Scramble from 'cubing/scramble';
-import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { extractAlgs } from '@/lib/solutionParser';
+import { CubeStore } from '@/lib/smartCube';
+import { createLazyFileRoute } from '@tanstack/react-router';
+import { useStore } from '@tanstack/react-store';
+import { GanCube } from 'cubing/bluetooth';
 
 export const Route = createLazyFileRoute('/dashboard')({
   component: Dashboard,
 });
 
 function Dashboard() {
-  const [scramble, setScramble] = useState<string | null>(null);
-  const [moves, setMoves] = useState<string[]>([]);
-  const [algs, setAlgs] = useState<string[]>([]);
+  const cube = useStore(CubeStore, state => state.cube);
 
-  const onClick = async () => {
-    console.log('clicked');
-    Bluetooth.enableDebugLogging(true);
-    const device = await Bluetooth.connectSmartPuzzle({});
-    console.log(device);
-    device.addAlgLeafListener(alg => {
-      console.log(alg.latestAlgLeaf.toString());
-      setMoves(prev => [...prev, alg.latestAlgLeaf.toString()]);
-    });
+  if (cube === null) return <></>
+
+  const action = async () => {
+    if (!(cube instanceof GanCube)) return;
+    const ganCube = cube as GanCube;
+    console.log((await ganCube.getPattern()).toJSON());
+    await ganCube.reset();
+    console.log((await ganCube.getPattern()).toJSON());
   };
 
-  const analyse = () => {
-    setAlgs(extractAlgs(moves.join(' ')));
-  };
-
-  useEffect(() => {
-    Scramble.randomScrambleForEvent('333').then(scramble => {
-      setScramble(scramble.toString());
-    });
-  }, [setScramble]);
-
-  if (!scramble) return <></>;
   return (
-    <div>
-      <h1>Hello dashboard!</h1>
-      <Button onClick={onClick}>Connect Scrambled Cube</Button>
+    <>
+      Connected Cube {cube.name()}
       <br />
-      <p>{scramble}</p>
-      <p>{moves.join(' ')}</p>
-      <Button onClick={analyse}>Analyse</Button>
-      <code>
-        <pre>{algs.join('\n')}</pre>
-      </code>
-    </div>
+      <Button variant="secondary" onClick={action}>
+        Do Things!
+      </Button>
+    </>
   );
+
+  // return (
+  //   <div className="flex flex-col items-center justify-center w-screen h-[calc(100vh-57px)]gap-6">
+  //     <div className="text-3xl font-bold mb-6">R2 U2 F2 R2 B2 D2 L2 D2</div>
+  //     <div className="text-8xl font-bold">12.34</div>
+  //     <Button className="w-full max-w-[200px]">Start/Stop</Button>
+  //   </div>
+  // );
 }

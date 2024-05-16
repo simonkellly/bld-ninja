@@ -5,6 +5,8 @@ import {
   createRootRoute,
   Outlet,
 } from '@tanstack/react-router';
+import { useStore } from '@tanstack/react-store';
+import * as Bluetooth from 'cubing/bluetooth';
 import {
   Box,
   Home,
@@ -13,6 +15,10 @@ import {
   LucideProps,
   Share,
   SquareUser,
+} from 'lucide-react';
+import {
+  Bluetooth as BT,
+  BluetoothConnected as BTConnected,
 } from 'lucide-react';
 import React from 'react';
 import { Suspense, lazy } from 'react';
@@ -23,6 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { CubeStore } from '@/lib/smartCube';
 import { cn } from '@/lib/utils';
 import { routeTree } from '@/routeTree.gen';
 import bldNinjaLogo from '/bldninja-logo-v1.svg';
@@ -72,29 +79,39 @@ function SidebarButton({
   );
 }
 
-const cube = 'GAN i carry 2_78CC';
 function CubeStatus() {
-  if (cube) {
-    return (
-      <div>
-        <span className="inline-flex align-[1.5px] h-2 w-2 rounded-full bg-green-600" />{' '}
-        {cube}
-      </div>
-    );
-  }
+  const cube = useStore(CubeStore, state => state.cube);
+
+  const onClick = async () => {
+    let newCube: Bluetooth.BluetoothPuzzle | null = null;
+    try {
+      newCube = await Bluetooth.connectSmartPuzzle();
+    } finally {
+      CubeStore.setState(state => ({ ...state, cube: newCube }));
+    }
+  };
 
   return (
-    <div>
-      <span className="inline-flex align-[1.5px] h-2 w-2 rounded-full bg-red-600" />{' '}
-      No cube connected
-    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="text-sm gap-1.5"
+      onClick={onClick}
+    >
+      {cube === null ? (
+        <BT className="size-3.5" />
+      ) : (
+        <BTConnected className="size-3.5" />
+      )}
+      {cube === null ? 'Connect Cube' : cube.name() ?? 'Cube Connected'}
+    </Button>
   );
 }
 
 export const Route = createRootRoute({
   component: () => (
     <TooltipProvider>
-      <div className="grid h-screen w-full pl-[56px]">
+      <div className="grid min-h-screen w-full pl-[56px]">
         <aside className="inset-y fixed  left-0 z-20 flex h-full flex-col border-r">
           <div className="border-b p-2">
             <a href="https://github.com/simonkellly/bld-ninja">
@@ -130,7 +147,7 @@ export const Route = createRootRoute({
               Share
             </Button>
           </header>
-          <main className="grid flex-1 gap-4 overflow-auto p-4 grid-cols-1">
+          <main className="w-full h-[calc(100vh-57px)]">
             <Outlet />
           </main>
         </div>

@@ -109,7 +109,6 @@ export function extractAlgs(solution: string): string[] {
     moves = Alg.fromString(uncancelled.alg).invert().toString();
   }
 
-  console.log(moves);
   if (moves.length > 0) comms.push(moves);
 
   return comms.map(comm => {
