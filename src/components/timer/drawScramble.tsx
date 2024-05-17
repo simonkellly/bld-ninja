@@ -3,18 +3,18 @@ import { cn } from '@/lib/utils';
 import { TwistyPlayer } from 'cubing/twisty';
 import cubeImage from '/cube-colors.png';
 import { useStore } from '@tanstack/react-store';
-import { CubeStore } from '@/lib/smartCube';
+import { TimerStore } from './timerStore';
 
-export default function Twisty({ className }: { className: string }) {
+export default function DrawScramble({ className }: { className: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
-  const moves = useStore(CubeStore, (state) => state.solutionMoves);
+  const scramble = useStore(TimerStore, (state) => state.scramble);
 
   useEffect(() => {
     if (!containerRef.current) return;
     
     const newPlayer = new TwistyPlayer({
-      visualization: 'auto',
+      visualization: '2D',
       background: 'none',
       hintFacelets: 'none',
       controlPanel: 'none',
@@ -36,11 +36,8 @@ export default function Twisty({ className }: { className: string }) {
   useEffect(() => {
     if (!player) return;
 
-    player.alg = ''
-    moves?.forEach((move) => {
-      player.experimentalAddMove(move.move);
-    });
-  }, [player, moves]);
+    player.alg = scramble;
+  }, [player, scramble]);
 
   const classes = cn('flex', className);
   return <div className={classes} ref={containerRef} />;

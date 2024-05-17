@@ -2,7 +2,6 @@ import { CubeStore, connect, reset } from "@/lib/smartCube";
 import { useStore } from "@tanstack/react-store";
 import { Button } from "@/components/ui/button";
 import { Bluetooth, BluetoothConnected, RotateCcw } from "lucide-react";
-import bldNinjaLogo from '/bldninja-logo-v1.svg';
 
 function CubeStatus() {
   const cube = useStore(CubeStore, state => state.cube);
@@ -32,7 +31,7 @@ function CubeStatus() {
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-10 h-[57px] gap-1 border-b bg-background px-4 flex justify-between items-center">
-      <img src={bldNinjaLogo} className="h-10" />
+      <h1 className="text-2xl font-bold text-white tracking-tight">BLD Ninja</h1>
       <CubeStatus />
       <Button variant="outline" size="sm" className="gap-1.5 text-sm" onClick={reset}>
         <RotateCcw className="size-3.5" />

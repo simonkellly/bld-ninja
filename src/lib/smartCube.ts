@@ -1,6 +1,8 @@
 import {
   connectGanCube,
   GanCubeConnection,
+  GanCubeEvent,
+  GanCubeMove,
   MacAddressProvider,
 } from 'gan-web-bluetooth';
 import { Store } from '@tanstack/react-store';
@@ -24,11 +26,31 @@ const customMacAddressProvider: MacAddressProvider = async (
 
 type CubeStoreType = {
   cube?: GanCubeConnection | null;
+  solutionMoves?: GanCubeMove[];
 };
 
 export const CubeStore = new Store({} as CubeStoreType);
 
+async function handleMoveEvent(event: GanCubeEvent) {
+  if (event.type !== "MOVE") return;
+
+  CubeStore.setState((state) => ({
+    ...state, solutionMoves: (state.solutionMoves ?? []).concat([event]),
+  }))
+}
+
+function handleCubeEvent(event: GanCubeEvent) {
+  if (event.type == "MOVE") {
+    handleMoveEvent(event);
+  } else if (event.type == "FACELETS") {
+    // handleFaceletsEvent(event);
+  } else if (event.type == "DISCONNECT") {
+    connect();
+  }
+}
+
 export const reset = async () => {
+  CubeStore.setState((state) => ({ ...state, solutionMoves: []}));
   await CubeStore.state.cube!.sendCubeCommand({ type: "REQUEST_RESET" });
 }
 
@@ -40,11 +62,15 @@ export const connect = async () => {
     CubeStore.setState(() => ({}) as CubeStoreType);
   } else {
     const newConn = await connectGanCube(customMacAddressProvider);
-    CubeStore.setState(() => ({
-      cube: newConn,
-    }));
+    
     await newConn.sendCubeCommand({ type: 'REQUEST_HARDWARE' });
     await newConn.sendCubeCommand({ type: 'REQUEST_BATTERY' });
     await newConn.sendCubeCommand({ type: 'REQUEST_FACELETS' });
+
+    CubeStore.setState(() => ({
+      cube: newConn,
+    }));
+
+    newConn.events$.subscribe(handleCubeEvent);
   }
 }
