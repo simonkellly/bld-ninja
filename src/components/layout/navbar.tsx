@@ -5,7 +5,6 @@ import { Bluetooth, BluetoothConnected, RotateCcw } from "lucide-react";
 
 function CubeStatus() {
   const cube = useStore(CubeStore, state => state.cube);
-  console.log(cube);
 
   const onClick = async () => {
     connect();
