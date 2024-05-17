@@ -57,7 +57,7 @@ function Dashboard() {
     >
       <ScrambleDisplay /> 
       <div className="flex grow h-full items-center">
-        <h1 className="text-9xl font-extrabold text-white text-center m-auto font-mono">
+        <h1 className="text-9xl font-extrabold text-white text-center m-auto font-mono py-8">
           <TimerRenderer
             timer={cubeTimer.stopwatch}
             renderRate={30}
@@ -65,20 +65,14 @@ function Dashboard() {
           />
         </h1>
       </div>
-      <div className="w-full grid grid-cols-3 gap-4 p-4">
-        <fieldset className="rounded-lg border px-4 hover:bg-muted">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+        <fieldset className="rounded-lg border px-4 hover:bg-muted col-span-2 md:col-span-1">
           <legend className="-ml-1 px-1 text-sm font-medium">
             <CubeName />
           </legend>
           <Twisty className="w-full h-64 m-auto" />
         </fieldset>
-        <fieldset className="rounded-lg border px-4 hover:bg-muted">
-          <legend className="-ml-1 px-1 text-sm font-medium">
-            Scramble
-          </legend>
-          <DrawScramble className="w-full h-64 m-auto" />
-        </fieldset>
-        <fieldset className="rounded-lg border px-4 hover:bg-muted">
+        <fieldset className="rounded-lg border px-4 hover:bg-muted col-span-2">
           <legend className="-ml-1 px-1 text-sm font-medium">
             Results
           </legend>
