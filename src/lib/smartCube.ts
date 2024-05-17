@@ -1,24 +1,50 @@
-import { Store } from '@tanstack/store';
-import * as Bluetooth from 'cubing/bluetooth';
+import {
+  connectGanCube,
+  GanCubeConnection,
+  MacAddressProvider,
+} from 'gan-web-bluetooth';
+import { Store } from '@tanstack/react-store';
 
-const initialState: {
-  cube: Bluetooth.BluetoothPuzzle | null,
-  appliedMoves: Bluetooth.MoveEvent[],
-} = {
-  cube: null,
-  appliedMoves: [],
+const customMacAddressProvider: MacAddressProvider = async (
+  device,
+  isFallbackCall
+): Promise<string | null> => {
+  if (isFallbackCall) {
+    return prompt(
+      'Unable do determine cube MAC address!\nPlease enter MAC address manually:'
+    );
+  } else {
+    return typeof device.watchAdvertisements == 'function'
+      ? null
+      : prompt(
+        'Seems like your browser does not support Web Bluetooth watchAdvertisements() API. Enable following flag in Chrome:\n\nchrome://flags/#enable-experimental-web-platform-features\n\nor enter cube MAC address manually:'
+      );
+  }
 };
 
-export const CubeStore = new Store(initialState);
+type CubeStoreType = {
+  cube?: GanCubeConnection | null;
+};
 
-export const setPuzzle = (cube: Bluetooth.BluetoothPuzzle | null) => {
-  CubeStore.setState((state) => ({ ...state, cube, appliedMoves: [] }));
-  if (!cube) return;
-  cube.addAlgLeafListener((alg) => {
-    CubeStore.setState((state) => ({
-      ...state,
-      appliedMoves: [...state.appliedMoves, alg],
+export const CubeStore = new Store({} as CubeStoreType);
+
+export const reset = async () => {
+  await CubeStore.state.cube!.sendCubeCommand({ type: "REQUEST_RESET" });
+}
+
+export const connect = async () => {
+  const conn = CubeStore.state.cube
+
+  if (conn) {
+    conn.disconnect();
+    CubeStore.setState(() => ({}) as CubeStoreType);
+  } else {
+    const newConn = await connectGanCube(customMacAddressProvider);
+    CubeStore.setState(() => ({
+      cube: newConn,
     }));
-  });
-};
-
+    await newConn.sendCubeCommand({ type: 'REQUEST_HARDWARE' });
+    await newConn.sendCubeCommand({ type: 'REQUEST_BATTERY' });
+    await newConn.sendCubeCommand({ type: 'REQUEST_FACELETS' });
+  }
+}

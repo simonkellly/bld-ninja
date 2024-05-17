@@ -1,30 +1,72 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
+import { Store, useStore } from '@tanstack/react-store';
+import { randomScrambleForEvent } from 'cubing/scramble';
+import { KeyboardEventHandler, useEffect } from 'react';
+import Twisty from '@/components/cubing/twisty';
+import { CubeStore } from '@/lib/smartCube';
+import { cn } from '@/lib/utils';
 
 export const Route = createLazyFileRoute('/dashboard')({
   component: Dashboard,
 });
 
-
-import Twisty from '@/components/cubing/twisty';
-import { CubeStore } from '@/lib/smartCube';
-import { useStore } from '@tanstack/react-store';
-
 function CubeName() {
   const cube = useStore(CubeStore, state => state.cube);
-  return <>{cube?.name() ?? "Connected Cube"}</>
+  return <>{cube?.deviceName ?? 'Connected Cube'}</>;
+}
+
+const TimerStore = new Store({
+  scramble: '',
+  time: 0,
+  holdingSpace: false,
+});
+
+function TimerDisplay() {
+  const time = useStore(TimerStore, state => state.time);
+  // Format time as: SS.HS or MM:SS.HS
+  const className = cn('text-8xl font-bold text-white text-center m-auto', {
+    'text-red-500': time > 0 && time < 5000,
+    'text-green-500': time > 5000,
+  });
+  return <h1 className={className}>{time}</h1>;
 }
 
 function Dashboard() {
+  const scramble = useStore(TimerStore, state => state.scramble);
+
+  useEffect(() => {
+    if (scramble) return;
+    randomScrambleForEvent('333').then(newScram => {
+      TimerStore.setState(state => ({
+        ...state,
+        scramble: newScram.toString(),
+      }));
+    });
+  }, [scramble]);
+
+  const onKeyDown: KeyboardEventHandler<HTMLDivElement> = e => {
+    console.log(e.key, 'Down');
+    if (e.key === ' ')
+      TimerStore.setState(state => ({ ...state, holdingSpace: true }));
+  };
+
+  const onKeyUp: KeyboardEventHandler<HTMLDivElement> = e => {
+    if (e.key === ' ')
+      TimerStore.setState(state => ({ ...state, holdingSpace: false }));
+  };
 
   return (
-    <div className="h-full w-full flex flex-col">
+    <div
+      className="h-full w-full flex flex-col"
+      onKeyDown={onKeyDown}
+      onKeyUp={onKeyUp}
+      tabIndex={0}
+    >
       <h2 className="text-2xl font-medium text-center p-4 flex-none">
-        Uw Bw Rw Lw' Uw U Lw2 L Dw' U' Uw2 B2 Lw L D2 Lw Uw' Fw' Rw Bw D2 L2 Dw' Fw'
-        F U2 Fw2 U2 Dw' Lw2 Fw2 F Rw' Uw' Dw Lw' F' R U' F U' Dw2 Lw F U2 R2 Bw L2
-        Lw2 Bw2 Fw' L2 B Uw L Lw2 U Dw' Lw Rw
+        {scramble}
       </h2>
       <div className="flex grow h-full items-center">
-        <h1 className="text-8xl font-bold text-white text-center m-auto">1:13.84</h1>
+        <TimerDisplay />
       </div>
       <div className="w-full grid grid-cols-3">
         <fieldset className="rounded-lg border p-4 m-4 hover:bg-muted">
