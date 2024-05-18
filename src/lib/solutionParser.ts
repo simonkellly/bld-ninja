@@ -3,8 +3,6 @@ import type { KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import commutator from './commutator';
 
-const puzzle = await cube3x3x3.kpuzzle();
-
 const POSSIBLE_MOVES = ['U', 'F', 'R', 'D', 'B', 'L', 'E', 'S', 'M'];
 const POSSIBLE_AMOUNTS = ['2', '', "'"];
 
@@ -79,12 +77,14 @@ function uncancelTransformation(
   return null;
 }
 
-export function extractAlgs(solution: string): string[] {
+export async function extractAlgs(solution: string): Promise<string[]> {
   const moveSet = [...solution.split(' ')];
   const comms: string[] = [];
 
   let moves = '';
   let count = 0;
+
+  const puzzle = await cube3x3x3.kpuzzle();
 
   while (moveSet.length > 0) {
     const move = moveSet.shift()!;

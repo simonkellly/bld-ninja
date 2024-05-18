@@ -11,4 +11,7 @@ export default defineConfig({
     },
   },
   base: '/bld-ninja/',
+  worker: {
+    format: 'es',
+  },
 });

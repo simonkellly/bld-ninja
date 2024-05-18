@@ -1,18 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
-import { TwistyPlayer } from 'cubing/twisty';
-import cubeImage from '/cube-colors.png';
 import { useStore } from '@tanstack/react-store';
+import { TwistyPlayer } from 'cubing/twisty';
+import { useEffect, useRef, useState } from 'react';
 import { CubeStore } from '@/lib/smartCube';
+import { cn } from '@/lib/utils';
+import cubeImage from '/cube-colors.png';
 
 export default function Twisty({ className }: { className: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
-  const moves = useStore(CubeStore, (state) => state.solutionMoves);
+  const moves = useStore(CubeStore, state => state.solutionMoves);
 
   useEffect(() => {
     if (!containerRef.current) return;
-    
+
     const newPlayer = new TwistyPlayer({
       visualization: 'auto',
       background: 'none',
@@ -36,8 +36,8 @@ export default function Twisty({ className }: { className: string }) {
   useEffect(() => {
     if (!player) return;
 
-    player.alg = ''
-    moves?.forEach((move) => {
+    player.alg = '';
+    moves?.forEach(move => {
       player.experimentalAddMove(move.move);
     });
   }, [player, moves]);

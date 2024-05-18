@@ -1,7 +1,7 @@
-import { createLazyFileRoute } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import Twisty from '@/components/cubing/twisty';
 
-export const Route = createLazyFileRoute('/twisty')({
+export const Route = createFileRoute('/twisty')({
   component: TwistyExample,
 });
 

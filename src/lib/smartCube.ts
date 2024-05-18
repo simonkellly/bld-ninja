@@ -1,3 +1,4 @@
+import { Store } from '@tanstack/react-store';
 import {
   connectGanCube,
   GanCubeConnection,
@@ -5,7 +6,6 @@ import {
   GanCubeMove,
   MacAddressProvider,
 } from 'gan-web-bluetooth';
-import { Store } from '@tanstack/react-store';
 
 const customMacAddressProvider: MacAddressProvider = async (
   device,
@@ -19,8 +19,8 @@ const customMacAddressProvider: MacAddressProvider = async (
     return typeof device.watchAdvertisements == 'function'
       ? null
       : prompt(
-        'Seems like your browser does not support Web Bluetooth watchAdvertisements() API. Enable following flag in Chrome:\n\nchrome://flags/#enable-experimental-web-platform-features\n\nor enter cube MAC address manually:'
-      );
+          'Seems like your browser does not support Web Bluetooth watchAdvertisements() API. Enable following flag in Chrome:\n\nchrome://flags/#enable-experimental-web-platform-features\n\nor enter cube MAC address manually:'
+        );
   }
 };
 
@@ -32,37 +32,38 @@ type CubeStoreType = {
 export const CubeStore = new Store({} as CubeStoreType);
 
 async function handleMoveEvent(event: GanCubeEvent) {
-  if (event.type !== "MOVE") return;
+  if (event.type !== 'MOVE') return;
 
-  CubeStore.setState((state) => ({
-    ...state, solutionMoves: (state.solutionMoves ?? []).concat([event]),
-  }))
+  CubeStore.setState(state => ({
+    ...state,
+    solutionMoves: (state.solutionMoves ?? []).concat([event]),
+  }));
 }
 
 function handleCubeEvent(event: GanCubeEvent) {
-  if (event.type == "MOVE") {
+  if (event.type == 'MOVE') {
     handleMoveEvent(event);
-  } else if (event.type == "FACELETS") {
+  } else if (event.type == 'FACELETS') {
     // handleFaceletsEvent(event);
-  } else if (event.type == "DISCONNECT") {
+  } else if (event.type == 'DISCONNECT') {
     connect();
   }
 }
 
 export const reset = async () => {
-  CubeStore.setState((state) => ({ ...state, solutionMoves: []}));
-  await CubeStore.state.cube!.sendCubeCommand({ type: "REQUEST_RESET" });
-}
+  CubeStore.setState(state => ({ ...state, solutionMoves: [] }));
+  await CubeStore.state.cube!.sendCubeCommand({ type: 'REQUEST_RESET' });
+};
 
 export const connect = async () => {
-  const conn = CubeStore.state.cube
+  const conn = CubeStore.state.cube;
 
   if (conn) {
     conn.disconnect();
     CubeStore.setState(() => ({}) as CubeStoreType);
   } else {
     const newConn = await connectGanCube(customMacAddressProvider);
-    
+
     await newConn.sendCubeCommand({ type: 'REQUEST_HARDWARE' });
     await newConn.sendCubeCommand({ type: 'REQUEST_BATTERY' });
     await newConn.sendCubeCommand({ type: 'REQUEST_FACELETS' });
@@ -73,4 +74,4 @@ export const connect = async () => {
 
     newConn.events$.subscribe(handleCubeEvent);
   }
-}
+};

@@ -1,13 +1,13 @@
-import { createLazyFileRoute } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useStore } from '@tanstack/react-store';
-import Twisty from '@/components/cubing/twisty';
-import { CubeStore } from '@/lib/smartCube';
-import { TimerStore, useCubeTimer } from '@/components/timer/timerStore';
-import DrawScramble from '@/components/timer/drawScramble';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { Timer, TimerRenderer } from 'react-use-precision-timer';
+import Twisty from '@/components/cubing/twisty';
+import DrawScramble from '@/components/timer/drawScramble';
+import { TimerStore, useCubeTimer } from '@/components/timer/timerStore';
+import { CubeStore } from '@/lib/smartCube';
 
-export const Route = createLazyFileRoute('/dashboard')({
+export const Route = createFileRoute('/dashboard')({
   component: Dashboard,
 });
 
@@ -18,7 +18,7 @@ function CubeName() {
 
 function ScrambleDisplay() {
   const scramble = useStore(TimerStore, state => state.scramble);
-  
+
   return (
     <h2 className="text-3xl font-semibold text-center p-4 flex-none tracking-wide">
       {scramble}
@@ -41,7 +41,6 @@ function TimeDisplay(timer: Timer) {
       {hundredths}
     </span>
   );
-
 }
 
 function Dashboard() {
@@ -55,7 +54,7 @@ function Dashboard() {
       onFocusCapture={() => enableScope('timer')}
       onBlurCapture={() => disableScope('timer')}
     >
-      <ScrambleDisplay /> 
+      <ScrambleDisplay />
       <div className="flex grow h-full items-center">
         <h1 className="text-9xl font-extrabold text-white text-center m-auto font-mono py-8">
           <TimerRenderer
@@ -73,9 +72,7 @@ function Dashboard() {
           <Twisty className="w-full h-64 m-auto" />
         </fieldset>
         <fieldset className="rounded-lg border px-4 hover:bg-muted col-span-2">
-          <legend className="-ml-1 px-1 text-sm font-medium">
-            Results
-          </legend>
+          <legend className="-ml-1 px-1 text-sm font-medium">Results</legend>
           <DrawScramble className="w-full h-64 m-auto" />
         </fieldset>
       </div>

@@ -1,16 +1,11 @@
-import {
-  createRootRoute,
-  Outlet,
-} from '@tanstack/react-router';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import Sidebar from '@/components/layout/sidebar';
+import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { HotkeysProvider } from 'react-hotkeys-hook';
 import Navbar from '@/components/layout/navbar';
-import { HotkeysProvider } from 'react-hotkeys-hook'
-
+import Sidebar from '@/components/layout/sidebar';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 export const Route = createRootRoute({
   component: () => {
-    
     return (
       <HotkeysProvider initiallyActiveScopes={['timer']}>
         <TooltipProvider>

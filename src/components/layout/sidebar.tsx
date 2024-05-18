@@ -1,14 +1,21 @@
-import { Button } from "@/components/ui/button";
+import { SiGithub } from '@icons-pack/react-simple-icons';
+import { Link, ParseRoute } from '@tanstack/react-router';
+import {
+  Box,
+  Home,
+  LayoutDashboard,
+  LifeBuoy,
+  LucideProps,
+  SquareUser,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { cn } from "@/lib/utils";
-import { routeTree } from "@/routeTree.gen";
-import { SiGithub } from "@icons-pack/react-simple-icons";
-import { Link, ParseRoute } from "@tanstack/react-router";
-import { Box, Home, LayoutDashboard, LifeBuoy, LucideProps, SquareUser } from "lucide-react";
+import { cn } from '@/lib/utils';
+import { routeTree } from '@/routeTree.gen';
 
 type ValidRoutes = ParseRoute<typeof routeTree>['fullPath'];
 
@@ -46,7 +53,6 @@ function SidebarButton({
   );
 }
 
-
 export default function Sidebar() {
   return (
     <aside className="inset-y fixed  left-0 z-20 flex h-full flex-col border-r">
@@ -68,11 +74,7 @@ export default function Sidebar() {
       </nav>
       <nav className="mt-auto grid gap-1 p-2">
         <SidebarButton label="Help" icon={LifeBuoy} className="mt-auto" />
-        <SidebarButton
-          label="Account"
-          icon={SquareUser}
-          className="mt-auto"
-        />
+        <SidebarButton label="Account" icon={SquareUser} className="mt-auto" />
       </nav>
     </aside>
   );
