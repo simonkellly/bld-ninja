@@ -29,7 +29,6 @@ async function setScrambleFromCubeState(originalScramble: Alg | string) {
     TimerStore.setState(state => ({
       ...state,
       scramble: ogScrambleStr,
-      originalScramble: ogScrambleStr,
       scrambleIdx: 0,
     }));
     return;
@@ -47,12 +46,12 @@ async function setScrambleFromCubeState(originalScramble: Alg | string) {
     .applyAlg(scrambleAlg.invert())
     .applyAlg(solved.invert());
 
-  const newScramble = await experimentalSolve3x3x3IgnoringCenters(newPattern);
+  const customScramble = await experimentalSolve3x3x3IgnoringCenters(newPattern);
   TimerStore.setState(state => ({
     ...state,
     scrambleAlg: scrambleAlg.toString(),
     scrambleIdx: 0,
-    scramble: newScramble.toString(),
+    scramble: customScramble.toString(),
   }));
 }
 
@@ -100,6 +99,10 @@ async function processScrambleMove(ev: GanCubeMove) {
 
 const newScramble = async () => {
   const scramble = await randomScrambleForEvent('333');
+  TimerStore.setState(state => ({
+    ...state,
+    originalScramble: scramble.toString(),
+  }));
   await setScrambleFromCubeState(scramble.toString());
 };
 
