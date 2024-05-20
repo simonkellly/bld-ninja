@@ -144,6 +144,7 @@ export const useCubeTimer = () => {
 
     const algs = await extractAlgs(solution);
 
+    console.log("Scramble:", TimerStore.state.originalScramble)
     console.log(algs.join('\n'));
   };
 

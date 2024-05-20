@@ -6,6 +6,142 @@ import commutator from './vendor/commutator';
 const POSSIBLE_MOVES = ['U', 'F', 'R', 'D', 'B', 'L', 'E', 'S', 'M'];
 const POSSIBLE_AMOUNTS = ['2', '', "'"];
 
+export function removeRotations(moves: string[]) {
+  for (let moveIdx = moves.length - 1; moveIdx >= 0; moveIdx--) {
+    const move = moves[moveIdx];
+    const moveFace = move[0];
+
+    if (moveFace == "x" || moveFace == "y" || moveFace == "z") {
+      const rotationAmount = move.length == 1 ? 1 : move[1] == "'" ? 3 : 2;
+      for (let fixIdx = moveIdx + 1; fixIdx < moves.length; fixIdx++) {
+        for (let rotationNumber = 0; rotationNumber < rotationAmount; rotationNumber++) {
+          moves[fixIdx] = applyRotation(moveFace, moves[fixIdx]);
+        }
+      }
+      moves[moveIdx] = "";
+    }
+  }
+
+  return moves.filter(move => move.length > 0);
+}
+
+function applyRotation(rotation: string, move: string) {
+  let applied = move;
+  if (rotation == "x") {
+    applied = applied.replace(/F/g, "T");
+    applied = applied.replace(/U/g, "F");
+    applied = applied.replace(/B/g, "U");
+    applied = applied.replace(/D/g, "B");
+    applied = applied.replace(/T/g, "D");
+
+    applied = applied.replace(/E/g, "T");
+    applied = applied.replace(/S/g, "E");
+    applied = applied.replace(/T/g, "S'");
+  } else if (rotation == "y") {
+    applied = applied.replace(/F/g, "T");
+    applied = applied.replace(/L/g, "F");
+    applied = applied.replace(/B/g, "L");
+    applied = applied.replace(/R/g, "B");
+    applied = applied.replace(/T/g, "R");
+
+    applied = applied.replace(/M/g, "T");
+    applied = applied.replace(/S/g, "M'");
+    applied = applied.replace(/T/g, "S");
+  } else if (rotation == "z") {
+    applied = applied.replace(/U/g, "T");
+    applied = applied.replace(/R/g, "U");
+    applied = applied.replace(/D/g, "R");
+    applied = applied.replace(/L/g, "D");
+    applied = applied.replace(/T/g, "L");
+
+    applied = applied.replace(/M/g, "T");
+    applied = applied.replace(/E/g, "M'");
+    applied = applied.replace(/T/g, "E");
+  }
+
+  let result = applied;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const newRes = result
+      .replaceAll("''", "2")
+      .replaceAll("2'", "");
+    if (newRes == result) break;
+    result = newRes;
+  }
+
+  return result;
+}
+
+export function convertToSliceMoves(moves: string[]) {
+  // M = R L' x'
+  // S = F' B z
+  // E = U D' y'
+
+  const opposite = {
+    'U': 'D',
+    'D': 'U',
+    'F': 'B',
+    'B': 'F',
+    'R': 'L',
+    'L': 'R',
+  } as Record<string, string>;
+
+  const newMoves: string[] = [];
+
+  let lastMove = null as string | null;
+  moves.forEach(move => {
+    if (!lastMove) {
+      lastMove = move;
+      newMoves.push(move);
+      return;
+    }
+
+    const moveFace = move[0];
+    if (moveFace != opposite[lastMove[0]] || (move.length + lastMove.length) != 3) {
+      lastMove = move;
+      newMoves.push(move);
+      return;
+    }
+
+    const prevMove = newMoves.pop()!;
+    const lower = prevMove.charCodeAt(0) > move.charCodeAt(0) ? move : prevMove;
+    
+    if (lower == "L") {
+      newMoves.push("M'");
+      newMoves.push("x'");
+    }
+
+    if (lower == "L'") {
+      newMoves.push("M");
+      newMoves.push("x");
+    }
+
+    if (lower == "B") {
+      newMoves.push("S");
+      newMoves.push("z'");
+    }
+
+    if (lower == "B'") {
+      newMoves.push("S'");
+      newMoves.push("z");
+    }
+
+    if (lower == "D") {
+      newMoves.push("E'");
+      newMoves.push("y'");
+    }
+
+    if (lower == "D'") {
+      newMoves.push("E");
+      newMoves.push("y");
+    }
+
+    lastMove = null;
+  });
+
+  return newMoves;
+}
+
 function checkTransformationIs3Cycle(transformation: KTransformation): boolean {
   const corners = transformation.transformationData['CORNERS'];
   const edges = transformation.transformationData['EDGES'];
@@ -112,13 +248,20 @@ export async function extractAlgs(solution: string): Promise<string[]> {
   if (moves.length > 0) comms.push(moves);
 
   return comms.map(comm => {
-    // TODO: This is a good place to handle slice moves
-    const foundComms = commutator.search({
-      algorithm: comm,
+    let foundComm = commutator.search({
+      algorithm: removeRotations(convertToSliceMoves(comm.split(' '))).join(' '),
       outerBracket: true,
-    });
-    const foundComm = foundComms[0];
-    if (foundComm.endsWith('.')) return comm.trim() + ' (not found)';
+    })[0];
+
+    if (foundComm.endsWith('.')) {
+      foundComm = commutator.search({
+        algorithm: comm,
+        outerBracket: true,
+      })[0];
+    }
+
+    if (foundComm.endsWith('.')) return comm.trim() + ' // not found';
     return foundComm.replaceAll(',', ', ').replaceAll(':', ': ');
   });
 }
+
