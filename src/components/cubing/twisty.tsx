@@ -8,7 +8,8 @@ import cubeImage from '/cube-colors.png';
 export default function Twisty({ className }: { className: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
-  const moves = useStore(CubeStore, state => state.solutionMoves);
+  const moves = useStore(CubeStore, state => state.lastMoves);
+  const startingState = useStore(CubeStore, state => state.startingState);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -36,11 +37,11 @@ export default function Twisty({ className }: { className: string }) {
   useEffect(() => {
     if (!player) return;
 
-    player.alg = '';
+    player.alg = startingState ?? '';
     moves?.forEach(move => {
       player.experimentalAddMove(move.move);
     });
-  }, [player, moves]);
+  }, [player, startingState, moves]);
 
   const classes = cn('flex', className);
   return <div className={classes} ref={containerRef} />;

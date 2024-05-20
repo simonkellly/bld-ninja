@@ -8,7 +8,7 @@ import cubeImage from '/cube-colors.png';
 export default function DrawScramble({ className }: { className: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
-  const scramble = useStore(TimerStore, state => state.scramble);
+  const scramble = useStore(TimerStore, state => state.originalScramble);
 
   useEffect(() => {
     if (!containerRef.current) return;

@@ -6,6 +6,10 @@ import {
   GanCubeMove,
   MacAddressProvider,
 } from 'gan-web-bluetooth';
+import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
+import { faceletsToPattern, SOLVED_STATE } from '@/lib/vendor/ganUtils';
+import { KPattern, KPuzzle } from 'cubing/kpuzzle';
+import { cube3x3x3 } from 'cubing/puzzles';
 
 const customMacAddressProvider: MacAddressProvider = async (
   device,
@@ -19,14 +23,17 @@ const customMacAddressProvider: MacAddressProvider = async (
     return typeof device.watchAdvertisements == 'function'
       ? null
       : prompt(
-          'Seems like your browser does not support Web Bluetooth watchAdvertisements() API. Enable following flag in Chrome:\n\nchrome://flags/#enable-experimental-web-platform-features\n\nor enter cube MAC address manually:'
-        );
+        'Seems like your browser does not support Web Bluetooth watchAdvertisements() API. Enable following flag in Chrome:\n\nchrome://flags/#enable-experimental-web-platform-features\n\nor enter cube MAC address manually:'
+      );
   }
 };
 
 type CubeStoreType = {
   cube?: GanCubeConnection | null;
-  solutionMoves?: GanCubeMove[];
+  startingState?: string;
+  lastMoves?: GanCubeMove[];
+  kpattern?: KPattern,
+  puzzle?: KPuzzle,
 };
 
 export const CubeStore = new Store({} as CubeStoreType);
@@ -34,24 +41,31 @@ export const CubeStore = new Store({} as CubeStoreType);
 async function handleMoveEvent(event: GanCubeEvent) {
   if (event.type !== 'MOVE') return;
 
-  CubeStore.setState(state => ({
-    ...state,
-    solutionMoves: (state.solutionMoves ?? []).concat([event]),
-  }));
+  CubeStore.setState(state => {
+    let lastMoves = state.lastMoves ?? [];
+    lastMoves = [...lastMoves, event];
+    if (lastMoves.length > 256) {
+      lastMoves = lastMoves.slice(-256);
+    }
+
+    return ({
+      ...state,
+      lastMoves,
+      kpattern: state.kpattern?.applyMove(event.move),
+    })
+  });
 }
 
 function handleCubeEvent(event: GanCubeEvent) {
   if (event.type == 'MOVE') {
     handleMoveEvent(event);
-  } else if (event.type == 'FACELETS') {
-    // handleFaceletsEvent(event);
   } else if (event.type == 'DISCONNECT') {
     connect();
   }
 }
 
 export const reset = async () => {
-  CubeStore.setState(state => ({ ...state, solutionMoves: [] }));
+  CubeStore.setState(state => ({ ...state, lastMoves: [] }));
   await CubeStore.state.cube!.sendCubeCommand({ type: 'REQUEST_RESET' });
 };
 
@@ -64,12 +78,38 @@ export const connect = async () => {
   } else {
     const newConn = await connectGanCube(customMacAddressProvider);
 
+    let startingState: string | undefined;
+    const sub = newConn.events$.subscribe(async (ev) => {
+      if (ev.type !== 'FACELETS') return;
+
+      if (ev.facelets == SOLVED_STATE) {
+        startingState = '';
+        return;
+      }
+
+      const kpattern = faceletsToPattern(ev.facelets);
+      const solution = await experimentalSolve3x3x3IgnoringCenters(kpattern);
+      const scramble = solution.invert();
+      startingState = scramble.toString();
+    });
+
     await newConn.sendCubeCommand({ type: 'REQUEST_HARDWARE' });
     await newConn.sendCubeCommand({ type: 'REQUEST_BATTERY' });
     await newConn.sendCubeCommand({ type: 'REQUEST_FACELETS' });
 
+    const kpuzzle = await cube3x3x3.kpuzzle();
+
+    while (startingState === undefined) await new Promise((r) => setTimeout(r, 20));
+    
+    const kpattern = kpuzzle.defaultPattern().applyAlg(startingState);
+
+    sub.unsubscribe();
+
     CubeStore.setState(() => ({
       cube: newConn,
+      startingState,
+      puzzle: kpuzzle,
+      kpattern: kpattern,
     }));
 
     newConn.events$.subscribe(handleCubeEvent);

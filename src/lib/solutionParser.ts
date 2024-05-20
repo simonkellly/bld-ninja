@@ -1,7 +1,7 @@
 import { Alg } from 'cubing/alg';
 import type { KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
-import commutator from './commutator';
+import commutator from './vendor/commutator';
 
 const POSSIBLE_MOVES = ['U', 'F', 'R', 'D', 'B', 'L', 'E', 'S', 'M'];
 const POSSIBLE_AMOUNTS = ['2', '', "'"];
@@ -118,7 +118,7 @@ export async function extractAlgs(solution: string): Promise<string[]> {
       outerBracket: true,
     });
     const foundComm = foundComms[0];
-    if (foundComm.endsWith('.')) return comm.trim();
+    if (foundComm.endsWith('.')) return comm.trim() + ' (not found)';
     return foundComm.replaceAll(',', ', ').replaceAll(':', ': ');
   });
 }

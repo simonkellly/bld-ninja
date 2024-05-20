@@ -6,6 +6,7 @@ import Twisty from '@/components/cubing/twisty';
 import DrawScramble from '@/components/timer/drawScramble';
 import { TimerStore, useCubeTimer } from '@/components/timer/timerStore';
 import { CubeStore } from '@/lib/smartCube';
+import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/dashboard')({
   component: Dashboard,
@@ -18,10 +19,25 @@ function CubeName() {
 
 function ScrambleDisplay() {
   const scramble = useStore(TimerStore, state => state.scramble);
+  const scrambleIndex = useStore(TimerStore, state => state.scrambleIdx);
 
+  // TODO: Make this not affect timer positioning
   return (
-    <h2 className="text-3xl font-semibold text-center p-4 flex-none tracking-wide">
-      {scramble}
+    <h2 className="text-3xl font-semibold text-center p-4 flex-none select-none">
+      {scramble.length > 0 ? scramble.split(' ').map((move, i) => {
+        const className = cn('inline-block px-2 mx-1 py-1 text-white rounded-lg', {
+          'bg-muted': i === scrambleIndex,
+          'text-muted': i < scrambleIndex,
+        })
+        return (
+          <div
+            key={scramble.length + move + i}
+            className={className}
+          >
+            {move}
+          </div>
+        );
+      }) : <></>}
     </h2>
   );
 }
