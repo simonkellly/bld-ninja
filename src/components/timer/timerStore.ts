@@ -140,12 +140,21 @@ export const useCubeTimer = () => {
     const diff = moveDetails.current.end.filter(
       move => !moveDetails.current.start.includes(move)
     );
+
     const solution = diff.map(move => move.move).join(' ');
 
-    const algs = await extractAlgs(solution);
+    const [newScramble, algs] = await Promise.all([randomScrambleForEvent('333'), extractAlgs(solution)]);
 
     console.log("Scramble:", TimerStore.state.originalScramble)
     console.log(algs.join('\n'));
+
+    const newScrambleAlg = newScramble.toString();
+    TimerStore.setState(state => ({
+      ...state,
+      scramble: newScrambleAlg,
+      originalScramble: newScrambleAlg,
+      scrambleIdx: 0,
+    }));
   };
 
   const pressSpaceBar = (up: boolean) => {

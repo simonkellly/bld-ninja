@@ -19,12 +19,25 @@ test('Extract invalid comm', async () => {
   expect(extracted[0]).toBe("R U' R' // not found");
 });
 
-test('Converts slice moves and rotations', () => {
+test('Converts slice moves and rotations (DO)', () => {
   const alg = "U' L' R B' R' L U' L' R B' R' L";
   const converted = convertToSliceMoves(alg.split(' '));
   const rotationsRemoves = removeRotations(converted);
   expect(rotationsRemoves.join(' ')).toBe("U' M U' M' U' M U' M'");
 });
+
+test('Extract slice alg (FK)', async () => {
+  const extracted = await extractAlgs("F' B L D L' R F' F' L R' D L' F B'");
+  expect(extracted.length).toBe(1);
+  expect(extracted[0]).toBe("[S U L: [E', L2]]");
+});
+
+test('Extract slice alg (FK) with extra moves', async () => {
+  const extracted = await extractAlgs("R U B D D' B' U' R' F' B L D L' R F' F' L R' D L' F B'");
+  expect(extracted.length).toBe(1);
+  expect(extracted[0]).toBe("[S U L: [E', L2]]");
+});
+
 
 test('Converts slice moves M', () => {
   const alg = "R' L";

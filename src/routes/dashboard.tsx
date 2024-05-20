@@ -31,7 +31,7 @@ function ScrambleDisplay() {
         })
         return (
           <div
-            key={scramble.length + move + i}
+            key={scramble.length + move + "Move" + i}
             className={className}
           >
             {move}

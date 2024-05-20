@@ -63,8 +63,9 @@ function applyRotation(rotation: string, move: string) {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const newRes = result
-      .replaceAll("''", "2")
-      .replaceAll("2'", "");
+      .replaceAll("''", "")
+      .replaceAll("2'", "")
+      .replaceAll("'2", "");
     if (newRes == result) break;
     result = newRes;
   }
@@ -213,6 +214,15 @@ function uncancelTransformation(
   return null;
 }
 
+function simplify(alg: string) {
+  return Alg.fromString(alg).experimentalSimplify({
+    cancel: { puzzleSpecificModWrap: "canonical-centered" },
+    puzzleLoader: cube3x3x3,
+    depth: 5,
+  }).toString();
+
+}
+
 export async function extractAlgs(solution: string): Promise<string[]> {
   const moveSet = [...solution.split(' ')];
   const comms: string[] = [];
@@ -249,7 +259,7 @@ export async function extractAlgs(solution: string): Promise<string[]> {
 
   return comms.map(comm => {
     let foundComm = commutator.search({
-      algorithm: removeRotations(convertToSliceMoves(comm.split(' '))).join(' '),
+      algorithm: simplify(removeRotations(convertToSliceMoves(comm.split(' '))).join(' ')),
       outerBracket: true,
     })[0];
 
@@ -260,7 +270,7 @@ export async function extractAlgs(solution: string): Promise<string[]> {
       })[0];
     }
 
-    if (foundComm.endsWith('.')) return comm.trim() + ' // not found';
+    if (foundComm.endsWith('.')) return simplify(comm.trim()) + ' // not found';
     return foundComm.replaceAll(',', ', ').replaceAll(':', ': ');
   });
 }
