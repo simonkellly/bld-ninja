@@ -1,18 +1,14 @@
 // Adapted from https://github.com/afedotov/gan-cube-sample
 // MIT License
-
 // Copyright (c) Andy Fedotov, https://github.com/afedotov
-
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,17 +16,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-import { cube3x3x3 } from 'cubing/puzzles';
 import { KPattern, KPatternData, KPuzzle } from 'cubing/kpuzzle';
+import { cube3x3x3 } from 'cubing/puzzles';
 
 let KPUZZLE_333: KPuzzle;
-cube3x3x3.kpuzzle().then(v => KPUZZLE_333 = v);
+cube3x3x3.kpuzzle().then(v => (KPUZZLE_333 = v));
 
-const SOLVED_STATE = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
-const REID_EDGE_ORDER = "UF UR UB UL DF DR DB DL FR FL BR BL".split(" ");
-const REID_CORNER_ORDER = "UFR URB UBL ULF DRF DFL DLB DBR".split(" ");
-const REID_CENTER_ORDER = "U L F R B D".split(" ");
+const SOLVED_STATE = 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
+const REID_EDGE_ORDER = 'UF UR UB UL DF DR DB DL FR FL BR BL'.split(' ');
+const REID_CORNER_ORDER = 'UFR URB UBL ULF DRF DFL DLB DBR'.split(' ');
+const REID_CENTER_ORDER = 'U L F R B D'.split(' ');
 
 const REID_TO_FACELETS_MAP: [number, number, number][] = [
   [1, 2, 0],
@@ -115,7 +110,7 @@ const EDGE_MAPPING = [
   [43, 36],
 ];
 
-const FACE_ORDER = "URFDLB";
+const FACE_ORDER = 'URFDLB';
 
 interface PieceInfo {
   piece: number;
@@ -143,24 +138,24 @@ function rotateLeft(s: string, i: number): string {
 function toReid333Struct(pattern: KPattern): string[][] {
   const output: string[][] = [[], []];
   for (let i = 0; i < 6; i++) {
-    if (pattern.patternData["CENTERS"].pieces[i] !== i) {
-      throw new Error("non-oriented puzzles are not supported");
+    if (pattern.patternData['CENTERS'].pieces[i] !== i) {
+      throw new Error('non-oriented puzzles are not supported');
     }
   }
   for (let i = 0; i < 12; i++) {
     output[0].push(
       rotateLeft(
-        REID_EDGE_ORDER[pattern.patternData["EDGES"].pieces[i]],
-        pattern.patternData["EDGES"].orientation[i],
-      ),
+        REID_EDGE_ORDER[pattern.patternData['EDGES'].pieces[i]],
+        pattern.patternData['EDGES'].orientation[i]
+      )
     );
   }
   for (let i = 0; i < 8; i++) {
     output[1].push(
       rotateLeft(
-        REID_CORNER_ORDER[pattern.patternData["CORNERS"].pieces[i]],
-        pattern.patternData["CORNERS"].orientation[i],
-      ),
+        REID_CORNER_ORDER[pattern.patternData['CORNERS'].pieces[i]],
+        pattern.patternData['CORNERS'].orientation[i]
+      )
     );
   }
   output.push(REID_CENTER_ORDER);
@@ -174,7 +169,9 @@ function toReid333Struct(pattern: KPattern): string[][] {
  */
 function patternToFacelets(pattern: KPattern): string {
   const reid = toReid333Struct(pattern);
-  return REID_TO_FACELETS_MAP.map(([orbit, perm, ori]) => reid[orbit][perm][ori]).join("");
+  return REID_TO_FACELETS_MAP.map(
+    ([orbit, perm, ori]) => reid[orbit][perm][ori]
+  ).join('');
 }
 
 /**
@@ -183,13 +180,14 @@ function patternToFacelets(pattern: KPattern): string {
  * @returns KPattern object representing cube state
  */
 function faceletsToPattern(facelets: string): KPattern {
-
   const stickers: number[] = [];
   facelets.match(/.{9}/g)?.forEach(face => {
-    face.split('').reverse().forEach((s, i) => {
-      if (i != 4)
-        stickers.push(FACE_ORDER.indexOf(s));
-    });
+    face
+      .split('')
+      .reverse()
+      .forEach((s, i) => {
+        if (i != 4) stickers.push(FACE_ORDER.indexOf(s));
+      });
   });
 
   const patternData: KPatternData = {
@@ -204,18 +202,20 @@ function faceletsToPattern(facelets: string): KPattern {
     CENTERS: {
       pieces: [0, 1, 2, 3, 4, 5],
       orientation: [0, 0, 0, 0, 0, 0],
-      orientationMod: [1, 1, 1, 1, 1, 1]
+      orientationMod: [1, 1, 1, 1, 1, 1],
     },
   };
 
   for (const cm of CORNER_MAPPING) {
-    const pi: PieceInfo = PIECE_MAP[cm.map((i) => FACE_ORDER[stickers[i]]).join('')];
+    const pi: PieceInfo =
+      PIECE_MAP[cm.map(i => FACE_ORDER[stickers[i]]).join('')];
     patternData.CORNERS.pieces.push(pi.piece);
     patternData.CORNERS.orientation.push(pi.orientation);
   }
 
   for (const em of EDGE_MAPPING) {
-    const pi: PieceInfo = PIECE_MAP[em.map((i) => FACE_ORDER[stickers[i]]).join('')];
+    const pi: PieceInfo =
+      PIECE_MAP[em.map(i => FACE_ORDER[stickers[i]]).join('')];
     patternData.EDGES.pieces.push(pi.piece);
     patternData.EDGES.orientation.push(pi.orientation);
   }
@@ -223,8 +223,4 @@ function faceletsToPattern(facelets: string): KPattern {
   return new KPattern(KPUZZLE_333, patternData);
 }
 
-export {
-  SOLVED_STATE,
-  patternToFacelets,
-  faceletsToPattern
-}
+export { SOLVED_STATE, patternToFacelets, faceletsToPattern };

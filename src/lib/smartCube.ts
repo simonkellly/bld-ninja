@@ -1,4 +1,7 @@
 import { Store } from '@tanstack/react-store';
+import { KPattern, KPuzzle } from 'cubing/kpuzzle';
+import { cube3x3x3 } from 'cubing/puzzles';
+import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import {
   connectGanCube,
   GanCubeConnection,
@@ -6,10 +9,7 @@ import {
   GanCubeMove,
   MacAddressProvider,
 } from 'gan-web-bluetooth';
-import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { faceletsToPattern, SOLVED_STATE } from '@/lib/vendor/ganUtils';
-import { KPattern, KPuzzle } from 'cubing/kpuzzle';
-import { cube3x3x3 } from 'cubing/puzzles';
 
 const customMacAddressProvider: MacAddressProvider = async (
   device,
@@ -23,8 +23,8 @@ const customMacAddressProvider: MacAddressProvider = async (
     return typeof device.watchAdvertisements == 'function'
       ? null
       : prompt(
-        'Seems like your browser does not support Web Bluetooth watchAdvertisements() API. Enable following flag in Chrome:\n\nchrome://flags/#enable-experimental-web-platform-features\n\nor enter cube MAC address manually:'
-      );
+          'Seems like your browser does not support Web Bluetooth watchAdvertisements() API. Enable following flag in Chrome:\n\nchrome://flags/#enable-experimental-web-platform-features\n\nor enter cube MAC address manually:'
+        );
   }
 };
 
@@ -32,8 +32,8 @@ type CubeStoreType = {
   cube?: GanCubeConnection | null;
   startingState?: string;
   lastMoves?: GanCubeMove[];
-  kpattern?: KPattern,
-  puzzle?: KPuzzle,
+  kpattern?: KPattern;
+  puzzle?: KPuzzle;
 };
 
 export const CubeStore = new Store({} as CubeStoreType);
@@ -48,11 +48,11 @@ async function handleMoveEvent(event: GanCubeEvent) {
       lastMoves = lastMoves.slice(-256);
     }
 
-    return ({
+    return {
       ...state,
       lastMoves,
       kpattern: state.kpattern?.applyMove(event.move),
-    })
+    };
   });
 }
 
@@ -79,7 +79,7 @@ export const connect = async () => {
     const newConn = await connectGanCube(customMacAddressProvider);
 
     let startingState: string | undefined;
-    const sub = newConn.events$.subscribe(async (ev) => {
+    const sub = newConn.events$.subscribe(async ev => {
       if (ev.type !== 'FACELETS') return;
 
       if (ev.facelets == SOLVED_STATE) {
@@ -99,8 +99,9 @@ export const connect = async () => {
 
     const kpuzzle = await cube3x3x3.kpuzzle();
 
-    while (startingState === undefined) await new Promise((r) => setTimeout(r, 20));
-    
+    while (startingState === undefined)
+      await new Promise(r => setTimeout(r, 20));
+
     const kpattern = kpuzzle.defaultPattern().applyAlg(startingState);
 
     sub.unsubscribe();

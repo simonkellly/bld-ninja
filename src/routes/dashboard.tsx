@@ -24,20 +24,27 @@ function ScrambleDisplay() {
   // TODO: Make this not affect timer positioning
   return (
     <h2 className="text-3xl font-semibold text-center p-4 flex-none select-none">
-      {scramble.length > 0 ? scramble.split(' ').map((move, i) => {
-        const className = cn('inline-block px-2 mx-1 py-1 text-white rounded-lg', {
-          'bg-muted': i === scrambleIndex,
-          'text-muted': i < scrambleIndex,
+      {scramble.length > 0 ? (
+        scramble.split(' ').map((move, i) => {
+          const className = cn(
+            'inline-block px-2 mx-1 py-1 text-white rounded-lg',
+            {
+              'bg-muted': i === scrambleIndex,
+              'text-muted': i < scrambleIndex,
+            }
+          );
+          return (
+            <div
+              key={scramble.length + move + 'Move' + i}
+              className={className}
+            >
+              {move}
+            </div>
+          );
         })
-        return (
-          <div
-            key={scramble.length + move + "Move" + i}
-            className={className}
-          >
-            {move}
-          </div>
-        );
-      }) : <></>}
+      ) : (
+        <></>
+      )}
     </h2>
   );
 }

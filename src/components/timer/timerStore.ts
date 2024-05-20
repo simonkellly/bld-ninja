@@ -1,13 +1,13 @@
 import { Store, useStore } from '@tanstack/react-store';
+import { Alg } from 'cubing/alg';
 import { randomScrambleForEvent } from 'cubing/scramble';
+import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { GanCubeEvent, GanCubeMove } from 'gan-web-bluetooth';
 import { useEffect, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useStopwatch } from 'react-use-precision-timer';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
-import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
-import { Alg } from 'cubing/alg';
 
 enum TimerState {
   Inactive = 'INACTIVE',
@@ -35,9 +35,15 @@ async function setScrambleFromCubeState(originalScramble: Alg | string) {
     return;
   }
 
-  const scrambleAlg = typeof originalScramble === 'string' ? new Alg(originalScramble) : originalScramble;
-  const solved = await experimentalSolve3x3x3IgnoringCenters(CubeStore.state.kpattern!);
-  const newPattern = CubeStore.state.puzzle!.defaultPattern()
+  const scrambleAlg =
+    typeof originalScramble === 'string'
+      ? new Alg(originalScramble)
+      : originalScramble;
+  const solved = await experimentalSolve3x3x3IgnoringCenters(
+    CubeStore.state.kpattern!
+  );
+  const newPattern = CubeStore.state
+    .puzzle!.defaultPattern()
     .applyAlg(scrambleAlg.invert())
     .applyAlg(solved.invert());
 
@@ -65,9 +71,13 @@ async function processScrambleMove(ev: GanCubeMove) {
 
   const currentIdx = TimerStore.state.scrambleIdx;
   const currentMove = scrambleMoves[currentIdx];
-  
+
   // If its a double move, and you are turning that face, just redo that move
-  if (currentMove.length == 2 && currentMove[1] === '2' && ev.move[0] === currentMove[0]) {
+  if (
+    currentMove.length == 2 &&
+    currentMove[1] === '2' &&
+    ev.move[0] === currentMove[0]
+  ) {
     TimerStore.setState(state => ({
       ...state,
       scramble: state.scramble.replace(currentMove, ev.move),
@@ -84,12 +94,12 @@ async function processScrambleMove(ev: GanCubeMove) {
 
     return;
   }
-  
+
   await setScrambleFromCubeState(ogScramble);
 }
 
 export const useCubeTimer = () => {
-  const cube = useStore(CubeStore, (state) => state.cube);
+  const cube = useStore(CubeStore, state => state.cube);
 
   const stopwatch = useStopwatch();
 
@@ -143,9 +153,12 @@ export const useCubeTimer = () => {
 
     const solution = diff.map(move => move.move).join(' ');
 
-    const [newScramble, algs] = await Promise.all([randomScrambleForEvent('333'), extractAlgs(solution)]);
+    const [newScramble, algs] = await Promise.all([
+      randomScrambleForEvent('333'),
+      extractAlgs(solution),
+    ]);
 
-    console.log("Scramble:", TimerStore.state.originalScramble)
+    console.log('Scramble:', TimerStore.state.originalScramble);
     console.log(algs.join('\n'));
 
     const newScrambleAlg = newScramble.toString();

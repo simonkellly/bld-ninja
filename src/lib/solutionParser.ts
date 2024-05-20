@@ -11,14 +11,18 @@ export function removeRotations(moves: string[]) {
     const move = moves[moveIdx];
     const moveFace = move[0];
 
-    if (moveFace == "x" || moveFace == "y" || moveFace == "z") {
+    if (moveFace == 'x' || moveFace == 'y' || moveFace == 'z') {
       const rotationAmount = move.length == 1 ? 1 : move[1] == "'" ? 3 : 2;
       for (let fixIdx = moveIdx + 1; fixIdx < moves.length; fixIdx++) {
-        for (let rotationNumber = 0; rotationNumber < rotationAmount; rotationNumber++) {
+        for (
+          let rotationNumber = 0;
+          rotationNumber < rotationAmount;
+          rotationNumber++
+        ) {
           moves[fixIdx] = applyRotation(moveFace, moves[fixIdx]);
         }
       }
-      moves[moveIdx] = "";
+      moves[moveIdx] = '';
     }
   }
 
@@ -27,45 +31,45 @@ export function removeRotations(moves: string[]) {
 
 function applyRotation(rotation: string, move: string) {
   let applied = move;
-  if (rotation == "x") {
-    applied = applied.replace(/F/g, "T");
-    applied = applied.replace(/U/g, "F");
-    applied = applied.replace(/B/g, "U");
-    applied = applied.replace(/D/g, "B");
-    applied = applied.replace(/T/g, "D");
+  if (rotation == 'x') {
+    applied = applied.replace(/F/g, 'T');
+    applied = applied.replace(/U/g, 'F');
+    applied = applied.replace(/B/g, 'U');
+    applied = applied.replace(/D/g, 'B');
+    applied = applied.replace(/T/g, 'D');
 
-    applied = applied.replace(/E/g, "T");
-    applied = applied.replace(/S/g, "E");
+    applied = applied.replace(/E/g, 'T');
+    applied = applied.replace(/S/g, 'E');
     applied = applied.replace(/T/g, "S'");
-  } else if (rotation == "y") {
-    applied = applied.replace(/F/g, "T");
-    applied = applied.replace(/L/g, "F");
-    applied = applied.replace(/B/g, "L");
-    applied = applied.replace(/R/g, "B");
-    applied = applied.replace(/T/g, "R");
+  } else if (rotation == 'y') {
+    applied = applied.replace(/F/g, 'T');
+    applied = applied.replace(/L/g, 'F');
+    applied = applied.replace(/B/g, 'L');
+    applied = applied.replace(/R/g, 'B');
+    applied = applied.replace(/T/g, 'R');
 
-    applied = applied.replace(/M/g, "T");
+    applied = applied.replace(/M/g, 'T');
     applied = applied.replace(/S/g, "M'");
-    applied = applied.replace(/T/g, "S");
-  } else if (rotation == "z") {
-    applied = applied.replace(/U/g, "T");
-    applied = applied.replace(/R/g, "U");
-    applied = applied.replace(/D/g, "R");
-    applied = applied.replace(/L/g, "D");
-    applied = applied.replace(/T/g, "L");
+    applied = applied.replace(/T/g, 'S');
+  } else if (rotation == 'z') {
+    applied = applied.replace(/U/g, 'T');
+    applied = applied.replace(/R/g, 'U');
+    applied = applied.replace(/D/g, 'R');
+    applied = applied.replace(/L/g, 'D');
+    applied = applied.replace(/T/g, 'L');
 
-    applied = applied.replace(/M/g, "T");
+    applied = applied.replace(/M/g, 'T');
     applied = applied.replace(/E/g, "M'");
-    applied = applied.replace(/T/g, "E");
+    applied = applied.replace(/T/g, 'E');
   }
 
   let result = applied;
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const newRes = result
-      .replaceAll("''", "")
-      .replaceAll("2'", "")
-      .replaceAll("'2", "");
+      .replaceAll("''", '')
+      .replaceAll("2'", '')
+      .replaceAll("'2", '');
     if (newRes == result) break;
     result = newRes;
   }
@@ -79,12 +83,12 @@ export function convertToSliceMoves(moves: string[]) {
   // E = U D' y'
 
   const opposite = {
-    'U': 'D',
-    'D': 'U',
-    'F': 'B',
-    'B': 'F',
-    'R': 'L',
-    'L': 'R',
+    U: 'D',
+    D: 'U',
+    F: 'B',
+    B: 'F',
+    R: 'L',
+    L: 'R',
   } as Record<string, string>;
 
   const newMoves: string[] = [];
@@ -98,7 +102,10 @@ export function convertToSliceMoves(moves: string[]) {
     }
 
     const moveFace = move[0];
-    if (moveFace != opposite[lastMove[0]] || (move.length + lastMove.length) != 3) {
+    if (
+      moveFace != opposite[lastMove[0]] ||
+      move.length + lastMove.length != 3
+    ) {
       lastMove = move;
       newMoves.push(move);
       return;
@@ -106,35 +113,35 @@ export function convertToSliceMoves(moves: string[]) {
 
     const prevMove = newMoves.pop()!;
     const lower = prevMove.charCodeAt(0) > move.charCodeAt(0) ? move : prevMove;
-    
-    if (lower == "L") {
+
+    if (lower == 'L') {
       newMoves.push("M'");
       newMoves.push("x'");
     }
 
     if (lower == "L'") {
-      newMoves.push("M");
-      newMoves.push("x");
+      newMoves.push('M');
+      newMoves.push('x');
     }
 
-    if (lower == "B") {
-      newMoves.push("S");
+    if (lower == 'B') {
+      newMoves.push('S');
       newMoves.push("z'");
     }
 
     if (lower == "B'") {
       newMoves.push("S'");
-      newMoves.push("z");
+      newMoves.push('z');
     }
 
-    if (lower == "D") {
+    if (lower == 'D') {
       newMoves.push("E'");
       newMoves.push("y'");
     }
 
     if (lower == "D'") {
-      newMoves.push("E");
-      newMoves.push("y");
+      newMoves.push('E');
+      newMoves.push('y');
     }
 
     lastMove = null;
@@ -215,12 +222,13 @@ function uncancelTransformation(
 }
 
 function simplify(alg: string) {
-  return Alg.fromString(alg).experimentalSimplify({
-    cancel: { puzzleSpecificModWrap: "canonical-centered" },
-    puzzleLoader: cube3x3x3,
-    depth: 5,
-  }).toString();
-
+  return Alg.fromString(alg)
+    .experimentalSimplify({
+      cancel: { puzzleSpecificModWrap: 'canonical-centered' },
+      puzzleLoader: cube3x3x3,
+      depth: 5,
+    })
+    .toString();
 }
 
 export async function extractAlgs(solution: string): Promise<string[]> {
@@ -259,7 +267,9 @@ export async function extractAlgs(solution: string): Promise<string[]> {
 
   return comms.map(comm => {
     let foundComm = commutator.search({
-      algorithm: simplify(removeRotations(convertToSliceMoves(comm.split(' '))).join(' ')),
+      algorithm: simplify(
+        removeRotations(convertToSliceMoves(comm.split(' '))).join(' ')
+      ),
       outerBracket: true,
     })[0];
 
@@ -274,4 +284,3 @@ export async function extractAlgs(solution: string): Promise<string[]> {
     return foundComm.replaceAll(',', ', ').replaceAll(':', ': ');
   });
 }
-

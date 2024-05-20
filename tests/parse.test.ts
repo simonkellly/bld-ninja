@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { convertToSliceMoves, extractAlgs, removeRotations } from '@/lib/solutionParser';
+import {
+  convertToSliceMoves,
+  extractAlgs,
+  removeRotations,
+} from '@/lib/solutionParser';
 
 test('Extract valid comm (EP)', async () => {
   const extracted = await extractAlgs("R U' R' D' R U2 R' D R U' R'");
@@ -33,11 +37,12 @@ test('Extract slice alg (FK)', async () => {
 });
 
 test('Extract slice alg (FK) with extra moves', async () => {
-  const extracted = await extractAlgs("R U B D D' B' U' R' F' B L D L' R F' F' L R' D L' F B'");
+  const extracted = await extractAlgs(
+    "R U B D D' B' U' R' F' B L D L' R F' F' L R' D L' F B'"
+  );
   expect(extracted.length).toBe(1);
   expect(extracted[0]).toBe("[S U L: [E', L2]]");
 });
-
 
 test('Converts slice moves M', () => {
   const alg = "R' L";
@@ -48,7 +53,7 @@ test('Converts slice moves M', () => {
 test('Converts slice moves E', () => {
   const alg = "U D'";
   const converted = convertToSliceMoves(alg.split(' '));
-  expect(converted.join(' ')).toBe("E y");
+  expect(converted.join(' ')).toBe('E y');
 });
 
 test('Converts slice moves S', () => {
