@@ -2,7 +2,11 @@ import { Store, useStore } from '@tanstack/react-store';
 import { Alg } from 'cubing/alg';
 import { randomScrambleForEvent } from 'cubing/scramble';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
-import { GanCubeEvent, GanCubeMove } from 'gan-web-bluetooth';
+import {
+  GanCubeEvent,
+  GanCubeMove,
+  cubeTimestampLinearFit,
+} from 'gan-web-bluetooth';
 import { useEffect, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useStopwatch } from 'react-use-precision-timer';
@@ -100,6 +104,7 @@ async function processScrambleMove(ev: GanCubeMove) {
 
 const newScramble = async () => {
   const scramble = await randomScrambleForEvent('333');
+  console.log('New Scramble: ', scramble.toString());
   TimerStore.setState(state => ({
     ...state,
     originalScramble: scramble.toString(),
@@ -120,7 +125,8 @@ export const useCubeTimer = () => {
       processScrambleMove(event);
     });
 
-    setScrambleFromCubeState(TimerStore.state.originalScramble);
+    if (TimerStore.state.originalScramble)
+      setScrambleFromCubeState(TimerStore.state.originalScramble);
 
     return () => {
       subscription?.unsubscribe();
@@ -156,13 +162,20 @@ export const useCubeTimer = () => {
       move => !moveDetails.current.start.includes(move)
     );
 
+    const times = cubeTimestampLinearFit(diff);
     const solution = diff.map(move => move.move).join(' ');
 
     const algs = await extractAlgs(solution);
 
     console.log('Scramble:', TimerStore.state.originalScramble);
-    console.log(algs.join('\n'));
     console.log('Solution:', solution);
+    let last = times[0].cubeTimestamp;
+    algs.forEach(([alg, idx]) => {
+      const ms = times[idx].cubeTimestamp - last;
+      const time = (ms / 1000).toFixed(2);
+      console.log(alg, '// ' + time);
+      last = times[idx].cubeTimestamp;
+    });
 
     newScramble();
   };

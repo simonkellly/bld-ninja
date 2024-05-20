@@ -6,8 +6,9 @@ import { CubeStore, connect, reset } from '@/lib/smartCube';
 function CubeStatus() {
   const cube = useStore(CubeStore, state => state.cube);
 
-  const onClick = async () => {
+  const onClick = async (ev: React.MouseEvent<HTMLButtonElement>) => {
     connect();
+    ev.currentTarget.blur();
   };
 
   return (

@@ -8,19 +8,19 @@ import {
 test('Extract valid comm (EP)', async () => {
   const extracted = await extractAlgs("R U' R' D' R U2 R' D R U' R'");
   expect(extracted.length).toBe(1);
-  expect(extracted[0]).toBe("[R U': [R' D' R, U2]]");
+  expect(extracted[0][0]).toBe("[R U': [R' D' R, U2]]");
 });
 
 test('Extract valid comm (BG)', async () => {
   const extracted = await extractAlgs("D' R' D R U R' D' R U' D");
   expect(extracted.length).toBe(1);
-  expect(extracted[0]).toBe("[D': [R' D R, U]]");
+  expect(extracted[0][0]).toBe("[D': [R' D R, U]]");
 });
 
 test('Extract invalid comm', async () => {
   const extracted = await extractAlgs("R U' R' ");
   expect(extracted.length).toBe(1);
-  expect(extracted[0]).toBe("R U' R' // not found");
+  expect(extracted[0][0]).toBe("R U' R' // not found");
 });
 
 test('Converts slice moves and rotations (DO)', () => {
@@ -33,13 +33,13 @@ test('Converts slice moves and rotations (DO)', () => {
 test('Extract slice alg (FK)', async () => {
   const extracted = await extractAlgs("F' B L D L' R F' F' L R' D L' F B'");
   expect(extracted.length).toBe(1);
-  expect(extracted[0]).toBe("[S U L: [E', L2]]");
+  expect(extracted[0][0]).toBe("[S U L: [E', L2]]");
 });
 
 test('Extract slice alg (GJ) with double moves', async () => {
   const extracted = await extractAlgs("R' L F R' F' L R' D R D' L L R' R'");
   expect(extracted.length).toBe(1);
-  expect(extracted[0]).toBe("[M': [U R' U', M']]");
+  expect(extracted[0][0]).toBe("[M': [U R' U', M']]");
 });
 
 test('Extract slice alg (FK) with extra moves', async () => {
@@ -47,7 +47,7 @@ test('Extract slice alg (FK) with extra moves', async () => {
     "R U B D D' B' U' R' F' B L D L' R F' F' L R' D L' F B'"
   );
   expect(extracted.length).toBe(1);
-  expect(extracted[0]).toBe("[S U L: [E', L2]]");
+  expect(extracted[0][0]).toBe("[S U L: [E', L2]]");
 });
 
 test('Converts slice moves M', () => {

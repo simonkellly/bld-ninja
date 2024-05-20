@@ -254,16 +254,20 @@ export function simplify(alg: string) {
     .toString();
 }
 
-export async function extractAlgs(solution: string): Promise<string[]> {
+export async function extractAlgs(
+  solution: string
+): Promise<[string, number][]> {
   const moveSet = [...solution.split(' ')];
-  const comms: string[] = [];
+  const comms: [string, number][] = [];
 
   let moves = '';
   let count = 0;
 
   const puzzle = await cube3x3x3.kpuzzle();
 
+  let moveIdx = -1;
   while (moveSet.length > 0) {
+    moveIdx++;
     const move = moveSet.shift()!;
     moves += ' ' + move;
     if (count++ < 4 || moveSet.length === 0) continue;
@@ -277,8 +281,8 @@ export async function extractAlgs(solution: string): Promise<string[]> {
       continue;
 
     if (uncancelled.length > 0)
-      comms.push((moves + ' ' + uncancelled.alg + '').trim());
-    else comms.push((moves + ' ' + uncancelled.alg).trim());
+      comms.push([(moves + ' ' + uncancelled.alg + '').trim(), moveIdx]);
+    else comms.push([(moves + ' ' + uncancelled.alg).trim(), moveIdx]);
 
     count = uncancelled.length;
     // TODO: There might be a flaw in the logic....
@@ -286,13 +290,13 @@ export async function extractAlgs(solution: string): Promise<string[]> {
     moves = Alg.fromString(uncancelled.alg).invert().toString();
   }
 
-  if (moves.length > 0) comms.push(moves);
+  if (moves.length > 0) comms.push([moves, moveIdx]);
 
-  return comms.map(comm => {
+  return comms.map(val => {
+    const comm = val[0];
     const alg = simplify(
       removeRotations(convertToSliceMoves(simplify(comm).split(' '))).join(' ')
     );
-    console.log(alg);
     let foundComm = commutator.search({
       algorithm: alg,
       outerBracket: true,
@@ -305,7 +309,14 @@ export async function extractAlgs(solution: string): Promise<string[]> {
       })[0];
     }
 
-    if (foundComm.endsWith('.')) return simplify(comm.trim()) + ' // not found';
-    return foundComm.replaceAll(',', ', ').replaceAll(':', ': ');
+    if (foundComm.endsWith('.'))
+      return [simplify(comm.trim()) + ' // not found', val[1]] as [
+        string,
+        number,
+      ];
+    return [foundComm.replaceAll(',', ', ').replaceAll(':', ': '), val[1]] as [
+      string,
+      number,
+    ];
   });
 }

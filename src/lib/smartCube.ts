@@ -38,8 +38,16 @@ type CubeStoreType = {
 
 export const CubeStore = new Store({} as CubeStoreType);
 
+let last = 0;
+
 async function handleMoveEvent(event: GanCubeEvent) {
   if (event.type !== 'MOVE') return;
+
+  const diff = event.serial - last;
+  if (diff != 255 && diff != 1) {
+    console.log('Move:', event.serial, 'Last:', last);
+  }
+  last = event.serial;
 
   CubeStore.setState(state => {
     let lastMoves = state.lastMoves ?? [];
