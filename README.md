@@ -20,7 +20,18 @@ Check it out [here](https://simonkellly.github.io/bld-ninja/)
 - [ ] Algsheet importing and generation
 - [ ] Reconstruction export
 
-Initially it will likely only fully support the GAN 356i Carry 2 as I have one which I can use to test with.
+I can only really guarantee support the GAN 356i Carry 2 as I have one which I can use to test with.
+
+Theoretically the supported smart cubes (thanks to the [gan-web-bluetooth](https://github.com/afedotov/gan-web-bluetooth) library) are:
+- GAN Mini ui FreePlay
+- GAN12 ui
+- GAN12 ui FreePlay
+- GAN356 i 3
+- GAN356 i Carry
+- GAN356 i Carry 2
+- GAN356 i Carry S
+- MoYu AI 2023
+- Monster Go 3Ai
 
 ## Development
 
