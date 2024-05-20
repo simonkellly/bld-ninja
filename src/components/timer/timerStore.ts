@@ -168,14 +168,13 @@ export const useCubeTimer = () => {
     const algs = await extractAlgs(solution);
 
     console.log('Scramble:', TimerStore.state.originalScramble);
-    console.log('Solution:', solution);
     let last = times[0].cubeTimestamp;
-    algs.forEach(([alg, idx]) => {
+    console.table(algs.map(([alg, idx]) => {
       const ms = times[idx].cubeTimestamp - last;
       const time = (ms / 1000).toFixed(2);
-      console.log(alg, '// ' + time);
       last = times[idx].cubeTimestamp;
-    });
+      return [alg, time];
+    }));
 
     newScramble();
   };
