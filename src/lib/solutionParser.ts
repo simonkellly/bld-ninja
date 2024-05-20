@@ -226,7 +226,7 @@ function simplify(alg: string) {
     .experimentalSimplify({
       cancel: { puzzleSpecificModWrap: 'canonical-centered' },
       puzzleLoader: cube3x3x3,
-      depth: 5,
+      depth: 0,
     })
     .toString();
 }

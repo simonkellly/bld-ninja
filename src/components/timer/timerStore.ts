@@ -98,6 +98,11 @@ async function processScrambleMove(ev: GanCubeMove) {
   await setScrambleFromCubeState(ogScramble);
 }
 
+const newScramble = async () => {
+  const scramble = await randomScrambleForEvent('333');
+  await setScrambleFromCubeState(scramble.toString());
+};
+
 export const useCubeTimer = () => {
   const cube = useStore(CubeStore, state => state.cube);
 
@@ -119,11 +124,7 @@ export const useCubeTimer = () => {
   }, [cube, stopwatch]);
 
   useEffect(() => {
-    randomScrambleForEvent('333').then(async scramble => {
-      if (TimerStore.state.originalScramble) return;
-
-      await setScrambleFromCubeState(scramble.toString());
-    });
+    newScramble();
   }, []);
 
   const state = useRef<TimerState>(TimerState.Inactive);
@@ -153,21 +154,12 @@ export const useCubeTimer = () => {
 
     const solution = diff.map(move => move.move).join(' ');
 
-    const [newScramble, algs] = await Promise.all([
-      randomScrambleForEvent('333'),
-      extractAlgs(solution),
-    ]);
+    const algs = await extractAlgs(solution);
 
     console.log('Scramble:', TimerStore.state.originalScramble);
     console.log(algs.join('\n'));
 
-    const newScrambleAlg = newScramble.toString();
-    TimerStore.setState(state => ({
-      ...state,
-      scramble: newScrambleAlg,
-      originalScramble: newScrambleAlg,
-      scrambleIdx: 0,
-    }));
+    newScramble();
   };
 
   const pressSpaceBar = (up: boolean) => {
