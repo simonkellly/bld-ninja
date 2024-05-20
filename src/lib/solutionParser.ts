@@ -102,10 +102,15 @@ export function convertToSliceMoves(moves: string[]) {
     }
 
     const moveFace = move[0];
-    if (
-      moveFace != opposite[lastMove[0]] ||
-      move.length + lastMove.length != 3
-    ) {
+    const isOppositeFaces = moveFace == opposite[lastMove[0]];
+    const isBothTwo =
+      move.length == 2 &&
+      move[1] === '2' &&
+      lastMove.length == 2 &&
+      lastMove[1] === '2';
+    const isAltDirections = move.length + lastMove.length == 3;
+
+    if (!isOppositeFaces || !(isBothTwo || isAltDirections)) {
       lastMove = move;
       newMoves.push(move);
       return;
@@ -124,6 +129,11 @@ export function convertToSliceMoves(moves: string[]) {
       newMoves.push('x');
     }
 
+    if (lower == 'L2') {
+      newMoves.push('M2');
+      newMoves.push('x2');
+    }
+
     if (lower == 'B') {
       newMoves.push('S');
       newMoves.push("z'");
@@ -132,6 +142,10 @@ export function convertToSliceMoves(moves: string[]) {
     if (lower == "B'") {
       newMoves.push("S'");
       newMoves.push('z');
+    }
+    if (lower == 'B2') {
+      newMoves.push('S2');
+      newMoves.push('z2');
     }
 
     if (lower == 'D') {
@@ -142,6 +156,11 @@ export function convertToSliceMoves(moves: string[]) {
     if (lower == "D'") {
       newMoves.push('E');
       newMoves.push('y');
+    }
+
+    if (lower == 'D2') {
+      newMoves.push('E2');
+      newMoves.push('y2');
     }
 
     lastMove = null;
@@ -221,12 +240,15 @@ function uncancelTransformation(
   return null;
 }
 
-function simplify(alg: string) {
+export function simplify(alg: string) {
   return Alg.fromString(alg)
     .experimentalSimplify({
-      cancel: { puzzleSpecificModWrap: 'canonical-centered' },
+      cancel: {
+        puzzleSpecificModWrap: 'canonical-centered',
+        directional: 'any-direction',
+      },
       puzzleLoader: cube3x3x3,
-      depth: 0,
+      depth: 1,
     })
     .toString();
 }
@@ -266,10 +288,12 @@ export async function extractAlgs(solution: string): Promise<string[]> {
   if (moves.length > 0) comms.push(moves);
 
   return comms.map(comm => {
+    const alg = simplify(
+      removeRotations(convertToSliceMoves(simplify(comm).split(' '))).join(' ')
+    );
+    console.log(alg);
     let foundComm = commutator.search({
-      algorithm: simplify(
-        removeRotations(convertToSliceMoves(comm.split(' '))).join(' ')
-      ),
+      algorithm: alg,
       outerBracket: true,
     })[0];
 

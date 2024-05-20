@@ -36,12 +36,18 @@ test('Extract slice alg (FK)', async () => {
   expect(extracted[0]).toBe("[S U L: [E', L2]]");
 });
 
+test('Extract slice alg (GJ) with double moves', async () => {
+  const extracted = await extractAlgs("R' L F R' F' L R' D R D' L L R' R'");
+  expect(extracted.length).toBe(1);
+  expect(extracted[0]).toBe("[S U L: [E', L2]]");
+});
+
 test('Extract slice alg (FK) with extra moves', async () => {
   const extracted = await extractAlgs(
     "R U B D D' B' U' R' F' B L D L' R F' F' L R' D L' F B'"
   );
   expect(extracted.length).toBe(1);
-  expect(extracted[0]).toBe("[S U L: [E', L2]]");
+  expect(extracted[0]).toBe("[M': [U R' U', M']]");
 });
 
 test('Converts slice moves M', () => {
@@ -60,4 +66,10 @@ test('Converts slice moves S', () => {
   const alg = "F B'";
   const converted = convertToSliceMoves(alg.split(' '));
   expect(converted.join(' ')).toBe("S' z");
+});
+
+test('Converts double moves to slice moves', () => {
+  const alg = 'F2 B2';
+  const converted = convertToSliceMoves(alg.split(' '));
+  expect(converted.join(' ')).toBe('S2 z2');
 });

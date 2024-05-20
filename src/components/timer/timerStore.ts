@@ -46,7 +46,8 @@ async function setScrambleFromCubeState(originalScramble: Alg | string) {
     .applyAlg(scrambleAlg.invert())
     .applyAlg(solved.invert());
 
-  const customScramble = await experimentalSolve3x3x3IgnoringCenters(newPattern);
+  const customScramble =
+    await experimentalSolve3x3x3IgnoringCenters(newPattern);
   TimerStore.setState(state => ({
     ...state,
     scrambleAlg: scrambleAlg.toString(),
@@ -161,6 +162,7 @@ export const useCubeTimer = () => {
 
     console.log('Scramble:', TimerStore.state.originalScramble);
     console.log(algs.join('\n'));
+    console.log('Solution:', solution);
 
     newScramble();
   };
