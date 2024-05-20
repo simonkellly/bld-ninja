@@ -6,6 +6,7 @@ import commutator from './vendor/commutator';
 const POSSIBLE_MOVES = ['U', 'F', 'R', 'D', 'B', 'L', 'E', 'S', 'M'];
 const POSSIBLE_AMOUNTS = ['2', '', "'"];
 
+// Based on https://mzrg.com/rubik/rotations.shtml
 export function removeRotations(moves: string[]) {
   for (let moveIdx = moves.length - 1; moveIdx >= 0; moveIdx--) {
     const move = moves[moveIdx];
