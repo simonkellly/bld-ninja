@@ -1,5 +1,5 @@
 import { Alg } from 'cubing/alg';
-import type { KTransformation } from 'cubing/kpuzzle';
+import type { KPuzzle, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import commutator from './vendor/commutator';
 
@@ -76,6 +76,51 @@ function applyRotation(rotation: string, move: string) {
   }
 
   return result;
+}
+
+function fixSlicesForComm(alg: Alg, puzzle: KPuzzle) {
+  const transformation = puzzle.algToTransformation(alg);
+  const centerPermutations = transformation.transformationData['CENTERS'].permutation;
+
+  let neededMove: [string, string] | undefined;
+  if (centerPermutations[0] == 0 && centerPermutations[5] == 5) {
+    if (centerPermutations[1] == 4) neededMove = ["U'", "D"];
+    if (centerPermutations[1] == 2) neededMove = ["U", "D'"];
+    if (centerPermutations[1] == 3) neededMove = ["U2", "D2"];
+  }
+
+  if (centerPermutations[2] == 2 && centerPermutations[4] == 4) {
+    if (centerPermutations[0] == 1) neededMove = ["F", "B'"];
+    if (centerPermutations[0] == 3) neededMove = ["F", "B"];
+    if (centerPermutations[0] == 5) neededMove = ["F2", "B2"];
+  }
+
+  if (centerPermutations[1] == 1 && centerPermutations[3] == 3) {
+    if (centerPermutations[0] == 4) neededMove = ["L", "R'"];
+    if (centerPermutations[0] == 2) neededMove = ["L'", "R"];
+    if (centerPermutations[0] == 5) neededMove = ["L2", "R2"];
+  }
+
+  if (!neededMove) return alg.toString().split(' ');
+
+  const moves = alg.toString().split(' ');
+
+  let newMoves: string[] | undefined;
+  for (let i = moves.length - 1; i >= 0; i--) {
+    const move = moves[i];
+    const isFirst = move[0] == neededMove[0];
+    const isSecond = move[0] == neededMove[1];
+    if (isFirst || isSecond) {
+      const altMove = isFirst ? neededMove[1] : neededMove[0];
+      const oppositeMove = altMove.length == 1 ? altMove + "'" : altMove[1] == '2' ? altMove : altMove[0];
+      newMoves = [...moves.slice(0, i), oppositeMove, altMove, ...moves.slice(i)];
+      break;
+    }
+  }
+
+  if (!newMoves) return moves;
+
+  return removeRotations(convertToSliceMoves(newMoves));
 }
 
 export function convertToSliceMoves(moves: string[]) {
@@ -170,7 +215,7 @@ export function convertToSliceMoves(moves: string[]) {
   return newMoves;
 }
 
-function checkTransformationIs3Cycle(transformation: KTransformation): boolean {
+function checkTransformationIs3Cycle(transformation: KTransformation): [isEdge: boolean, isCorner: boolean] {
   const corners = transformation.transformationData['CORNERS'];
   const edges = transformation.transformationData['EDGES'];
 
@@ -179,7 +224,7 @@ function checkTransformationIs3Cycle(transformation: KTransformation): boolean {
     const positionMatches = corners.permutation[i] == i;
     const orientationMatches = corners.orientationDelta[i] == 0;
 
-    if (positionMatches && !orientationMatches) return false;
+    if (positionMatches && !orientationMatches) return [false, false];
     if (positionMatches && orientationMatches) cornerCount++;
   }
 
@@ -188,14 +233,11 @@ function checkTransformationIs3Cycle(transformation: KTransformation): boolean {
     const positionMatches = edges.permutation[i] == i;
     const orientationMatches = edges.orientationDelta[i] == 0;
 
-    if (positionMatches && !orientationMatches) return false;
+    if (positionMatches && !orientationMatches) return [false, false];
     if (positionMatches && orientationMatches) edgeCount++;
   }
 
-  return (
-    (cornerCount == 8 && edgeCount == 9) ||
-    (cornerCount == 5 && edgeCount == 12)
-  );
+  return [(cornerCount == 8 && edgeCount == 9), (cornerCount == 5 && edgeCount == 12)];
 }
 
 function uncancelTransformation(
@@ -203,11 +245,16 @@ function uncancelTransformation(
   maxLength: number
 ): null | {
   alg: string;
+  isEdge: boolean;
+  isCorner: boolean;
   length: number;
 } {
-  if (checkTransformationIs3Cycle(transformation)) {
+  const initialCheck = checkTransformationIs3Cycle(transformation);
+  if (initialCheck[0] || initialCheck[1]) {
     return {
       alg: '',
+      isEdge: initialCheck[0],
+      isCorner: initialCheck[1],
       length: 0,
     };
   }
@@ -222,9 +269,12 @@ function uncancelTransformation(
       for (const amount of POSSIBLE_AMOUNTS) {
         const newAlg = `${alg} ${move}${amount}`;
         const newTransformation = transformation.applyAlg(`${move}${amount}`);
-        if (checkTransformationIs3Cycle(newTransformation)) {
+        const check = checkTransformationIs3Cycle(newTransformation);
+        if (check[0] || check[1]) {
           return {
             alg: newAlg.trimStart(),
+            isEdge: check[0],
+            isCorner: check[1],
             length: depth,
           };
         }
@@ -250,15 +300,13 @@ export function simplify(alg: string) {
       },
       puzzleLoader: cube3x3x3,
       depth: 1,
-    })
-    .toString();
+    });
 }
 
 export async function extractAlgs(
-  solution: string
+  moveSet: string[]
 ): Promise<[string, number][]> {
-  const moveSet = [...solution.split(' ')];
-  const comms: [string, number][] = [];
+  const comms: [string, number, boolean, boolean][] = [];
 
   let moves = '';
   let count = 0;
@@ -280,9 +328,7 @@ export async function extractAlgs(
     if (uncancelled.length > 0 && moveSet[0][0] === uncancelled.alg[0])
       continue;
 
-    if (uncancelled.length > 0)
-      comms.push([(moves + ' ' + uncancelled.alg + '').trim(), moveIdx]);
-    else comms.push([(moves + ' ' + uncancelled.alg).trim(), moveIdx]);
+    comms.push([(moves + ' ' + uncancelled.alg).trim(), moveIdx, uncancelled.isEdge, uncancelled.isCorner]);
 
     count = uncancelled.length;
     // TODO: There might be a flaw in the logic....
@@ -290,30 +336,50 @@ export async function extractAlgs(
     moves = Alg.fromString(uncancelled.alg).invert().toString();
   }
 
-  if (moves.length > 0) comms.push([moves, moveIdx]);
+  if (moves.length > 0) {
+    const [isEdge, isCorner] = checkTransformationIs3Cycle(puzzle.algToTransformation(moves));
+    comms.push([moves, moveIdx, isEdge, isCorner]);
+  }
 
   return comms.map(val => {
     const comm = val[0];
-    const alg = simplify(
-      removeRotations(convertToSliceMoves(simplify(comm).split(' '))).join(' ')
-    );
-    let foundComm = commutator.search({
-      algorithm: alg,
-      outerBracket: true,
-    })[0];
 
-    if (foundComm.endsWith('.')) {
+    const simplifiedComm = simplify(comm);
+    let foundComm: string | undefined;
+
+    const isEdgeComm = val[2];
+    if (isEdgeComm) {
+      const slicesWithRotations = convertToSliceMoves(simplifiedComm.toString().split(' '));
+      const slices = removeRotations(slicesWithRotations);
+      const fixedAlg = fixSlicesForComm(new Alg(slices.join(' ')), puzzle);
+      foundComm = commutator.search({
+        algorithm: simplify(fixedAlg.join(' ')).toString(),
+        outerBracket: true,
+      })[0];
+    }
+
+    if (!foundComm || foundComm.endsWith('.')) {
+      foundComm = commutator.search({
+        algorithm: simplify(comm).toString(),
+        outerBracket: true,
+      })[0];
+    }
+
+    if (!foundComm || foundComm.endsWith('.')) {
       foundComm = commutator.search({
         algorithm: comm,
         outerBracket: true,
       })[0];
     }
 
-    if (foundComm.endsWith('.'))
+
+    if (foundComm.endsWith('.')) {
       return [simplify(comm.trim()) + ' // not found', val[1]] as [
         string,
         number,
       ];
+    }
+
     return [foundComm.replaceAll(',', ', ').replaceAll(':', ': '), val[1]] as [
       string,
       number,

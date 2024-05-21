@@ -40,40 +40,46 @@ describe("Slice Moves", () => {
 
 describe("Extract Comms", () => {
   test('Extract valid comm (EP)', async () => {
-    const extracted = await extractAlgs("R U' R' D' R U2 R' D R U' R'");
+    const extracted = await extractAlgs("R U' R' D' R U2 R' D R U' R'".split(' '));
     expect(extracted.length).toBe(1);
     expect(extracted[0][0]).toBe("[R U': [R' D' R, U2]]");
   });
   
   test('Extract valid comm (BG)', async () => {
-    const extracted = await extractAlgs("D' R' D R U R' D' R U' D");
+    const extracted = await extractAlgs("D' R' D R U R' D' R U' D".split(' '));
     expect(extracted.length).toBe(1);
     expect(extracted[0][0]).toBe("[D': [R' D R, U]]");
   });
   
   test('Extract invalid comm', async () => {
-    const extracted = await extractAlgs("R U' R'");
+    const extracted = await extractAlgs("R U' R'".split(' '));
     expect(extracted.length).toBe(1);
     expect(extracted[0][0]).toBe("R U' R' // not found");
   });
 
   test('Extract slice alg (FK)', async () => {
-    const extracted = await extractAlgs("F' B L D L' R F' F' L R' D L' F B'");
+    const extracted = await extractAlgs("F' B L D L' R F' F' L R' D L' F B'".split(' '));
     expect(extracted.length).toBe(1);
     expect(extracted[0][0]).toBe("[S U L: [E', L2]]");
   });
   
   test('Extract slice alg (GJ) with double moves', async () => {
-    const extracted = await extractAlgs("R' L F R' F' L R' D R D' L L R' R'");
+    const extracted = await extractAlgs("R' L F R' F' L R' D R D' L L R' R'".split(' '));
     expect(extracted.length).toBe(1);
     expect(extracted[0][0]).toBe("[M': [U R' U', M']]");
   });
   
   test('Extract slice alg (FK) with extra moves', async () => {
     const extracted = await extractAlgs(
-      "R U B D D' B' U' R' F' B L D L' R F' F' L R' D L' F B'"
+      "R U B D D' B' U' R' F' B L D L' R F' F' L R' D L' F B'".split(' ')
     );
     expect(extracted.length).toBe(1);
     expect(extracted[0][0]).toBe("[S U L: [E', L2]]");
   });
+
+  test('Extract slice alg (RI) with wide move canceling', async () => {
+    const extracted = await extractAlgs("U' R L' B' R' B F' U B U' F B' L U".split(' '));
+    expect(extracted.length).toBe(1);
+    expect(extracted[0][0]).toBe("[U' M: [U', R' E R]]");
+  })
 });
