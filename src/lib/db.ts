@@ -14,7 +14,7 @@ export class MySubClassedDexie extends Dexie {
   constructor() {
     super('myDatabase');
     this.version(1).stores({
-      friends: '++id, name, age' // Primary key and indexed props
+      friends: '++id, name, age', // Primary key and indexed props
     });
   }
 }

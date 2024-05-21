@@ -1,15 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useStore } from '@tanstack/react-store';
+import { Copy } from 'lucide-react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { Timer, TimerRenderer } from 'react-use-precision-timer';
 import BTCubeDisplay from '@/components/cubing/btCubeDisplay';
 import DrawScramble from '@/components/timer/drawScramble';
 import { TimerStore, useCubeTimer } from '@/components/timer/timerStore';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { CubeStore } from '@/lib/smartCube';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Copy } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/dashboard')({
   component: Dashboard,
@@ -26,7 +30,7 @@ function ScrambleDisplay() {
 
   const copyScramble = () => {
     window.navigator.clipboard.writeText(TimerStore.state.originalScramble);
-  }
+  };
 
   // TODO: Make this not affect timer positioning
   return (
@@ -49,8 +53,7 @@ function ScrambleDisplay() {
                 {move}
               </div>
             );
-          })}
-          {' '}
+          })}{' '}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button size="icon" variant="outline" onClick={copyScramble}>

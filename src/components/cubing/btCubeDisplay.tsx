@@ -1,11 +1,11 @@
 import { useStore } from '@tanstack/react-store';
+import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { TwistyPlayer } from 'cubing/twisty';
+import { GanCubeMove } from 'gan-web-bluetooth';
 import { useEffect, useRef, useState } from 'react';
 import { CubeStore } from '@/lib/smartCube';
 import { cn } from '@/lib/utils';
 import cubeImage from '/cube-colors.png';
-import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
-import { GanCubeMove } from 'gan-web-bluetooth';
 
 export default function BTCubeDisplay({ className }: { className: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,23 +48,25 @@ export default function BTCubeDisplay({ className }: { className: string }) {
       moves.push(ev);
     });
 
-    experimentalSolve3x3x3IgnoringCenters(CubeStore.state.kpattern!).then(solution => {
-      player.alg = solution.invert();
+    experimentalSolve3x3x3IgnoringCenters(CubeStore.state.kpattern!).then(
+      solution => {
+        player.alg = solution.invert();
 
-      sub.unsubscribe();
-      moves.forEach(move => {
-        player.experimentalAddMove(move.move);
-      });
+        sub.unsubscribe();
+        moves.forEach(move => {
+          player.experimentalAddMove(move.move);
+        });
 
-      sub = cube.events$.subscribe(ev => {
-        if (ev.type !== 'MOVE') return;
-        player.experimentalAddMove(ev.move);
-      });
-    });
+        sub = cube.events$.subscribe(ev => {
+          if (ev.type !== 'MOVE') return;
+          player.experimentalAddMove(ev.move);
+        });
+      }
+    );
 
     return () => {
       sub.unsubscribe();
-    }
+    };
   }, [player, startingState, cube]);
 
   const classes = cn('flex', className);
