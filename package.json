@@ -38,6 +38,8 @@
     "cmdk": "^1.0.0",
     "cubing": "^0.48.4",
     "date-fns": "^3.6.0",
+    "dexie": "^4.0.4",
+    "dexie-react-hooks": "^1.1.7",
     "embla-carousel-react": "^8.0.4",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
