@@ -2,11 +2,14 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useStore } from '@tanstack/react-store';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { Timer, TimerRenderer } from 'react-use-precision-timer';
-import Twisty from '@/components/cubing/twisty';
+import BTCubeDisplay from '@/components/cubing/btCubeDisplay';
 import DrawScramble from '@/components/timer/drawScramble';
 import { TimerStore, useCubeTimer } from '@/components/timer/timerStore';
 import { CubeStore } from '@/lib/smartCube';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Copy } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/dashboard')({
   component: Dashboard,
@@ -21,27 +24,44 @@ function ScrambleDisplay() {
   const scramble = useStore(TimerStore, state => state.scramble);
   const scrambleIndex = useStore(TimerStore, state => state.scrambleIdx);
 
+  const copyScramble = () => {
+    window.navigator.clipboard.writeText(TimerStore.state.originalScramble);
+  }
+
   // TODO: Make this not affect timer positioning
   return (
     <h2 className="text-3xl font-semibold text-center p-4 flex-none select-none">
       {scramble.length > 0 ? (
-        scramble.split(' ').map((move, i) => {
-          const className = cn(
-            'inline-block px-2 mx-1 py-1 text-white rounded-lg',
-            {
-              'bg-muted': i === scrambleIndex,
-              'text-muted': i < scrambleIndex,
-            }
-          );
-          return (
-            <div
-              key={scramble.length + move + 'Move' + i}
-              className={className}
-            >
-              {move}
-            </div>
-          );
-        })
+        <>
+          {scramble.split(' ').map((move, i) => {
+            const className = cn(
+              'inline-block px-2 mx-1 py-1 text-white rounded-lg',
+              {
+                'bg-muted': i === scrambleIndex,
+                'text-muted': i < scrambleIndex,
+              }
+            );
+            return (
+              <div
+                key={scramble.length + move + 'Move' + i}
+                className={className}
+              >
+                {move}
+              </div>
+            );
+          })}
+          {' '}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="icon" variant="outline" onClick={copyScramble}>
+                <Copy />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Copy scramble</p>
+            </TooltipContent>
+          </Tooltip>
+        </>
       ) : (
         <></>
       )}
@@ -79,7 +99,7 @@ function Dashboard() {
     >
       <ScrambleDisplay />
       <div className="flex grow h-full items-center">
-        <h1 className="text-9xl font-extrabold text-white text-center m-auto font-mono py-8">
+        <h1 className="text-9xl font-extrabold text-white text-center m-auto font-mono py-8 select-none">
           <TimerRenderer
             timer={cubeTimer.stopwatch}
             renderRate={30}
@@ -92,7 +112,7 @@ function Dashboard() {
           <legend className="-ml-1 px-1 text-sm font-medium">
             <CubeName />
           </legend>
-          <Twisty className="w-full h-64 m-auto" />
+          <BTCubeDisplay className="w-full h-64 m-auto" />
         </fieldset>
         <fieldset className="rounded-lg border px-4 hover:bg-muted col-span-2">
           <legend className="-ml-1 px-1 text-sm font-medium">Results</legend>

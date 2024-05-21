@@ -7,7 +7,7 @@ import cubeImage from '/cube-colors.png';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { GanCubeMove } from 'gan-web-bluetooth';
 
-export default function Twisty({ className }: { className: string }) {
+export default function BTCubeDisplay({ className }: { className: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
 
@@ -24,7 +24,7 @@ export default function Twisty({ className }: { className: string }) {
       controlPanel: 'none',
       cameraLatitude: 25,
       cameraLongitude: 25,
-      tempoScale: 2,
+      tempoScale: 4,
       experimentalStickering: 'picture',
       experimentalSprite: cubeImage,
     });

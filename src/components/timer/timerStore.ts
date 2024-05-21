@@ -27,7 +27,7 @@ export const TimerStore = new Store({
   solutionMoves: [],
 });
 
-async function setScrambleFromCubeState(originalScramble: Alg | string) {
+async function updateScrambleFromCubeState(originalScramble: Alg | string) {
   const ogScrambleStr = originalScramble.toString();
   if (!CubeStore.state.kpattern) {
     TimerStore.setState(state => ({
@@ -60,16 +60,16 @@ async function setScrambleFromCubeState(originalScramble: Alg | string) {
   }));
 }
 
-async function processScrambleMove(ev: GanCubeMove) {
+async function processScramblingMove(ev: GanCubeMove) {
   const ogScramble = TimerStore.state.originalScramble;
   const scrambleMoves = TimerStore.state.scramble.split(' ');
   if (scrambleMoves.length === 0) {
-    if (ogScramble.length > 0) await setScrambleFromCubeState(ogScramble);
+    if (ogScramble.length > 0) await updateScrambleFromCubeState(ogScramble);
     return;
   }
 
   if (scrambleMoves.length === TimerStore.state.scrambleIdx) {
-    await setScrambleFromCubeState(ogScramble);
+    await updateScrambleFromCubeState(ogScramble);
     return;
   }
 
@@ -99,7 +99,7 @@ async function processScrambleMove(ev: GanCubeMove) {
     return;
   }
 
-  await setScrambleFromCubeState(ogScramble);
+  await updateScrambleFromCubeState(ogScramble);
 }
 
 const newScramble = async () => {
@@ -109,12 +109,11 @@ const newScramble = async () => {
     ...state,
     originalScramble: scramble.toString(),
   }));
-  await setScrambleFromCubeState(scramble.toString());
+  await updateScrambleFromCubeState(scramble.toString());
 };
 
 export const useCubeTimer = () => {
   const cube = useStore(CubeStore, state => state.cube);
-
   const stopwatch = useStopwatch();
 
   useEffect(() => {
@@ -122,11 +121,11 @@ export const useCubeTimer = () => {
       if (event.type !== 'MOVE') return;
 
       if (stopwatch.isRunning()) return;
-      processScrambleMove(event);
+      processScramblingMove(event);
     });
 
     if (TimerStore.state.originalScramble)
-      setScrambleFromCubeState(TimerStore.state.originalScramble);
+      updateScrambleFromCubeState(TimerStore.state.originalScramble);
 
     return () => {
       subscription?.unsubscribe();
@@ -168,7 +167,7 @@ export const useCubeTimer = () => {
     const algs = await extractAlgs(solution);
 
     console.log('Scramble:', TimerStore.state.originalScramble);
-    let last = times[0].cubeTimestamp;
+    let last = times.length > 0 ? times[0].cubeTimestamp : 0;
     console.table(algs.map(([alg, idx]) => {
       const ms = times[idx].cubeTimestamp - last;
       const time = (ms / 1000).toFixed(2);
@@ -179,7 +178,7 @@ export const useCubeTimer = () => {
     newScramble();
   };
 
-  const pressSpaceBar = (up: boolean) => {
+  const updateStateFromSpaceBar = (up: boolean) => {
     const currentState = state.current;
     if (currentState === TimerState.Inactive) {
       if (!up) {
@@ -205,11 +204,11 @@ export const useCubeTimer = () => {
     }
   };
 
-  useHotkeys(' ', () => pressSpaceBar(false), { keyup: false });
-  useHotkeys(' ', () => pressSpaceBar(true), { keyup: true });
+  useHotkeys(' ', () => updateStateFromSpaceBar(false), { keyup: false });
+  useHotkeys(' ', () => updateStateFromSpaceBar(true), { keyup: true });
 
   return {
     stopwatch,
-    pressSpaceBar,
+    pressSpaceBar: updateStateFromSpaceBar,
   };
 };
