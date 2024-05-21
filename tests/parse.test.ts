@@ -18,7 +18,7 @@ test('Extract valid comm (BG)', async () => {
 });
 
 test('Extract invalid comm', async () => {
-  const extracted = await extractAlgs("R U' R' ");
+  const extracted = await extractAlgs("R U' R'");
   expect(extracted.length).toBe(1);
   expect(extracted[0][0]).toBe("R U' R' // not found");
 });
