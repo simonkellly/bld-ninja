@@ -162,7 +162,9 @@ export const useCubeTimer = () => {
     );
 
     const times = cubeTimestampLinearFit(diff);
-    const solution = diff.map(move => move.move).join(' ');
+    const solution = diff.map(move => move.move);
+
+    console.log('Solution:', solution.join(' '));
 
     const algs = await extractAlgs(solution);
 
