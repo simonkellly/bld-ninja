@@ -93,9 +93,7 @@ describe('Extract Comms', () => {
   });
 
   test('Extract slice alg (IM) with wide move canceling', async () => {
-    const extracted = await extractAlgs(
-      "R U R' U' R' L F R F' L'".split(' ')
-    );
+    const extracted = await extractAlgs("R U R' U' R' L F R F' L'".split(' '));
     expect(extracted.length).toBe(1);
     expect(extracted[0][0]).toBe("[R: [U R' U', M']]");
   });

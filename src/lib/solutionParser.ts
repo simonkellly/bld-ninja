@@ -226,7 +226,6 @@ export function convertToSliceMoves(moves: string[]) {
   return newMoves;
 }
 
-
 function checkTransformationIsAlg(
   transformation: KTransformation
 ): [isEdge3Cycle: boolean, isCorner3Cycle: boolean, is2E2C: boolean] {
@@ -331,7 +330,7 @@ export async function extractAlgs(
     moveIdx: number,
     isEdge: boolean,
     isCorner: boolean,
-    is2E2C: boolean
+    is2E2C: boolean,
   ][] = [];
 
   let moves = '';
@@ -383,10 +382,7 @@ export async function extractAlgs(
 
     const is2E2C = val[4];
     if (is2E2C) {
-      return [simplifiedComm.toString(), val[1]] as [
-        string,
-        number,
-      ];
+      return [simplifiedComm.toString(), val[1]] as [string, number];
     }
 
     const isEdgeComm = val[2];
@@ -429,4 +425,3 @@ export async function extractAlgs(
     ];
   });
 }
-
