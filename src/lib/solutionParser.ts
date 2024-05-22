@@ -329,6 +329,7 @@ export function simplify(alg: string) {
   });
 }
 
+// TODO: Handle AUF +2
 export async function extractAlgs(
   moveSet: string[]
 ): Promise<[string, number][]> {
@@ -385,17 +386,23 @@ export async function extractAlgs(
 
   return comms.map(val => {
     const comm = val[0];
+    const moveIdx = val[1];
+    const isEdgeComm = val[2];
+    const isCornerComm = val[3];
+    const is2E2C = val[4];
+    const isTwist = val[5];
+
+    const isAnyAlg = isEdgeComm || isCornerComm || isTwist || is2E2C;
+    const comment = " // " + (!isAnyAlg ? ' // ?' : (isEdgeComm ? "Edge" : isCornerComm ? "Corner" : isTwist ? "Twist/Flip" : "2E2C"));
 
     const simplifiedComm = simplify(comm);
     let foundComm: string | undefined;
 
-    const is2E2C = val[4];
     if (is2E2C) {
-      return [simplifiedComm.toString(), val[1]] as [string, number];
+      return [simplifiedComm.toString() + comment, moveIdx] as [string, number];
     }
 
-    const isEdgeComm = val[2];
-    const isTwist = val[5];
+    
     if (isEdgeComm || isTwist) {
       const slicesWithRotations = convertToSliceMoves(
         simplifiedComm.toString().split(' ')
@@ -406,6 +413,14 @@ export async function extractAlgs(
         algorithm: simplify(fixedAlg.join(' ')).toString(),
         outerBracket: true,
       })[0];
+    }
+
+
+    if (!isAnyAlg) {
+      return [simplify(comm.trim()) + comment, moveIdx] as [
+        string,
+        number,
+      ];
     }
 
     if (!foundComm || foundComm.endsWith('.')) {
@@ -423,13 +438,13 @@ export async function extractAlgs(
     }
 
     if (foundComm.endsWith('.')) {
-      return [simplify(comm.trim()) + ' // not found', val[1]] as [
+      return [simplify(comm.trim()) + comment + ' (comm not found)', moveIdx] as [
         string,
         number,
       ];
     }
 
-    return [foundComm.replaceAll(',', ', ').replaceAll(':', ': '), val[1]] as [
+    return [foundComm.replaceAll(',', ', ').replaceAll(':', ': ') + comment, moveIdx] as [
       string,
       number,
     ];

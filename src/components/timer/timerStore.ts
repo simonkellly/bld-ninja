@@ -104,7 +104,6 @@ async function processScramblingMove(ev: GanCubeMove) {
 
 const newScramble = async () => {
   const scramble = await randomScrambleForEvent('333');
-  console.log('New Scramble: ', scramble.toString());
   TimerStore.setState(state => ({
     ...state,
     originalScramble: scramble.toString(),
