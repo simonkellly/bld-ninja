@@ -57,7 +57,7 @@ describe('Extract Comms', () => {
   test('Extract invalid comm', async () => {
     const extracted = await extractAlgs("R U' R'".split(' '));
     expect(extracted.length).toBe(1);
-    expect(extracted[0][0]).toBe("R U' R' // not found");
+    expect(extracted[0][0]).toBe("R U' R'");
   });
 
   test('Extract slice alg (FK)', async () => {

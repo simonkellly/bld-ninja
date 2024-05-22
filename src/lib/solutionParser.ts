@@ -348,7 +348,7 @@ export function simplify(alg: string) {
 // TODO: Handle AUF +2
 export async function extractAlgs(
   moveSet: string[]
-): Promise<[string, number][]> {
+): Promise<[string, string, number][]> {
   const comms: [
     alg: string,
     moveIdx: number,
@@ -425,7 +425,7 @@ export async function extractAlgs(
     let foundComm: string | undefined;
 
     if (is2E2C) {
-      return [simplifiedComm.toString() + comment, moveIdx] as [string, number];
+      return [simplifiedComm.toString(), comment, moveIdx];
     }
 
     if (isEdgeComm || isTwist) {
@@ -441,7 +441,7 @@ export async function extractAlgs(
     }
 
     if (!isAnyAlg) {
-      return [simplify(comm.trim()) + comment, moveIdx] as [string, number];
+      return [simplify(comm.trim()).toString(), comment, moveIdx];
     }
 
     if (!foundComm || foundComm.endsWith('.')) {
@@ -460,14 +460,16 @@ export async function extractAlgs(
 
     if (foundComm.endsWith('.')) {
       return [
-        simplify(comm.trim()) + comment + ' (comm not found)',
+        simplify(comm.trim()).toString(),
+        comment + ' (comm not found)',
         moveIdx,
-      ] as [string, number];
+      ];
     }
 
     return [
-      foundComm.replaceAll(',', ', ').replaceAll(':', ': ') + comment,
+      foundComm.replaceAll(',', ', ').replaceAll(':', ': '),
+      comment,
       moveIdx,
-    ] as [string, number];
+    ];
   });
 }

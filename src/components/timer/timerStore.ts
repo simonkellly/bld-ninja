@@ -170,11 +170,11 @@ export const useCubeTimer = () => {
     console.log('Scramble:', TimerStore.state.originalScramble);
     let last = times.length > 0 ? times[0].cubeTimestamp : 0;
     console.table(
-      algs.map(([alg, idx]) => {
+      algs.map(([alg, comment, idx]) => {
         const ms = times[idx].cubeTimestamp - last;
         const time = (ms / 1000).toFixed(2);
         last = times[idx].cubeTimestamp;
-        return [alg, time];
+        return [alg + comment, time];
       })
     );
 
