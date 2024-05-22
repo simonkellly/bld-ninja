@@ -1,5 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { Plus, Trash2, X } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import {
   Dialog,
@@ -13,10 +14,9 @@ import {
 import { Solve, db } from '@/lib/db';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Plus, Trash2, X } from 'lucide-react';
-import DrawScramble from './drawScramble';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
+import DrawScramble from './drawScramble';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
@@ -32,7 +32,15 @@ function convertTimeToText(time: number) {
   return res;
 }
 
-function SolveDialog({ solve, idx, close }: { solve: Solve, idx: number, close: (open: boolean) => void }) {
+function SolveDialog({
+  solve,
+  idx,
+  close,
+}: {
+  solve: Solve;
+  idx: number;
+  close: (open: boolean) => void;
+}) {
   return (
     <Dialog open={true} onOpenChange={close}>
       <DialogContent className="sm:max-w-[425px]">
@@ -42,24 +50,30 @@ function SolveDialog({ solve, idx, close }: { solve: Solve, idx: number, close: 
             {new Date(solve.timeStamp).toLocaleString()}
           </DialogDescription>
         </DialogHeader>
-        <h2 className='text-3xl font-bold'>{convertTimeToText(solve.time)}</h2>
-        <h2 className='text-l font-bold'>{solve.scramble}</h2>
+        <h2 className="text-3xl font-bold">{convertTimeToText(solve.time)}</h2>
+        <h2 className="text-l font-bold">{solve.scramble}</h2>
         <div className="flex">
-        <DrawScramble scramble={solve.scramble} className='w-full h-32 mx-auto' />
-        <DrawScramble scramble={solve.scramble + ' ' + solve.solution} className='w-full h-32 mx-auto' />
+          <DrawScramble
+            scramble={solve.scramble}
+            className="w-full h-32 mx-auto"
+          />
+          <DrawScramble
+            scramble={solve.scramble + ' ' + solve.solution}
+            className="w-full h-32 mx-auto"
+          />
         </div>
-        <ul className='rounded-md border p-2'>
+        <ul className="rounded-md border p-2">
           <li className="font-medium">Algs in solve:</li>
-          <ScrollArea className='h-64'>
+          <ScrollArea className="h-64">
             {solve.parsed.map((alg, i) => (
-              <li key={i + " " + alg}>
-                {alg}
-              </li>
+              <li key={i + ' ' + alg}>{alg}</li>
             ))}
           </ScrollArea>
         </ul>
         <DialogFooter>
-          <Button variant="destructive" type="submit">Delete</Button>
+          <Button variant="destructive" type="submit">
+            Delete
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -72,7 +86,7 @@ export default function TimeList({ className }: { className: string }) {
   const data = useLiveQuery(() => db.solves.reverse().toArray());
 
   const fakeFullData = useMemo(
-    () => Array.from({ length: 5 }, () => data ?? []).flat(),
+    () => Array.from({ length: 1 }, () => data ?? []).flat(),
     [data]
   );
 
@@ -139,7 +153,9 @@ export default function TimeList({ className }: { className: string }) {
                 onClick={() => setSelectedSolve(item.index)}
               >
                 <div className="text-gray-500 my-auto">
-                  <pre>{reverseIdx.toString().padStart(padAmountForIdx, ' ')}.</pre>
+                  <pre>
+                    {reverseIdx.toString().padStart(padAmountForIdx, ' ')}.
+                  </pre>
                 </div>
                 <div className="text-right px-1 my-auto">
                   <pre>{timeText.padStart(7, ' ')}</pre>
@@ -148,22 +164,13 @@ export default function TimeList({ className }: { className: string }) {
                   <pre>{mo3.padStart(7, ' ')}</pre>
                 </div>
                 <div className="text-right px-1 grow">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                  >
+                  <Button variant="ghost" size="sm">
                     <X className="size-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                  >
+                  <Button variant="ghost" size="sm">
                     <Plus className="size-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                  >
+                  <Button variant="ghost" size="sm">
                     <Trash2 className="size-4" />
                   </Button>
                 </div>
@@ -176,7 +183,7 @@ export default function TimeList({ className }: { className: string }) {
         <SolveDialog
           solve={fakeFullData[selectedSolve]}
           idx={fakeFullData.length - 1 - selectedSolve}
-          close={(open) => setSelectedSolve(open ? selectedSolve : null)}
+          close={open => setSelectedSolve(open ? selectedSolve : null)}
         />
       )}
     </div>
