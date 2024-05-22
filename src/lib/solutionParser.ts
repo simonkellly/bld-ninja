@@ -226,34 +226,38 @@ export function convertToSliceMoves(moves: string[]) {
   return newMoves;
 }
 
-function checkTransformationIsAlg(
+export function checkTransformationIsAlg(
   transformation: KTransformation
-): [isEdge3Cycle: boolean, isCorner3Cycle: boolean, is2E2C: boolean] {
+): [isEdge3Cycle: boolean, isCorner3Cycle: boolean, is2E2C: boolean, isTwist: boolean] {
   const corners = transformation.transformationData['CORNERS'];
   const edges = transformation.transformationData['EDGES'];
 
   let cornerCount = 0;
+  let cornerTwist = 0;
   for (let i = 0; i < 8; i++) {
     const positionMatches = corners.permutation[i] == i;
     const orientationMatches = corners.orientationDelta[i] == 0;
 
-    if (positionMatches && !orientationMatches) return [false, false, false];
+    if (positionMatches && !orientationMatches) cornerTwist++;
     if (positionMatches && orientationMatches) cornerCount++;
   }
 
   let edgeCount = 0;
+  let edgeFlip = 0;
   for (let i = 0; i < 12; i++) {
     const positionMatches = edges.permutation[i] == i;
     const orientationMatches = edges.orientationDelta[i] == 0;
 
-    if (positionMatches && !orientationMatches) return [false, false, false];
+    if (positionMatches && !orientationMatches) edgeFlip++;
     if (positionMatches && orientationMatches) edgeCount++;
   }
 
   return [
-    cornerCount == 8 && edgeCount == 9,
-    cornerCount == 5 && edgeCount == 12,
-    cornerCount == 6 && edgeCount == 10,
+    cornerCount == 8 && edgeCount == 9 && cornerTwist == 0 && edgeFlip == 0,
+    cornerCount == 5 && edgeCount == 12 && cornerTwist == 0 && edgeFlip == 0,
+    cornerCount == 6 && edgeCount == 10 && cornerTwist == 0 && edgeFlip == 0,
+    (edgeFlip == 0 && cornerTwist == 2 && edgeCount == 12 && cornerCount == 6) ||
+    (edgeFlip == 2 && cornerTwist == 0 && edgeCount == 10 && cornerCount == 8),
   ];
 }
 
@@ -265,15 +269,17 @@ function uncancelTransformation(
   isEdge: boolean;
   isCorner: boolean;
   is2E2C: boolean;
+  isTwist: boolean;
   length: number;
 } {
   const initialCheck = checkTransformationIsAlg(transformation);
-  if (initialCheck[0] || initialCheck[1] || initialCheck[2]) {
+  if (initialCheck[0] || initialCheck[1] || initialCheck[2] || initialCheck[3]) {
     return {
       alg: '',
       isEdge: initialCheck[0],
       isCorner: initialCheck[1],
       is2E2C: initialCheck[2],
+      isTwist: initialCheck[3],
       length: 0,
     };
   }
@@ -289,12 +295,13 @@ function uncancelTransformation(
         const newAlg = `${alg} ${move}${amount}`;
         const newTransformation = transformation.applyAlg(`${move}${amount}`);
         const check = checkTransformationIsAlg(newTransformation);
-        if (check[0] || check[1] || check[2]) {
+        if (check[0] || check[1] || check[2] || check[3]) {
           return {
             alg: newAlg.trimStart(),
             isEdge: check[0],
             isCorner: check[1],
             is2E2C: check[2],
+            isTwist: check[3],
             length: depth,
           };
         }
@@ -331,6 +338,7 @@ export async function extractAlgs(
     isEdge: boolean,
     isCorner: boolean,
     is2E2C: boolean,
+    isTwist: boolean
   ][] = [];
 
   let moves = '';
@@ -359,6 +367,7 @@ export async function extractAlgs(
       uncancelled.isEdge,
       uncancelled.isCorner,
       uncancelled.is2E2C,
+      uncancelled.isTwist,
     ]);
 
     count = uncancelled.length;
@@ -368,10 +377,10 @@ export async function extractAlgs(
   }
 
   if (moves.length > 0) {
-    const [isEdge, isCorner, is2E2C] = checkTransformationIsAlg(
+    const [isEdge, isCorner, is2E2C, isTwist] = checkTransformationIsAlg(
       puzzle.algToTransformation(moves)
     );
-    comms.push([moves, moveIdx, isEdge, isCorner, is2E2C]);
+    comms.push([moves, moveIdx, isEdge, isCorner, is2E2C, isTwist]);
   }
 
   return comms.map(val => {
@@ -386,7 +395,8 @@ export async function extractAlgs(
     }
 
     const isEdgeComm = val[2];
-    if (isEdgeComm) {
+    const isTwist = val[5];
+    if (isEdgeComm || isTwist) {
       const slicesWithRotations = convertToSliceMoves(
         simplifiedComm.toString().split(' ')
       );
