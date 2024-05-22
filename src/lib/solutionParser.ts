@@ -226,9 +226,10 @@ export function convertToSliceMoves(moves: string[]) {
   return newMoves;
 }
 
-function checkTransformationIs3Cycle(
+
+function checkTransformationIsAlg(
   transformation: KTransformation
-): [isEdge: boolean, isCorner: boolean] {
+): [isEdge3Cycle: boolean, isCorner3Cycle: boolean, is2E2C: boolean] {
   const corners = transformation.transformationData['CORNERS'];
   const edges = transformation.transformationData['EDGES'];
 
@@ -237,7 +238,7 @@ function checkTransformationIs3Cycle(
     const positionMatches = corners.permutation[i] == i;
     const orientationMatches = corners.orientationDelta[i] == 0;
 
-    if (positionMatches && !orientationMatches) return [false, false];
+    if (positionMatches && !orientationMatches) return [false, false, false];
     if (positionMatches && orientationMatches) cornerCount++;
   }
 
@@ -246,13 +247,14 @@ function checkTransformationIs3Cycle(
     const positionMatches = edges.permutation[i] == i;
     const orientationMatches = edges.orientationDelta[i] == 0;
 
-    if (positionMatches && !orientationMatches) return [false, false];
+    if (positionMatches && !orientationMatches) return [false, false, false];
     if (positionMatches && orientationMatches) edgeCount++;
   }
 
   return [
     cornerCount == 8 && edgeCount == 9,
     cornerCount == 5 && edgeCount == 12,
+    cornerCount == 6 && edgeCount == 10,
   ];
 }
 
@@ -263,14 +265,16 @@ function uncancelTransformation(
   alg: string;
   isEdge: boolean;
   isCorner: boolean;
+  is2E2C: boolean;
   length: number;
 } {
-  const initialCheck = checkTransformationIs3Cycle(transformation);
-  if (initialCheck[0] || initialCheck[1]) {
+  const initialCheck = checkTransformationIsAlg(transformation);
+  if (initialCheck[0] || initialCheck[1] || initialCheck[2]) {
     return {
       alg: '',
       isEdge: initialCheck[0],
       isCorner: initialCheck[1],
+      is2E2C: initialCheck[2],
       length: 0,
     };
   }
@@ -285,12 +289,13 @@ function uncancelTransformation(
       for (const amount of POSSIBLE_AMOUNTS) {
         const newAlg = `${alg} ${move}${amount}`;
         const newTransformation = transformation.applyAlg(`${move}${amount}`);
-        const check = checkTransformationIs3Cycle(newTransformation);
-        if (check[0] || check[1]) {
+        const check = checkTransformationIsAlg(newTransformation);
+        if (check[0] || check[1] || check[2]) {
           return {
             alg: newAlg.trimStart(),
             isEdge: check[0],
             isCorner: check[1],
+            is2E2C: check[2],
             length: depth,
           };
         }
@@ -321,7 +326,13 @@ export function simplify(alg: string) {
 export async function extractAlgs(
   moveSet: string[]
 ): Promise<[string, number][]> {
-  const comms: [string, number, boolean, boolean][] = [];
+  const comms: [
+    alg: string,
+    moveIdx: number,
+    isEdge: boolean,
+    isCorner: boolean,
+    is2E2C: boolean
+  ][] = [];
 
   let moves = '';
   let count = 0;
@@ -348,6 +359,7 @@ export async function extractAlgs(
       moveIdx,
       uncancelled.isEdge,
       uncancelled.isCorner,
+      uncancelled.is2E2C,
     ]);
 
     count = uncancelled.length;
@@ -357,10 +369,10 @@ export async function extractAlgs(
   }
 
   if (moves.length > 0) {
-    const [isEdge, isCorner] = checkTransformationIs3Cycle(
+    const [isEdge, isCorner, is2E2C] = checkTransformationIsAlg(
       puzzle.algToTransformation(moves)
     );
-    comms.push([moves, moveIdx, isEdge, isCorner]);
+    comms.push([moves, moveIdx, isEdge, isCorner, is2E2C]);
   }
 
   return comms.map(val => {
@@ -368,6 +380,14 @@ export async function extractAlgs(
 
     const simplifiedComm = simplify(comm);
     let foundComm: string | undefined;
+
+    const is2E2C = val[4];
+    if (is2E2C) {
+      return [simplifiedComm.toString(), val[1]] as [
+        string,
+        number,
+      ];
+    }
 
     const isEdgeComm = val[2];
     if (isEdgeComm) {
@@ -409,3 +429,4 @@ export async function extractAlgs(
     ];
   });
 }
+
