@@ -228,7 +228,12 @@ export function convertToSliceMoves(moves: string[]) {
 
 export function checkTransformationIsAlg(
   transformation: KTransformation
-): [isEdge3Cycle: boolean, isCorner3Cycle: boolean, is2E2C: boolean, isTwist: boolean] {
+): [
+  isEdge3Cycle: boolean,
+  isCorner3Cycle: boolean,
+  is2E2C: boolean,
+  isTwist: boolean,
+] {
   const corners = transformation.transformationData['CORNERS'];
   const edges = transformation.transformationData['EDGES'];
 
@@ -256,8 +261,14 @@ export function checkTransformationIsAlg(
     cornerCount == 8 && edgeCount == 9 && cornerTwist == 0 && edgeFlip == 0,
     cornerCount == 5 && edgeCount == 12 && cornerTwist == 0 && edgeFlip == 0,
     cornerCount == 6 && edgeCount == 10 && cornerTwist == 0 && edgeFlip == 0,
-    (edgeFlip == 0 && cornerTwist == 2 && edgeCount == 12 && cornerCount == 6) ||
-    (edgeFlip == 2 && cornerTwist == 0 && edgeCount == 10 && cornerCount == 8),
+    (edgeFlip == 0 &&
+      cornerTwist == 2 &&
+      edgeCount == 12 &&
+      cornerCount == 6) ||
+      (edgeFlip == 2 &&
+        cornerTwist == 0 &&
+        edgeCount == 10 &&
+        cornerCount == 8),
   ];
 }
 
@@ -273,7 +284,12 @@ function uncancelTransformation(
   length: number;
 } {
   const initialCheck = checkTransformationIsAlg(transformation);
-  if (initialCheck[0] || initialCheck[1] || initialCheck[2] || initialCheck[3]) {
+  if (
+    initialCheck[0] ||
+    initialCheck[1] ||
+    initialCheck[2] ||
+    initialCheck[3]
+  ) {
     return {
       alg: '',
       isEdge: initialCheck[0],
@@ -339,7 +355,7 @@ export async function extractAlgs(
     isEdge: boolean,
     isCorner: boolean,
     is2E2C: boolean,
-    isTwist: boolean
+    isTwist: boolean,
   ][] = [];
 
   let moves = '';
@@ -393,7 +409,17 @@ export async function extractAlgs(
     const isTwist = val[5];
 
     const isAnyAlg = isEdgeComm || isCornerComm || isTwist || is2E2C;
-    const comment = " // " + (!isAnyAlg ? ' // ?' : (isEdgeComm ? "Edge" : isCornerComm ? "Corner" : isTwist ? "Twist/Flip" : "2E2C"));
+    const comment =
+      ' // ' +
+      (!isAnyAlg
+        ? ' // ?'
+        : isEdgeComm
+          ? 'Edge'
+          : isCornerComm
+            ? 'Corner'
+            : isTwist
+              ? 'Twist/Flip'
+              : '2E2C');
 
     const simplifiedComm = simplify(comm);
     let foundComm: string | undefined;
@@ -402,7 +428,6 @@ export async function extractAlgs(
       return [simplifiedComm.toString() + comment, moveIdx] as [string, number];
     }
 
-    
     if (isEdgeComm || isTwist) {
       const slicesWithRotations = convertToSliceMoves(
         simplifiedComm.toString().split(' ')
@@ -415,12 +440,8 @@ export async function extractAlgs(
       })[0];
     }
 
-
     if (!isAnyAlg) {
-      return [simplify(comm.trim()) + comment, moveIdx] as [
-        string,
-        number,
-      ];
+      return [simplify(comm.trim()) + comment, moveIdx] as [string, number];
     }
 
     if (!foundComm || foundComm.endsWith('.')) {
@@ -438,15 +459,15 @@ export async function extractAlgs(
     }
 
     if (foundComm.endsWith('.')) {
-      return [simplify(comm.trim()) + comment + ' (comm not found)', moveIdx] as [
-        string,
-        number,
-      ];
+      return [
+        simplify(comm.trim()) + comment + ' (comm not found)',
+        moveIdx,
+      ] as [string, number];
     }
 
-    return [foundComm.replaceAll(',', ', ').replaceAll(':', ': ') + comment, moveIdx] as [
-      string,
-      number,
-    ];
+    return [
+      foundComm.replaceAll(',', ', ').replaceAll(':', ': ') + comment,
+      moveIdx,
+    ] as [string, number];
   });
 }
