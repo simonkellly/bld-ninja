@@ -78,7 +78,7 @@ function applyRotation(rotation: string, move: string) {
   return result;
 }
 
-function fixSlicesForComm(alg: Alg, puzzle: KPuzzle) {
+export function fixSlicesForComm(alg: Alg, puzzle: KPuzzle) {
   const transformation = puzzle.algToTransformation(alg);
   const centerPermutations =
     transformation.transformationData['CENTERS'].permutation;
@@ -109,8 +109,8 @@ function fixSlicesForComm(alg: Alg, puzzle: KPuzzle) {
   let newMoves: string[] | undefined;
   for (let i = moves.length - 1; i >= 0; i--) {
     const move = moves[i];
-    const isFirst = move[0] == neededMove[0];
-    const isSecond = move[0] == neededMove[1];
+    const isFirst = move == neededMove[0];
+    const isSecond = move == neededMove[1];
     if (isFirst || isSecond) {
       const altMove = isFirst ? neededMove[1] : neededMove[0];
       const oppositeMove =
