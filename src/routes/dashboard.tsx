@@ -4,7 +4,7 @@ import { Copy } from 'lucide-react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { Timer, TimerRenderer } from 'react-use-precision-timer';
 import BTCubeDisplay from '@/components/cubing/btCubeDisplay';
-import DrawScramble from '@/components/timer/drawScramble';
+import TimeList from '@/components/timer/timeList';
 import { TimerStore, useCubeTimer } from '@/components/timer/timerStore';
 import { Button } from '@/components/ui/button';
 import {
@@ -110,16 +110,16 @@ function Dashboard() {
           />
         </h1>
       </div>
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+      <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
         <fieldset className="rounded-lg border px-4 hover:bg-muted col-span-2 md:col-span-1">
           <legend className="-ml-1 px-1 text-sm font-medium">
             <CubeName />
           </legend>
           <BTCubeDisplay className="w-full h-64 m-auto" />
         </fieldset>
-        <fieldset className="rounded-lg border px-4 hover:bg-muted col-span-2">
+        <fieldset className="rounded-lg border px-4 col-span-2">
           <legend className="-ml-1 px-1 text-sm font-medium">Results</legend>
-          <DrawScramble className="w-full h-64 m-auto" />
+          <TimeList className="w-full h-64 m-auto" />
         </fieldset>
       </div>
     </div>

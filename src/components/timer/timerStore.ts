@@ -10,6 +10,7 @@ import {
 import { useEffect, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useStopwatch } from 'react-use-precision-timer';
+import { Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
 
@@ -155,6 +156,8 @@ export const useCubeTimer = () => {
       moveDetails.current.end = [...CubeStore.state.lastMoves];
     else moveDetails.current.end = [];
 
+    const endTime = stopwatch.getElapsedRunningTime();
+
     // get the ones in end which aren't in start
     const diff = moveDetails.current.end.filter(
       move => !moveDetails.current.start.includes(move)
@@ -179,6 +182,18 @@ export const useCubeTimer = () => {
     );
 
     newScramble();
+
+    const solutionStr = solution.join(' ');
+    console.log(solutionStr);
+    const solve = {
+      time: endTime,
+      timeStamp: Date.now(),
+      scramble: TimerStore.state.originalScramble,
+      solution: solutionStr,
+      parsed: algs.map(([alg]) => alg),
+    } as Solve;
+
+    await db.solves.add(solve);
   };
 
   const updateStateFromSpaceBar = (up: boolean) => {

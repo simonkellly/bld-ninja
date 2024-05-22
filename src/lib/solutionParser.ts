@@ -358,6 +358,8 @@ export async function extractAlgs(
     isTwist: boolean,
   ][] = [];
 
+  moveSet = moveSet.slice();
+
   let moves = '';
   let count = 0;
 
@@ -438,6 +440,13 @@ export async function extractAlgs(
         algorithm: simplify(fixedAlg.join(' ')).toString(),
         outerBracket: true,
       })[0];
+
+      foundComm = foundComm.replaceAll('u', 'Uw');
+      foundComm = foundComm.replaceAll('f', 'Fw');
+      foundComm = foundComm.replaceAll('r', 'Rw');
+      foundComm = foundComm.replaceAll('b', 'Bw');
+      foundComm = foundComm.replaceAll('l', 'Lw');
+      foundComm = foundComm.replaceAll('d', 'Dw');
     }
 
     if (!isAnyAlg) {

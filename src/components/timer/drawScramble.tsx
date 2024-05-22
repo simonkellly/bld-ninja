@@ -1,14 +1,11 @@
-import { useStore } from '@tanstack/react-store';
 import { TwistyPlayer } from 'cubing/twisty';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { TimerStore } from './timerStore';
 import cubeImage from '/cube-colors.png';
 
-export default function DrawScramble({ className }: { className: string }) {
+export default function DrawScramble({ className, scramble }: { className: string, scramble: string}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
-  const scramble = useStore(TimerStore, state => state.originalScramble);
 
   useEffect(() => {
     if (!containerRef.current) return;
