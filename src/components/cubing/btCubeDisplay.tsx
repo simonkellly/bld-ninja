@@ -85,7 +85,7 @@ export default function BTCubeDisplay({ className }: { className: string }) {
 
   if (!cube) {
     return (
-      <div className="flex items-center justify-center text-4xl font-bold my-auto h-full">
+      <div className="flex items-center justify-center text-4xl font-bold my-auto h-full min-h-32">
         <Bluetooth className="size-12" />
       </div>
     );
