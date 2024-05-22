@@ -4,7 +4,6 @@ import { Plus, Trash2, X } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -13,9 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { Solve, db } from '@/lib/db';
 import { cn } from '@/lib/utils';
-import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
-import { Separator } from '../ui/separator';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import DrawScramble from './drawScramble';
 
 function convertTimeToText(time: number) {
