@@ -38,6 +38,7 @@ describe('Slice Moves', () => {
   });
 });
 
+// Test algs are notated as per UFRBLD letter scheme
 describe('Extract Comms', () => {
   test('Extract valid comm (EP)', async () => {
     const extracted = await extractAlgs(
@@ -91,7 +92,7 @@ describe('Extract Comms', () => {
     expect(extracted[0][0]).toBe("[U' M: [U', R' E R]]");
   });
 
-  test('Extract slice alg (RI) with wide move canceling', async () => {
+  test('Extract slice alg (IM) with wide move canceling', async () => {
     const extracted = await extractAlgs(
       "R U R' U' R' L F R F' L'".split(' ')
     );
