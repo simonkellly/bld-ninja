@@ -1,4 +1,4 @@
-import { Store, useStore } from '@tanstack/react-store';
+import { useStore } from '@tanstack/react-store';
 import { Alg } from 'cubing/alg';
 import { randomScrambleForEvent } from 'cubing/scramble';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
@@ -14,7 +14,8 @@ import { Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
 import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
-import { useToast } from '../ui/use-toast';
+import { useToast } from '../components/ui/use-toast';
+import { TimerStore } from '@/timer/timerStore';
 
 enum TimerState {
   Inactive = 'INACTIVE',
@@ -23,12 +24,6 @@ enum TimerState {
   Finishing = 'FINISHING',
 }
 
-export const TimerStore = new Store({
-  scramble: '',
-  originalScramble: '',
-  scrambleIdx: 0,
-  solutionMoves: [],
-});
 
 async function updateScrambleFromCubeState(originalScramble: Alg | string) {
   const ogScrambleStr = originalScramble.toString();
@@ -198,7 +193,7 @@ export const useCubeTimer = () => {
     } as Solve;
 
     await db.solves.add(solve);
-    
+
     const dnfAnalysis = await dnfAnalyser(solve.scramble, solve.solution);
     if (dnfAnalysis !== SOLVED) {
       toast({

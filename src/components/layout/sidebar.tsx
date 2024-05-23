@@ -1,7 +1,7 @@
 import { SiGithub } from '@icons-pack/react-simple-icons';
 import { Link, ParseRoute } from '@tanstack/react-router';
 import {
-  Box,
+  Gauge,
   Home,
   LayoutDashboard,
   LifeBuoy,
@@ -70,7 +70,7 @@ export default function Sidebar() {
           icon={LayoutDashboard}
           link="/dashboard"
         />
-        <SidebarButton label="Cube" icon={Box} link="/twisty" />
+        <SidebarButton label="Cube" icon={Gauge} link="/trainer" />
       </nav>
       <nav className="mt-auto grid gap-1 p-2">
         <SidebarButton label="Help" icon={LifeBuoy} className="mt-auto" />
