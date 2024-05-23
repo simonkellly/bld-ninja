@@ -59,6 +59,11 @@ function SolveDialog({
     });
   };
 
+  const timeText =
+    solve.penalty == Penalty.DNF
+      ? `DNF(${convertTimeToText(solve.time)})`
+      : convertSolveToText(solve);
+
   return (
     <Dialog open={true} onOpenChange={close}>
       <DialogContent className="sm:max-w-[425px]">
@@ -68,7 +73,7 @@ function SolveDialog({
             {new Date(solve.timeStamp).toLocaleString()}
           </DialogDescription>
         </DialogHeader>
-        <h2 className="text-3xl font-bold">{convertTimeToText(solve.time)}</h2>
+        <h2 className="text-3xl font-bold">{timeText}</h2>
         <h2 className="text-l font-bold">{solve.scramble}</h2>
         <div className="flex">
           <DrawScramble
