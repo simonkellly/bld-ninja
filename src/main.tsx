@@ -7,6 +7,12 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { routeTree } from './routeTree.gen';
+import { setSearchDebug } from 'cubing/search'
+
+setSearchDebug({
+  logPerf: false,
+  showWorkerInstantiationWarnings: false,
+});
 
 const hashHistory = createHashHistory();
 
