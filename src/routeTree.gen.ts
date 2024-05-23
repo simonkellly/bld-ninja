@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as TwistyImport } from './routes/twisty'
+import { Route as TrainerImport } from './routes/trainer'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as IndexImport } from './routes/index'
 
@@ -19,6 +20,11 @@ import { Route as IndexImport } from './routes/index'
 
 const TwistyRoute = TwistyImport.update({
   path: '/twisty',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TrainerRoute = TrainerImport.update({
+  path: '/trainer',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -44,6 +50,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardImport
       parentRoute: typeof rootRoute
     }
+    '/trainer': {
+      preLoaderRoute: typeof TrainerImport
+      parentRoute: typeof rootRoute
+    }
     '/twisty': {
       preLoaderRoute: typeof TwistyImport
       parentRoute: typeof rootRoute
@@ -56,6 +66,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   DashboardRoute,
+  TrainerRoute,
   TwistyRoute,
 ])
 
