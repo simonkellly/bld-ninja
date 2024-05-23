@@ -1,7 +1,8 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Check, Minus, Plus, Trash2, X } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,10 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Solve, db } from '@/lib/db';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Penalty, Solve, db } from '@/lib/db';
+import { dnfAnalyser } from '@/lib/dnfAnalyser';
+import { cn } from '@/lib/utils';
 import DrawScramble from './drawScramble';
 
 function convertTimeToText(time: number) {
@@ -30,6 +31,17 @@ function convertTimeToText(time: number) {
   return res;
 }
 
+function convertSolveToText(solve: Solve) {
+  if (solve.penalty === Penalty.DNF) return 'DNF';
+
+  const isPlusTwo = solve.penalty === Penalty.PLUS_TWO;
+  const time = isPlusTwo ? solve.time + 2000 : solve.time;
+  const text = convertTimeToText(time);
+
+  if (solve.penalty === Penalty.PLUS_TWO) return text + '+';
+  else return text;
+}
+
 function SolveDialog({
   solve,
   idx,
@@ -39,6 +51,14 @@ function SolveDialog({
   idx: number;
   close: (open: boolean) => void;
 }) {
+  const [analysis, setAnalysis] = useState<string | undefined>();
+
+  const analyse = () => {
+    dnfAnalyser(solve.scramble, solve.solution).then(res => {
+      setAnalysis(res);
+    });
+  };
+
   return (
     <Dialog open={true} onOpenChange={close}>
       <DialogContent className="sm:max-w-[425px]">
@@ -68,7 +88,11 @@ function SolveDialog({
             ))}
           </ScrollArea>
         </ul>
+        {analysis && <p className="font-medium">{analysis}</p>}
         <DialogFooter>
+          <Button variant="secondary" type="submit" onClick={analyse}>
+            Analyse
+          </Button>
           <Button variant="destructive" type="submit">
             Delete
           </Button>
@@ -102,6 +126,14 @@ export default function TimeList({ className }: { className: string }) {
 
   const [selectedSolve, setSelectedSolve] = useState<number | null>(null);
 
+  const setPenalty = (solve: Solve, penalty: Penalty | undefined) => {
+    db.solves.update(solve.id!, { penalty });
+  };
+
+  const deleteSolve = (solve: Solve) => {
+    db.solves.delete(solve.id!);
+  };
+
   return (
     <div
       ref={parentRef}
@@ -129,18 +161,31 @@ export default function TimeList({ className }: { className: string }) {
         >
           {rowVirtualizer.getVirtualItems().map(item => {
             const solve = fakeFullData[item.index];
-            const timeText = convertTimeToText(solve.time);
+            const timeText = convertSolveToText(solve);
 
             const reverseIdx = fakeFullData.length - item.index - 1;
 
             let mo3: string | undefined;
             if (reverseIdx < 2) mo3 = '-';
             else {
-              const prevSolves = fakeFullData.slice(reverseIdx - 2, reverseIdx);
-              const mean =
-                prevSolves.reduce((acc, cur) => acc + cur.time, 0) / 3;
-              mo3 = convertTimeToText(mean);
+              const prevSolves = fakeFullData.slice(item.index, item.index + 3);
+
+              let sum = 0;
+              for (const solve of prevSolves) {
+                if (solve.penalty === Penalty.DNF) {
+                  mo3 = 'DNF';
+                  break;
+                }
+                sum +=
+                  solve.penalty === Penalty.PLUS_TWO
+                    ? solve.time + 2000
+                    : solve.time;
+              }
+
+              if (mo3 !== 'DNF') mo3 = convertTimeToText(sum / 3);
             }
+
+            const showModal = () => setSelectedSolve(item.index);
 
             return (
               <div
@@ -148,7 +193,7 @@ export default function TimeList({ className }: { className: string }) {
                 className="flex gap-2 rounded-md font-mono py-1 pl-2 my-1 hover:bg-gray-900 cursor-pointer"
                 ref={rowVirtualizer.measureElement}
                 data-index={item.index}
-                onClick={() => setSelectedSolve(item.index)}
+                onClick={showModal}
               >
                 <div className="text-gray-500 my-auto">
                   <pre>
@@ -162,13 +207,50 @@ export default function TimeList({ className }: { className: string }) {
                   <pre>{mo3.padStart(7, ' ')}</pre>
                 </div>
                 <div className="text-right px-1 grow">
-                  <Button variant="ghost" size="sm">
-                    <X className="size-4" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setPenalty(
+                        solve,
+                        solve.penalty === Penalty.DNF ? undefined : Penalty.DNF
+                      );
+                    }}
+                  >
+                    {solve.penalty === Penalty.DNF ? (
+                      <Check className="size-4" />
+                    ) : (
+                      <X className="size-4" />
+                    )}
                   </Button>
-                  <Button variant="ghost" size="sm">
-                    <Plus className="size-4" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setPenalty(
+                        solve,
+                        solve.penalty === Penalty.PLUS_TWO
+                          ? undefined
+                          : Penalty.PLUS_TWO
+                      );
+                    }}
+                  >
+                    {solve.penalty === Penalty.PLUS_TWO ? (
+                      <Minus className="size-4" />
+                    ) : (
+                      <Plus className="size-4" />
+                    )}
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation();
+                      deleteSolve(solve);
+                    }}
+                  >
                     <Trash2 className="size-4" />
                   </Button>
                 </div>

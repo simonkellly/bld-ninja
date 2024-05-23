@@ -1,5 +1,10 @@
 import Dexie, { Table } from 'dexie';
 
+export enum Penalty {
+  PLUS_TWO = 1,
+  DNF = 2,
+}
+
 export interface Solve {
   id?: number;
   timeStamp: number;
@@ -7,6 +12,7 @@ export interface Solve {
   scramble: string;
   solution: string;
   parsed: string[];
+  penalty?: Penalty;
 }
 
 export class MySubClassedDexie extends Dexie {
