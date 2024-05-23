@@ -1,23 +1,17 @@
 import { useStore } from '@tanstack/react-store';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { TwistyPlayer } from 'cubing/twisty';
-import { GanCubeConnection, GanCubeMove } from 'gan-web-bluetooth';
-import { Bluetooth } from 'lucide-react';
+import { GanCubeMove } from 'gan-web-bluetooth';
 import { useEffect, useRef, useState } from 'react';
 import { CubeStore } from '@/lib/smartCube';
 import { cn } from '@/lib/utils';
 import cubeImage from '/cube-colors.png';
 
-function CubeDisplay({
-  className,
-  cube,
-}: {
-  className: string;
-  cube: GanCubeConnection;
-}) {
+export default function BTCubeDisplay({ className }: { className: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
 
+  const cube = useStore(CubeStore, state => state.cube);
   const startingState = useStore(CubeStore, state => state.startingState);
 
   useEffect(() => {
@@ -78,18 +72,4 @@ function CubeDisplay({
   const classes = cn('flex', className);
 
   return <div className={classes} ref={containerRef} />;
-}
-
-export default function BTCubeDisplay({ className }: { className: string }) {
-  const cube = useStore(CubeStore, state => state.cube);
-
-  if (!cube) {
-    return (
-      <div className="flex items-center justify-center text-4xl font-bold my-auto h-full min-h-32">
-        <Bluetooth className="size-12" />
-      </div>
-    );
-  }
-
-  return <CubeDisplay className={className} cube={cube} />;
 }
