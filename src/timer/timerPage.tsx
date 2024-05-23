@@ -11,14 +11,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { CubeStore } from '@/lib/smartCube';
 import { cn } from '@/lib/utils';
 import { TimerStore } from './timerStore';
-
-function CubeName() {
-  const cube = useStore(CubeStore, state => state.cube);
-  return <>{cube?.deviceName ?? 'Connected Cube'}</>;
-}
+import CubeName from '@/components/cubing/cubeName';
 
 function ScrambleDisplay() {
   const scramble = useStore(TimerStore, state => state.scramble);

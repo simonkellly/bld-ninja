@@ -6,8 +6,11 @@ import {
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import { routeTree } from './routeTree.gen';
+import { routeTree } from '@/routeTree.gen';
 import { setSearchDebug } from 'cubing/search'
+import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { HotkeysProvider } from 'react-hotkeys-hook';
 
 setSearchDebug({
   logPerf: false,
@@ -32,7 +35,12 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <HotkeysProvider>
+        <TooltipProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </TooltipProvider>
+      </HotkeysProvider>
     </StrictMode>
   );
 }

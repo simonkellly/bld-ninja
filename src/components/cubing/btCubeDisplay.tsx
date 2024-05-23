@@ -69,7 +69,7 @@ export default function BTCubeDisplay({ className }: { className: string }) {
     };
   }, [player, startingState, cube]);
 
-  const classes = cn('flex hover:invisible', className);
+  const classes = cn('flex', className);
 
   return <div className={classes} ref={containerRef} />;
 }
