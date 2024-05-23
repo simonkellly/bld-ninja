@@ -3,6 +3,8 @@ import { KPattern, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { extractAlgs } from './solutionParser';
 
+export const SOLVED = "Solved";
+
 function checkIsSolved(pattern: KPattern) {
   return pattern.experimentalIsSolved({
     ignoreCenterOrientation: true,
@@ -100,7 +102,34 @@ async function check1MoveDnf(
   return false;
 }
 
-export async function dnfAnalyser(scramble: string, solution: string) {
+function checkWrongOrderAlg(scramble: KPattern, algs: string[]) {
+  const actualAlgs = algs.map(a => new Alg(a));
+
+  let checkedState = scramble;
+  for (let i = 0; i < actualAlgs.length; i++) {
+    const alg = actualAlgs[i];
+
+    let innerAlg: Alg | undefined;
+    let innerState = checkedState;
+    for (let j = i + 1; j < actualAlgs.length; j++) {
+      innerAlg = actualAlgs[j];
+      innerState = innerState.applyAlg(innerAlg);
+
+      if (j == i + 1) innerState = innerState.applyAlg(alg);
+    }
+    const isSolved = checkIsSolved(innerState);
+    if (isSolved) return alg.toString() + ' was done before ' + innerAlg;
+
+    checkedState = checkedState.applyAlg(alg);
+  }
+
+  return false;
+}
+
+// TODO: If parsing algs failed, reverse scramble and go from other side
+// TODO: Check if a wrong alg was done instead of a correct one
+// TODO: Check for missed flips and twists
+export async function dnfAnalyser(scramble: string, solution: string, fullAnalysis: boolean = true) {
   const puzzle = await cube3x3x3.kpuzzle();
 
   const scrambleTransformation = puzzle.algToTransformation(scramble);
@@ -113,7 +142,9 @@ export async function dnfAnalyser(scramble: string, solution: string) {
   );
   const isSolved = checkIsSolved(totalTransformation.toKPattern());
 
-  if (isSolved) return 'Solved';
+  if (isSolved) return SOLVED;
+
+  if (!fullAnalysis) return 'Analysis disabled';
 
   const algs = await extractAlgs(solution.split(' '));
   const isInverseAlg = checkInverseAlg(
@@ -130,6 +161,9 @@ export async function dnfAnalyser(scramble: string, solution: string) {
     algs.map(a => a[0])
   );
   if (isOneMoveDnf) return isOneMoveDnf;
+
+  const isWrongOrderAlg = checkWrongOrderAlg(scramblePattern, algs.map(a => a[0]));
+  if (isWrongOrderAlg) return isWrongOrderAlg;
 
   return 'Unknown';
 }

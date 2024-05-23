@@ -13,6 +13,8 @@ import { useStopwatch } from 'react-use-precision-timer';
 import { Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
+import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
+import { useToast } from '../ui/use-toast';
 
 enum TimerState {
   Inactive = 'INACTIVE',
@@ -145,6 +147,8 @@ export const useCubeTimer = () => {
     end: [],
   });
 
+  const { toast } = useToast();
+
   const startSolve = () => {
     if (CubeStore.state.lastMoves)
       moveDetails.current.start = [...CubeStore.state.lastMoves];
@@ -194,6 +198,14 @@ export const useCubeTimer = () => {
     } as Solve;
 
     await db.solves.add(solve);
+    
+    const dnfAnalysis = await dnfAnalyser(solve.scramble, solve.solution);
+    if (dnfAnalysis !== SOLVED) {
+      toast({
+        title: "DNF",
+        description: dnfAnalysis,
+      })
+    }
   };
 
   const updateStateFromSpaceBar = (up: boolean) => {

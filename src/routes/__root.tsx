@@ -3,6 +3,7 @@ import { HotkeysProvider } from 'react-hotkeys-hook';
 import Navbar from '@/components/layout/navbar';
 import Sidebar from '@/components/layout/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/toaster';
 
 export const Route = createRootRoute({
   component: () => {
@@ -18,6 +19,7 @@ export const Route = createRootRoute({
               </main>
             </div>
           </div>
+          <Toaster />
         </TooltipProvider>
       </HotkeysProvider>
     );
