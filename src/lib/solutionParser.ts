@@ -346,6 +346,7 @@ export function simplify(alg: string) {
 }
 
 // TODO: Handle AUF +2
+// TODO: Try collapsing algs to see if they are just solving one case
 export async function extractAlgs(
   moveSet: string[]
 ): Promise<[string, string, number][]> {
