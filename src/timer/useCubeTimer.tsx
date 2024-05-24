@@ -130,49 +130,31 @@ export default function useCubeTimer() {
   const stopwatch = useStopwatch();
 
   const state = useRef<TimerState>(TimerState.Inactive);
-  const moveDetails = useRef<{
-    start: GanCubeMove[];
-    end: GanCubeMove[];
-  }>({
-    start: [],
-    end: [],
-  });
+  const moves = useRef<GanCubeMove[]>([]);
 
   const cube = useStore(CubeStore, state => state.cube);
   const { toast } = useToast();
 
   const startSolve = useCallback(() => {
-    if (CubeStore.state.lastMoves)
-      moveDetails.current.start = [...CubeStore.state.lastMoves];
-    else moveDetails.current.start = [];
+    moves.current = [];
   }, []);
 
   const finishSolve = useCallback(async () => {
-    if (CubeStore.state.lastMoves)
-      moveDetails.current.end = cubeTimestampLinearFit(
-        CubeStore.state.lastMoves
-      );
-    else moveDetails.current.end = [];
-
     const endTime = stopwatch.getElapsedRunningTime();
-
-    const diff = moveDetails.current.end.filter(
-      move => !moveDetails.current.start.includes(move)
-    );
-
-    const solution = diff.map(move => move.move);
+    const solutionMoves = cubeTimestampLinearFit(moves.current);
+    const solution = solutionMoves.map(move => move.move);
 
     console.log('Solution:', solution.join(' '));
 
     const algs = await extractAlgs(solution);
 
     console.log('Scramble:', TimerStore.state.originalScramble);
-    let last = diff.length > 0 ? diff[0].cubeTimestamp : 0;
+    let last = solutionMoves.length > 0 ? solutionMoves[0].cubeTimestamp : 0;
     console.table(
       algs.map(([alg, comment, idx]) => {
-        const ms = diff[idx].cubeTimestamp - last;
+        const ms = solutionMoves[idx].cubeTimestamp - last;
         const time = (ms / 1000).toFixed(2);
-        last = diff[idx].cubeTimestamp;
+        last = solutionMoves[idx].cubeTimestamp;
         return [alg + comment, time];
       })
     );
@@ -279,7 +261,10 @@ export default function useCubeTimer() {
     const subscription = cube?.events$.subscribe((event: GanCubeEvent) => {
       if (event.type !== 'MOVE') return;
 
-      if (stopwatch.isRunning()) return;
+      if (stopwatch.isRunning()) {
+        moves.current.push(event);
+        return;
+      }
       processScramblingMove(event);
     });
 
