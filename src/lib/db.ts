@@ -1,6 +1,8 @@
 import Dexie, { Table } from 'dexie';
+import { GanCubeMove } from 'gan-web-bluetooth';
 
 export enum Penalty {
+  SOLVED = 0,
   PLUS_TWO = 1,
   DNF = 2,
 }
@@ -9,9 +11,10 @@ export interface Solve {
   id?: number;
   timeStamp: number;
   time: number;
+  now: number;
   scramble: string;
-  solution: string;
-  parsed: string[];
+  solution: GanCubeMove[];
+  parsed?: string[];
   penalty?: Penalty;
 }
 

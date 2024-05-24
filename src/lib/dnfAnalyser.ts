@@ -2,8 +2,11 @@ import { Alg } from 'cubing/alg';
 import { KPattern, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { extractAlgs } from './solutionParser';
+import { Penalty } from './db';
 
 export const SOLVED = 'Solved';
+export const PLUS_TWO = '+2';
+export const DNF = 'DNF';
 
 function checkIsSolved(pattern: KPattern) {
   return pattern.experimentalIsSolved({
@@ -90,6 +93,8 @@ async function check1MoveDnf(
 
           const newAnalysis = await extractAlgs(solutionWithMove);
           const brokenAlgIdx = newAnalysis.findIndex(a => a[2] > solutionIdx);
+          if (solutionIdx == solution.length) return PLUS_TWO;
+          console.log('Broken alg:', brokenAlgIdx, newAnalysis, solutionIdx);
           return algs[brokenAlgIdx] + ' -> ' + newAnalysis[brokenAlgIdx][0];
         }
       }
@@ -126,13 +131,78 @@ function checkWrongOrderAlg(scramble: KPattern, algs: string[]) {
   return false;
 }
 
+function checkPlusTwo(solvedState: KTransformation, solvedPattern: KPattern) {
+  const corners = solvedState.transformationData['CORNERS'];
+  const edges = solvedState.transformationData['EDGES'];
+
+  let cornerCount = 0;
+  for (let i = 0; i < 8; i++) {
+    const positionMatches = corners.permutation[i] == i;
+    const orientationMatches = corners.orientationDelta[i] == 0;
+
+    if (positionMatches && orientationMatches) cornerCount++;
+  }
+
+  let edgeCount = 0;
+  for (let i = 0; i < 12; i++) {
+    const positionMatches = edges.permutation[i] == i;
+    const orientationMatches = edges.orientationDelta[i] == 0;
+
+    if (positionMatches && orientationMatches) edgeCount++;
+  }
+
+  const isOneMove = cornerCount == 4 && edgeCount == 8;
+  if (!isOneMove) {
+    console.log('Not one move from state');
+    return false;
+  }
+
+  const moves = ['U', 'D', 'R', 'L', 'F', 'B'];
+
+  const checkedState = solvedPattern;
+  for (const move of moves) {
+    let moveState = checkedState;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      moveState = moveState.applyMove(move);
+
+      const isSolved = checkIsSolved(moveState);
+
+      if (isSolved) {
+        return PLUS_TWO;
+      }
+    }
+  }
+  return false;
+
+}
+
+export async function penaltyChecker(scramble: string, solution: string): Promise<Penalty> {
+  const puzzle = await cube3x3x3.kpuzzle();
+
+  const scrambleTransformation = puzzle.algToTransformation(scramble);
+  const solutionTransformation = puzzle.algToTransformation(solution);
+
+  const totalTransformation = scrambleTransformation.applyTransformation(
+    solutionTransformation
+  );
+  const totalPattern = totalTransformation.toKPattern();
+  const isSolved = checkIsSolved(totalPattern);
+
+  if (isSolved) return Penalty.SOLVED;
+
+  const plusTwo = checkPlusTwo(totalTransformation, totalPattern);
+  if (plusTwo) return Penalty.PLUS_TWO;
+
+  return Penalty.DNF;
+}
+
 // TODO: If parsing algs failed, reverse scramble and go from other side
 // TODO: Check if a wrong alg was done instead of a correct one
 // TODO: Check for missed flips and twists
 export async function dnfAnalyser(
   scramble: string,
   solution: string,
-  fullAnalysis: boolean = true
+  algs: Awaited<ReturnType<typeof extractAlgs>>
 ) {
   const puzzle = await cube3x3x3.kpuzzle();
 
@@ -148,9 +218,7 @@ export async function dnfAnalyser(
 
   if (isSolved) return SOLVED;
 
-  if (!fullAnalysis) return 'Analysis disabled';
 
-  const algs = await extractAlgs(solution.split(' '));
   const isInverseAlg = checkInverseAlg(
     scramblePattern,
     algs.map(a => a[0])

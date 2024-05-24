@@ -6,15 +6,14 @@ import {
   GanCubeEvent,
   GanCubeMove,
   cubeTimestampLinearFit,
+  now,
 } from 'gan-web-bluetooth';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
 import { Key } from 'ts-key-enum';
-import { useToast } from '@/components/ui/use-toast';
 import { Solve, db } from '@/lib/db';
-import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
+import { penaltyChecker } from '@/lib/dnfAnalyser';
 import { CubeStore } from '@/lib/smartCube';
-import { extractAlgs } from '@/lib/solutionParser';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { TimerStore } from './timerStore';
 
@@ -118,7 +117,6 @@ export default function useCubeTimer() {
   const moves = useRef<GanCubeMove[]>([]);
 
   const cube = useStore(CubeStore, state => state.cube);
-  const { toast } = useToast();
 
   const startSolve = useCallback(() => {
     moves.current = [];
@@ -126,46 +124,31 @@ export default function useCubeTimer() {
 
   const finishSolve = useCallback(async () => {
     const endTime = stopwatch.getElapsedRunningTime();
-    const solutionMoves = cubeTimestampLinearFit(moves.current);
+    const fullMoves = CubeStore.state.lastMoves;
+    const solutionMoves = fullMoves
+      ? moves.current.length > fullMoves.length
+        ? moves.current
+        : cubeTimestampLinearFit(fullMoves).slice(-moves.current.length)
+      : moves.current;
     const solution = solutionMoves.map(move => move.move);
+    const solutionStr = solution.join(' ');
 
-    console.log('Solution:', solution.join(' '));
-
-    const algs = await extractAlgs(solution);
-
-    console.log('Scramble:', TimerStore.state.originalScramble);
-    let last = solutionMoves.length > 0 ? solutionMoves[0].cubeTimestamp : 0;
-    console.table(
-      algs.map(([alg, comment, idx]) => {
-        const ms = solutionMoves[idx].cubeTimestamp - last;
-        const time = (ms / 1000).toFixed(2);
-        last = solutionMoves[idx].cubeTimestamp;
-        return [alg + comment, time];
-      })
-    );
+    const penalty = await penaltyChecker(TimerStore.state.originalScramble, solutionStr);
 
     newScramble();
 
-    const solutionStr = solution.join(' ');
-    console.log(solutionStr);
     const solve = {
       time: endTime,
       timeStamp: Date.now(),
+      now: now(),
       scramble: TimerStore.state.originalScramble,
-      solution: solutionStr,
-      parsed: algs.map(([alg]) => alg),
+      solution: solutionMoves,
+      penalty,
     } as Solve;
 
     await db.solves.add(solve);
 
-    const dnfAnalysis = await dnfAnalyser(solve.scramble, solve.solution);
-    if (dnfAnalysis !== SOLVED) {
-      toast({
-        title: 'DNF',
-        description: dnfAnalysis,
-      });
-    }
-  }, [stopwatch, toast]);
+  }, [stopwatch]);
 
   const updateStateFromSpaceBar = useCallback(
     (holdingDown: boolean) => {

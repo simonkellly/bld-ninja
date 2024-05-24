@@ -15,6 +15,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Penalty, Solve, db } from '@/lib/db';
 import { dnfAnalyser } from '@/lib/dnfAnalyser';
+import { extractAlgs } from '@/lib/solutionParser';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
@@ -52,22 +53,36 @@ function SolveDialog({
 }) {
   const [analysis, setAnalysis] = useState<string | undefined>();
 
-  const analyse = () => {
-    dnfAnalyser(solve.scramble, solve.solution).then(res => {
-      setAnalysis(res);
-    });
+  const analyse = async () => {
+    const moves = solve.solution.map(s => s.move);
+    const algs = await extractAlgs(moves);
+    const analysis = await dnfAnalyser(solve.scramble, moves.join(' '), algs);
+    setAnalysis(analysis);
+    db.solves.update(solve.id, { parsed: algs.map(([alg]) => alg) });
   };
+
+  const deleteSolve = () => {
+    db.solves.delete(solve.id);
+    close(false);
+  }
+
+  const solutionStr = solve.solution.map(s => s.move).join(' ');
 
   const timeText =
     solve.penalty == Penalty.DNF
       ? `DNF(${convertTimeToText(solve.time)})`
       : convertSolveToText(solve);
 
+  const twistyUrl = 'https://alpha.twizzle.net/edit/?' + new URLSearchParams({
+    "setup-alg": solve.scramble,
+    "alg": solve.parsed?.join('\n') || solutionStr,
+  }).toString();
+    
   return (
     <Dialog open={true} onOpenChange={close}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Solve #{idx}</DialogTitle>
+          <DialogTitle>Solve #{idx + 1}</DialogTitle>
           <DialogDescription>
             {new Date(solve.timeStamp).toLocaleString()}
           </DialogDescription>
@@ -80,24 +95,31 @@ function SolveDialog({
             className="w-full h-32 mx-auto"
           />
           <DrawScramble
-            scramble={solve.scramble + ' ' + solve.solution}
+            scramble={solve.scramble + ' ' + solutionStr}
             className="w-full h-32 mx-auto"
           />
         </div>
         <ul className="rounded-md border p-2">
           <li className="font-medium">Algs in solve:</li>
           <ScrollArea className="h-64">
-            {solve.parsed.map((alg, i) => (
+            {!solve.parsed && solutionStr}
+            {solve.parsed && solve.parsed.map((alg, i) => (
               <li key={i + ' ' + alg}>{alg}</li>
             ))}
           </ScrollArea>
         </ul>
         {analysis && <p className="font-medium">{analysis}</p>}
         <DialogFooter>
-          <Button variant="secondary" type="submit" onClick={analyse}>
+          
+          <Button type="submit" asChild>
+            <a href={twistyUrl}>
+              Twisty
+            </a>
+          </Button>
+          <Button variant="secondary" type="button" onClick={analyse}>
             Analyse
           </Button>
-          <Button variant="destructive" type="submit">
+          <Button variant="destructive" type="submit" onClick={deleteSolve}>
             Delete
           </Button>
         </DialogFooter>
