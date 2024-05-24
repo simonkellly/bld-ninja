@@ -69,7 +69,7 @@ function ThemeToggle() {
 
 function Index() {
   return (
-    <main className="flex flex-col h-screen w-screen items-center justify-center container">
+    <main className="flex flex-col h-dvh w-screen items-center justify-center container">
       <Card className="sm:m-4">
         <CardHeader>
           <CardTitle>BLD Ninja</CardTitle>

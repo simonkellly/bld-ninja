@@ -48,7 +48,7 @@ function Timer() {
   const cubeTimer = useCubeTimer();
 
   return (
-    <div className="flex flex-col justify-between h-screen w-screen p-2">
+    <div className="flex flex-col justify-between h-dvh w-screen p-2">
       <ActionBar />
       <div className="bg-card rounded-lg border w-full relative grow mt-2">
         <ScrambleDisplay />

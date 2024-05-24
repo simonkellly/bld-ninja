@@ -7,7 +7,7 @@ export const Route = createFileRoute('/trainer')({
 
 function Trainer() {
   return (
-    <div className="flex flex-col justify-between h-screen w-screen p-2">
+    <div className="flex flex-col justify-between h-dvh w-screen p-2">
       <ActionBar />
     </div>
   );
