@@ -12,6 +12,12 @@ This is a more fully featured replacement for my previous trainer [BLD Tools](ht
 
 Check it out [here](https://simonkellly.github.io/bld-ninja/)
 
+<details open>
+  <summary>Screenshots</summary>
+
+  ![Screenshot](https://simonkellly.github.io/bld-ninja/screenshot.jpeg)
+</details>
+
 ## Planned features
 
 - [ ] Standard timer functionality
