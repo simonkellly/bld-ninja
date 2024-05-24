@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Timer as PrecisionTimer, TimerRenderer } from 'react-use-precision-timer';
+import {
+  Timer as PrecisionTimer,
+  TimerRenderer,
+} from 'react-use-precision-timer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { ActionBar } from '@/newTimer/actionBar';

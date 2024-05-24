@@ -1,6 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useRef, useState } from 'react';
+import DrawScramble from '@/components/cubing/drawScramble';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +15,6 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Penalty, Solve, db } from '@/lib/db';
 import { dnfAnalyser } from '@/lib/dnfAnalyser';
-import DrawScramble from '@/components/cubing/drawScramble';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
@@ -135,7 +135,10 @@ export default function ResultsCard() {
           Results
         </Badge>
       </legend>
-      <div ref={parentRef} className="h-64 px-1 w-full overflow-y-auto m-auto overflow-x-clip">
+      <div
+        ref={parentRef}
+        className="h-64 px-1 w-full overflow-y-auto m-auto overflow-x-clip"
+      >
         <div
           style={{
             height: rowVirtualizer.getTotalSize(),

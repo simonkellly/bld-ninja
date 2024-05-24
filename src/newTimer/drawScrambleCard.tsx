@@ -1,6 +1,6 @@
 import { useStore } from '@tanstack/react-store';
-import { Badge } from '@/components/ui/badge';
 import DrawScramble from '@/components/cubing/drawScramble';
+import { Badge } from '@/components/ui/badge';
 import { TimerStore } from './timerStore';
 
 export default function DrawScrambleCard() {
