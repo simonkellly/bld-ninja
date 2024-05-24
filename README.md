@@ -15,7 +15,8 @@ Check it out [here](https://simonkellly.github.io/bld-ninja/)
 <details open>
   <summary>Screenshots</summary>
 
-  ![Screenshot](https://simonkellly.github.io/bld-ninja/screenshot.jpeg)
+  ![Timer Screenshot](https://simonkellly.github.io/bld-ninja/timer-screenshot.jpeg)
+  ![Timer Screenshot](https://simonkellly.github.io/bld-ninja/solve-screenshot.jpeg)
 </details>
 
 ## Planned features
