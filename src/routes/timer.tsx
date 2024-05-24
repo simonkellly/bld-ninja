@@ -62,7 +62,7 @@ function Timer() {
           </h1>
         </div>
       </div>
-      <ScrollArea className="h-72 mt-2 rounded-lg">
+      <ScrollArea className="h-72 rounded-lg">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           <LiveCubeCard />
           <ResultsCard />

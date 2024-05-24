@@ -16,6 +16,7 @@ import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
 import { TimerStore } from './timerStore';
+import { shouldIgnoreEvent } from '@/lib/utils';
 
 export enum TimerState {
   Inactive = 'INACTIVE',
@@ -25,22 +26,6 @@ export enum TimerState {
 }
 
 export const HOLD_DOWN_TIME = 300;
-
-function shouldIgnoreEvent(ev: KeyboardEvent) {
-  if (
-    ev.target instanceof HTMLInputElement ||
-    ev.target instanceof HTMLTextAreaElement ||
-    ev.target instanceof HTMLButtonElement ||
-    ev.target instanceof HTMLSelectElement
-  )
-    return true;
-
-  if (ev.target instanceof HTMLElement) {
-    return ev.target.role !== null;
-  }
-
-  return false;
-}
 
 async function updateScrambleFromCubeState(originalScramble: Alg | string) {
   const ogScrambleStr = originalScramble.toString();
