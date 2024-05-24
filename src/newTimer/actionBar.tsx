@@ -1,9 +1,27 @@
-import { useTheme } from "@/components/theme-provider";
-import { Button, ButtonProps } from "@/components/ui/button";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft, BluetoothConnected, Moon, RotateCcw, Sun } from "lucide-react";
-import { forwardRef } from "react";
+import { Link } from '@tanstack/react-router';
+import { useStore } from '@tanstack/react-store';
+import {
+  ArrowLeft,
+  Bluetooth,
+  BluetoothConnected,
+  Moon,
+  RotateCcw,
+  Sun,
+} from 'lucide-react';
+import { forwardRef } from 'react';
+import CubeName from '@/components/cubing/cubeName';
+import { useTheme } from '@/components/theme-provider';
+import { Button, ButtonProps } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CubeStore, connect, reset } from '@/lib/smartCube';
 
 const TopButton = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ ...props }, ref) => (
@@ -11,10 +29,17 @@ const TopButton = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       variant="ghost"
       size={null}
-      className={"h-full aspect-square p-1" + (props.className || '')}
+      className={'h-full aspect-square p-1' + (props.className || '')}
+      onClick={e => {
+        e.currentTarget.blur();
+        if (props.onClick) {
+          props.onClick(e);
+        }
+      }}
       {...props}
     />
-));
+  )
+);
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -38,7 +63,7 @@ function ThemeToggle() {
 
 export function SessionSelector() {
   return (
-    <Select>
+    <Select value="3bld" disabled>
       <SelectTrigger className="max-w-40 h-full py-0 pointer-events-auto">
         <SelectValue placeholder="Sessions" />
       </SelectTrigger>
@@ -51,10 +76,12 @@ export function SessionSelector() {
         </SelectGroup>
       </SelectContent>
     </Select>
-  )
+  );
 }
 
 export function ActionBar() {
+  const cube = useStore(CubeStore, state => state.cube);
+
   return (
     <div className="bg-card rounded-lg border w-full h-12 p-1 relative">
       <div className="h-full flex justify-between">
@@ -71,13 +98,22 @@ export function ActionBar() {
             variant="ghost"
             size={null}
             className="h-full aspect-square p-2 sm:aspect-auto"
+            onClick={e => {
+              e.currentTarget.blur();
+              connect();
+            }}
           >
-            <BluetoothConnected className="sm:mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">GANicV2S_8101</span>
+            {cube && <BluetoothConnected className="sm:mr-2 h-4 w-4" />}
+            {!cube && <Bluetooth className="sm:mr-2 h-4 w-4" />}
+            <span className="hidden sm:inline">
+              <CubeName />
+            </span>
           </Button>
-          <TopButton>
-            <RotateCcw className="h-4 w-4" />
-          </TopButton>
+          {cube && (
+            <TopButton onClick={() => reset()}>
+              <RotateCcw className="h-4 w-4" />
+            </TopButton>
+          )}
         </div>
       </div>
       <div className="h-full w-full justify-center absolute top-0 left-0 flex p-1.5 pointer-events-none">

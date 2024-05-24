@@ -25,6 +25,8 @@ export default function BTCubeDisplay({ className }: { className: string }) {
       cameraLatitude: 25,
       cameraLongitude: 25,
       tempoScale: 5,
+      backView: 'top-right',
+      experimentalDragInput: 'none',
       experimentalStickering: 'picture',
       experimentalSprite: cubeImage,
     });

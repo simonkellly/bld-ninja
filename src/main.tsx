@@ -7,7 +7,6 @@ import {
 import { setSearchDebug } from 'cubing/search';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { HotkeysProvider } from 'react-hotkeys-hook';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -38,12 +37,10 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <ThemeProvider>
-        <HotkeysProvider>
-          <TooltipProvider>
-            <RouterProvider router={router} />
-            <Toaster />
-          </TooltipProvider>
-        </HotkeysProvider>
+        <TooltipProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </TooltipProvider>
       </ThemeProvider>
     </StrictMode>
   );

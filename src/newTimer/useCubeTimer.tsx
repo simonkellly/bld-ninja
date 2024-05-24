@@ -7,21 +7,39 @@ import {
   GanCubeMove,
   cubeTimestampLinearFit,
 } from 'gan-web-bluetooth';
-import { useEffect, useRef } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
+import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
+import { Key } from 'ts-key-enum';
+import { useToast } from '@/components/ui/use-toast';
 import { Solve, db } from '@/lib/db';
 import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
-import { TimerStore } from '@/timer/timerStore';
-import { useToast } from '../components/ui/use-toast';
+import { TimerStore } from './timerStore';
 
-enum TimerState {
+export enum TimerState {
   Inactive = 'INACTIVE',
   HoldingDown = 'HOLDING_DOWN',
   Active = 'ACTIVE',
   Finishing = 'FINISHING',
+}
+
+export const HOLD_DOWN_TIME = 300;
+
+function shouldIgnoreEvent(ev: KeyboardEvent) {
+  if (
+    ev.target instanceof HTMLInputElement ||
+    ev.target instanceof HTMLTextAreaElement ||
+    ev.target instanceof HTMLButtonElement ||
+    ev.target instanceof HTMLSelectElement
+  )
+    return true;
+
+  if (ev.target instanceof HTMLElement) {
+    return ev.target.role !== null;
+  }
+
+  return false;
 }
 
 async function updateScrambleFromCubeState(originalScramble: Alg | string) {
@@ -99,38 +117,17 @@ async function processScramblingMove(ev: GanCubeMove) {
   await updateScrambleFromCubeState(ogScramble);
 }
 
-const newScramble = async () => {
+async function newScramble() {
   const scramble = await randomScrambleForEvent('333');
   TimerStore.setState(state => ({
     ...state,
     originalScramble: scramble.toString(),
   }));
   await updateScrambleFromCubeState(scramble.toString());
-};
+}
 
-export const useCubeTimer = () => {
-  const cube = useStore(CubeStore, state => state.cube);
+export default function useCubeTimer() {
   const stopwatch = useStopwatch();
-
-  useEffect(() => {
-    const subscription = cube?.events$.subscribe((event: GanCubeEvent) => {
-      if (event.type !== 'MOVE') return;
-
-      if (stopwatch.isRunning()) return;
-      processScramblingMove(event);
-    });
-
-    if (TimerStore.state.originalScramble)
-      updateScrambleFromCubeState(TimerStore.state.originalScramble);
-
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [cube, stopwatch]);
-
-  useEffect(() => {
-    newScramble();
-  }, []);
 
   const state = useRef<TimerState>(TimerState.Inactive);
   const moveDetails = useRef<{
@@ -141,27 +138,28 @@ export const useCubeTimer = () => {
     end: [],
   });
 
+  const cube = useStore(CubeStore, state => state.cube);
   const { toast } = useToast();
 
-  const startSolve = () => {
+  const startSolve = useCallback(() => {
     if (CubeStore.state.lastMoves)
       moveDetails.current.start = [...CubeStore.state.lastMoves];
     else moveDetails.current.start = [];
-  };
+  }, []);
 
-  const finishSolve = async () => {
+  const finishSolve = useCallback(async () => {
     if (CubeStore.state.lastMoves)
-      moveDetails.current.end = [...CubeStore.state.lastMoves];
+      moveDetails.current.end = cubeTimestampLinearFit(
+        CubeStore.state.lastMoves
+      );
     else moveDetails.current.end = [];
 
     const endTime = stopwatch.getElapsedRunningTime();
 
-    // get the ones in end which aren't in start
     const diff = moveDetails.current.end.filter(
       move => !moveDetails.current.start.includes(move)
     );
 
-    const times = cubeTimestampLinearFit(diff);
     const solution = diff.map(move => move.move);
 
     console.log('Solution:', solution.join(' '));
@@ -169,12 +167,12 @@ export const useCubeTimer = () => {
     const algs = await extractAlgs(solution);
 
     console.log('Scramble:', TimerStore.state.originalScramble);
-    let last = times.length > 0 ? times[0].cubeTimestamp : 0;
+    let last = diff.length > 0 ? diff[0].cubeTimestamp : 0;
     console.table(
       algs.map(([alg, comment, idx]) => {
-        const ms = times[idx].cubeTimestamp - last;
+        const ms = diff[idx].cubeTimestamp - last;
         const time = (ms / 1000).toFixed(2);
-        last = times[idx].cubeTimestamp;
+        last = diff[idx].cubeTimestamp;
         return [alg + comment, time];
       })
     );
@@ -200,39 +198,105 @@ export const useCubeTimer = () => {
         description: dnfAnalysis,
       });
     }
-  };
+  }, [stopwatch, toast]);
 
-  const updateStateFromSpaceBar = (up: boolean) => {
-    const currentState = state.current;
-    if (currentState === TimerState.Inactive) {
-      if (!up) {
-        state.current = TimerState.HoldingDown;
+  const updateStateFromSpaceBar = useCallback(
+    (holdingDown: boolean) => {
+      const currentState = state.current;
+      if (currentState === TimerState.Inactive) {
+        if (holdingDown) {
+          state.current = TimerState.HoldingDown;
+          stopwatch.start();
+        }
+      } else if (currentState === TimerState.HoldingDown) {
+        if (!holdingDown) {
+          const currentTime = stopwatch.getElapsedRunningTime();
+          if (currentTime < HOLD_DOWN_TIME) {
+            state.current = TimerState.Inactive;
+            stopwatch.stop();
+          } else {
+            state.current = TimerState.Active;
+            stopwatch.start();
+            startSolve();
+          }
+        }
+      } else if (currentState === TimerState.Active) {
+        if (holdingDown) {
+          state.current = TimerState.Finishing;
+          stopwatch.pause();
+          finishSolve();
+        }
+      } else if (currentState === TimerState.Finishing) {
+        if (!holdingDown) {
+          state.current = TimerState.Inactive;
+        }
+      }
+    },
+    [stopwatch, startSolve, finishSolve]
+  );
+
+  useEffect(() => {
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (shouldIgnoreEvent(ev)) {
+        return;
+      }
+
+      if (ev.key === ' ') {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        updateStateFromSpaceBar(true);
+      }
+
+      if (ev.key === Key.Escape) {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
         stopwatch.stop();
-      }
-    } else if (currentState === TimerState.HoldingDown) {
-      if (up) {
-        state.current = TimerState.Active;
-        stopwatch.start();
-        startSolve();
-      }
-    } else if (currentState === TimerState.Active) {
-      if (!up) {
-        state.current = TimerState.Finishing;
-        stopwatch.pause();
-        finishSolve();
-      }
-    } else if (currentState === TimerState.Finishing) {
-      if (up) {
         state.current = TimerState.Inactive;
       }
-    }
-  };
+    };
 
-  useHotkeys(' ', () => updateStateFromSpaceBar(false), { keyup: false });
-  useHotkeys(' ', () => updateStateFromSpaceBar(true), { keyup: true });
+    const onKeyUp = (ev: KeyboardEvent) => {
+      if (shouldIgnoreEvent(ev)) {
+        return;
+      }
+
+      if (ev.key === ' ') {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        updateStateFromSpaceBar(false);
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keyup', onKeyUp);
+    };
+  }, [stopwatch, updateStateFromSpaceBar]);
+
+  useEffect(() => {
+    const subscription = cube?.events$.subscribe((event: GanCubeEvent) => {
+      if (event.type !== 'MOVE') return;
+
+      if (stopwatch.isRunning()) return;
+      processScramblingMove(event);
+    });
+
+    if (TimerStore.state.originalScramble)
+      updateScrambleFromCubeState(TimerStore.state.originalScramble);
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [cube, stopwatch]);
+
+  useEffect(() => {
+    newScramble();
+  }, []);
 
   return {
     stopwatch,
-    pressSpaceBar: updateStateFromSpaceBar,
+    state,
   };
-};
+}

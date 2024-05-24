@@ -66,15 +66,15 @@ function handleCubeEvent(event: GanCubeEvent) {
 
 export const reset = async () => {
   CubeStore.setState(state => ({ ...state, lastMoves: [] }));
-  await CubeStore.state.cube!.sendCubeCommand({ type: 'REQUEST_RESET' });
+  await CubeStore.state.cube?.sendCubeCommand({ type: 'REQUEST_RESET' });
 };
 
 export const connect = async () => {
   const conn = CubeStore.state.cube;
 
   if (conn) {
-    conn.disconnect();
     CubeStore.setState(() => ({}) as CubeStoreType);
+    conn.disconnect();
   } else {
     const newConn = await connectGanCube(customMacAddressProvider);
 

@@ -73,7 +73,7 @@ function Index() {
         <CardContent>
           <p>
             Try out the in progress trainer{' '}
-            <Link to="/newTimer" className="underline">
+            <Link to="/timer" className="underline">
               here
             </Link>
             .
