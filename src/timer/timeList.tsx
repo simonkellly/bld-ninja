@@ -195,12 +195,12 @@ export default function TimeList({ className }: { className: string }) {
             return (
               <div
                 key={item.key}
-                className="flex gap-2 rounded-md font-mono py-1 pl-2 my-1 hover:bg-gray-900 cursor-pointer"
+                className="flex gap-2 rounded-md font-mono py-1 pl-2 my-1 hover:bg-card hover:text-card-foreground cursor-pointer"
                 ref={rowVirtualizer.measureElement}
                 data-index={item.index}
                 onClick={showModal}
               >
-                <div className="text-gray-500 my-auto">
+                <div className="text-primary my-auto">
                   <pre>
                     {reverseIdx.toString().padStart(padAmountForIdx, ' ')}.
                   </pre>

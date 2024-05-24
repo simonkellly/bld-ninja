@@ -12,12 +12,18 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as TimerImport } from './routes/timer'
+import { Route as NewTimerImport } from './routes/newTimer'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
 
 const TimerRoute = TimerImport.update({
   path: '/timer',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const NewTimerRoute = NewTimerImport.update({
+  path: '/newTimer',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -34,6 +40,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/newTimer': {
+      preLoaderRoute: typeof NewTimerImport
+      parentRoute: typeof rootRoute
+    }
     '/timer': {
       preLoaderRoute: typeof TimerImport
       parentRoute: typeof rootRoute
@@ -43,6 +53,10 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([IndexRoute, TimerRoute])
+export const routeTree = rootRoute.addChildren([
+  IndexRoute,
+  NewTimerRoute,
+  TimerRoute,
+])
 
 /* prettier-ignore-end */

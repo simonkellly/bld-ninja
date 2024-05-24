@@ -3,5 +3,5 @@ import { CubeStore } from '@/lib/smartCube';
 
 export default function CubeName() {
   const cube = useStore(CubeStore, state => state.cube);
-  return <>{cube?.deviceName ?? 'Connected Cube'}</>;
+  return <>{cube ? cube?.deviceName ?? 'Connected cube' : "No cube connected"}</>;
 }

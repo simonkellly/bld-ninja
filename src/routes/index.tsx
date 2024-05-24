@@ -18,7 +18,15 @@ export const Route = createFileRoute('/')({
   component: Index,
 });
 
-function PlannedFeature({ id, label, checked }: { id: string; label: string, checked?: boolean}) {
+function PlannedFeature({
+  id,
+  label,
+  checked,
+}: {
+  id: string;
+  label: string;
+  checked?: boolean;
+}) {
   return (
     <div className="flex items-center space-x-2 p-1">
       <Checkbox id={id} checked={checked} className="cursor-default" />
@@ -64,10 +72,11 @@ function Index() {
         </CardHeader>
         <CardContent>
           <p>
-            Try out the in progress trainer {' '}
-            <Link to="/timer" className="underline">
+            Try out the in progress trainer{' '}
+            <Link to="/newTimer" className="underline">
               here
-            </Link>.
+            </Link>
+            .
           </p>
           <br />
           <p>
@@ -82,9 +91,17 @@ function Index() {
           </p>
           <br />
           <p>Planned features:</p>
-          <PlannedFeature id="timer" label="Standard timer functionality" checked />
+          <PlannedFeature
+            id="timer"
+            label="Standard timer functionality"
+            checked
+          />
           <PlannedFeature id="dnf-analysis" label="DNF Analysis" />
-          <PlannedFeature id="in-solve-timing" label="In solve case timing" checked />
+          <PlannedFeature
+            id="in-solve-timing"
+            label="In solve case timing"
+            checked
+          />
           <PlannedFeature
             id="algsheet-import"
             label="Algsheet importing and generation"
@@ -103,7 +120,9 @@ function Index() {
         <CardFooter className="flex justify-end gap-2">
           <ThemeToggle />
           <Button asChild>
-            <a href="https://github.com/simonkellly/bld-ninja"><SiGithub className="mr-2 h-4 w-4" /> GitHub</a>
+            <a href="https://github.com/simonkellly/bld-ninja">
+              <SiGithub className="mr-2 h-4 w-4" /> GitHub
+            </a>
           </Button>
         </CardFooter>
       </Card>

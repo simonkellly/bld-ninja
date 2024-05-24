@@ -29,19 +29,16 @@ function ScrambleDisplay() {
       {scramble.length > 0 ? (
         <>
           {scramble.split(' ').map((move, i) => {
-            const className = cn(
-              'inline-block px-2 mx-1 py-1 text-white rounded-lg',
-              {
-                'bg-muted': i === scrambleIndex,
-                'text-muted': i < scrambleIndex,
-              }
-            );
+            const className = cn('inline-block px-2 mx-1 py-1 rounded-lg', {
+              'bg-primary': i === scrambleIndex,
+              'text-primary-foreground': i < scrambleIndex,
+            });
             return (
               <div
                 key={scramble.length + move + 'Move' + i}
                 className={className}
               >
-                {move}
+                <pre>{move.padEnd(2, ' ')}</pre>
               </div>
             );
           })}{' '}
@@ -86,14 +83,14 @@ export default function TimerPage() {
 
   return (
     <div
-      className="h-full w-full flex flex-col outline-transparent"
+      className="h-full w-full flex flex-col"
       tabIndex={0}
       onFocusCapture={() => enableScope('timer')}
       onBlurCapture={() => disableScope('timer')}
     >
       <ScrambleDisplay />
       <div className="flex grow h-full items-center">
-        <h1 className="text-9xl font-extrabold text-white text-center m-auto font-mono py-8 select-none">
+        <h1 className="text-9xl font-extrabold text-center m-auto font-mono py-8 select-none">
           <TimerRenderer
             timer={cubeTimer.stopwatch}
             renderRate={30}
@@ -102,7 +99,7 @@ export default function TimerPage() {
         </h1>
       </div>
       <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
-        <fieldset className="rounded-lg border px-4 hover:bg-muted col-span-2 md:col-span-1">
+        <fieldset className="rounded-lg border px-4 col-span-2 md:col-span-1">
           <legend className="-ml-1 px-1 text-sm font-medium">
             <CubeName />
           </legend>
