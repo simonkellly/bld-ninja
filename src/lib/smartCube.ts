@@ -60,7 +60,7 @@ function handleCubeEvent(event: GanCubeEvent) {
   if (event.type == 'MOVE') {
     handleMoveEvent(event);
   } else if (event.type == 'DISCONNECT') {
-    connect();
+    CubeStore.setState(() => ({}) as CubeStoreType);
   }
 }
 
