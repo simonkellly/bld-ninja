@@ -5,7 +5,7 @@ import {
 } from 'react-use-precision-timer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { ActionBar } from '@/timer/actionBar';
+import TimerBar from '@/timer/TimerBar';
 import DrawScrambleCard from '@/timer/drawScrambleCard';
 import LiveCubeCard from '@/timer/liveCubeCard';
 import ResultsCard from '@/timer/resultsCard';
@@ -49,7 +49,7 @@ function Timer() {
 
   return (
     <div className="flex flex-col justify-between h-dvh w-screen p-2">
-      <ActionBar />
+      <TimerBar />
       <div className="bg-card rounded-lg border w-full relative grow mt-2">
         <ScrambleDisplay />
         <div className="absolute top-0 left-0 w-full h-full flex">
