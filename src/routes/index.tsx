@@ -25,11 +25,16 @@ function PlannedFeature({
 }: {
   id: string;
   label: string;
-  checked?: boolean;
+  checked?: boolean | 'indeterminate';
 }) {
   return (
     <div className="flex items-center space-x-2 p-1">
-      <Checkbox id={id} checked={checked} className="cursor-default" />
+      <Checkbox
+        id={id}
+        checked={checked}
+        className="cursor-default"
+        onClick={e => e.preventDefault()}
+      />
       <label
         htmlFor={id}
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -96,7 +101,11 @@ function Index() {
             label="Standard timer functionality"
             checked
           />
-          <PlannedFeature id="dnf-analysis" label="DNF Analysis" />
+          <PlannedFeature
+            id="dnf-analysis"
+            label="DNF Analysis"
+            checked="indeterminate"
+          />
           <PlannedFeature
             id="in-solve-timing"
             label="In solve case timing"
@@ -109,6 +118,7 @@ function Index() {
           <PlannedFeature
             id="reconstruction-export"
             label="Reconstruction export"
+            checked="indeterminate"
           />
           <br />
           <img
