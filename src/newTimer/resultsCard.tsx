@@ -197,7 +197,10 @@ export default function ResultsCard() {
                   <div className="">
                     <pre>
                       <span className="text-primary group-hover:text-primary-foreground">
-                        {reverseIdx.toString().padStart(padAmountForIdx, ' ')}.
+                        {(reverseIdx + 1)
+                          .toString()
+                          .padStart(padAmountForIdx, ' ')}
+                        .
                       </span>
                       <span>{timeText.padStart(7, ' ')}</span>
                       <span>{mo3.padStart(7, ' ')}</span>
