@@ -1,16 +1,18 @@
+import '@fontsource-variable/jetbrains-mono';
 import {
   RouterProvider,
   createHashHistory,
   createRouter,
 } from '@tanstack/react-router';
+import { setSearchDebug } from 'cubing/search';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import { routeTree } from '@/routeTree.gen';
-import { setSearchDebug } from 'cubing/search'
+import { HotkeysProvider } from 'react-hotkeys-hook';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { HotkeysProvider } from 'react-hotkeys-hook';
+import { routeTree } from '@/routeTree.gen';
+import './index.css';
 
 setSearchDebug({
   logPerf: false,
@@ -35,12 +37,14 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <HotkeysProvider>
-        <TooltipProvider>
-          <RouterProvider router={router} />
-          <Toaster />
-        </TooltipProvider>
-      </HotkeysProvider>
+      <ThemeProvider>
+        <HotkeysProvider>
+          <TooltipProvider>
+            <RouterProvider router={router} />
+            <Toaster />
+          </TooltipProvider>
+        </HotkeysProvider>
+      </ThemeProvider>
     </StrictMode>
   );
 }

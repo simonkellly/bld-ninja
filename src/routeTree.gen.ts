@@ -11,19 +11,13 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as TrainerImport } from './routes/trainer'
-import { Route as DashboardImport } from './routes/dashboard'
+import { Route as TimerImport } from './routes/timer'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
 
-const TrainerRoute = TrainerImport.update({
-  path: '/trainer',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DashboardRoute = DashboardImport.update({
-  path: '/dashboard',
+const TimerRoute = TimerImport.update({
+  path: '/timer',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -40,12 +34,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/dashboard': {
-      preLoaderRoute: typeof DashboardImport
-      parentRoute: typeof rootRoute
-    }
-    '/trainer': {
-      preLoaderRoute: typeof TrainerImport
+    '/timer': {
+      preLoaderRoute: typeof TimerImport
       parentRoute: typeof rootRoute
     }
   }
@@ -53,10 +43,6 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([
-  IndexRoute,
-  DashboardRoute,
-  TrainerRoute,
-])
+export const routeTree = rootRoute.addChildren([IndexRoute, TimerRoute])
 
 /* prettier-ignore-end */

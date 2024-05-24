@@ -1,5 +1,5 @@
-import { CubeStore } from "@/lib/smartCube";
-import { useStore } from "@tanstack/react-store";
+import { useStore } from '@tanstack/react-store';
+import { CubeStore } from '@/lib/smartCube';
 
 export default function CubeName() {
   const cube = useStore(CubeStore, state => state.cube);

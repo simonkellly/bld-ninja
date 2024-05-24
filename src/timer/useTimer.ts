@@ -11,11 +11,11 @@ import { useEffect, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useStopwatch } from 'react-use-precision-timer';
 import { Solve, db } from '@/lib/db';
+import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
-import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
-import { useToast } from '../components/ui/use-toast';
 import { TimerStore } from '@/timer/timerStore';
+import { useToast } from '../components/ui/use-toast';
 
 enum TimerState {
   Inactive = 'INACTIVE',
@@ -23,7 +23,6 @@ enum TimerState {
   Active = 'ACTIVE',
   Finishing = 'FINISHING',
 }
-
 
 async function updateScrambleFromCubeState(originalScramble: Alg | string) {
   const ogScrambleStr = originalScramble.toString();
@@ -197,9 +196,9 @@ export const useCubeTimer = () => {
     const dnfAnalysis = await dnfAnalyser(solve.scramble, solve.solution);
     if (dnfAnalysis !== SOLVED) {
       toast({
-        title: "DNF",
+        title: 'DNF',
         description: dnfAnalysis,
-      })
+      });
     }
   };
 

@@ -3,8 +3,7 @@ import { Copy } from 'lucide-react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { Timer, TimerRenderer } from 'react-use-precision-timer';
 import BTCubeDisplay from '@/components/cubing/btCubeDisplay';
-import TimeList from '@/timer/timeList';
-import { useCubeTimer } from '@/timer/useTimer';
+import CubeName from '@/components/cubing/cubeName';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -12,8 +11,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import TimeList from '@/timer/timeList';
+import { useCubeTimer } from '@/timer/useTimer';
 import { TimerStore } from './timerStore';
-import CubeName from '@/components/cubing/cubeName';
 
 function ScrambleDisplay() {
   const scramble = useStore(TimerStore, state => state.scramble);

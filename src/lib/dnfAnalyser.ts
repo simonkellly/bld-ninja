@@ -3,7 +3,7 @@ import { KPattern, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { extractAlgs } from './solutionParser';
 
-export const SOLVED = "Solved";
+export const SOLVED = 'Solved';
 
 function checkIsSolved(pattern: KPattern) {
   return pattern.experimentalIsSolved({
@@ -129,7 +129,11 @@ function checkWrongOrderAlg(scramble: KPattern, algs: string[]) {
 // TODO: If parsing algs failed, reverse scramble and go from other side
 // TODO: Check if a wrong alg was done instead of a correct one
 // TODO: Check for missed flips and twists
-export async function dnfAnalyser(scramble: string, solution: string, fullAnalysis: boolean = true) {
+export async function dnfAnalyser(
+  scramble: string,
+  solution: string,
+  fullAnalysis: boolean = true
+) {
   const puzzle = await cube3x3x3.kpuzzle();
 
   const scrambleTransformation = puzzle.algToTransformation(scramble);
@@ -162,7 +166,10 @@ export async function dnfAnalyser(scramble: string, solution: string, fullAnalys
   );
   if (isOneMoveDnf) return isOneMoveDnf;
 
-  const isWrongOrderAlg = checkWrongOrderAlg(scramblePattern, algs.map(a => a[0]));
+  const isWrongOrderAlg = checkWrongOrderAlg(
+    scramblePattern,
+    algs.map(a => a[0])
+  );
   if (isWrongOrderAlg) return isWrongOrderAlg;
 
   return 'Unknown';
