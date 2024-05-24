@@ -4,7 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { TrainerStore } from './trainerStore';
 
 export default function DrawSolutionCard() {
-  const scramble = useStore(TrainerStore, state => state.moves).map(m => m.move).join(' ');
+  const scramble = useStore(TrainerStore, state => state.moves)
+    .map(m => m.move)
+    .join(' ');
 
   return (
     <fieldset className="bg-card rounded-lg border px-4 col-span-1 h-72">

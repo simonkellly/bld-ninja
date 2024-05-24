@@ -1,10 +1,23 @@
-import CubeName from "@/components/cubing/cubeName";
-import { ActionBar, ActionStart, ActionButton, ActionMiddle, ActionEnd, ActionIcon } from "@/components/layout/ActionBar";
-import { useTheme } from "@/components/theme-provider";
-import { CubeStore, connect, reset } from "@/lib/smartCube";
-import { Link } from "@tanstack/react-router";
-import { useStore } from "@tanstack/react-store";
-import { ArrowLeft, Bluetooth, BluetoothConnected, Moon, RotateCcw, Sun } from "lucide-react";
+import { Link } from '@tanstack/react-router';
+import { useStore } from '@tanstack/react-store';
+import {
+  ArrowLeft,
+  Bluetooth,
+  BluetoothConnected,
+  Moon,
+  RotateCcw,
+  Sun,
+} from 'lucide-react';
+import CubeName from '@/components/cubing/cubeName';
+import {
+  ActionBar,
+  ActionStart,
+  ActionButton,
+  ActionMiddle,
+  ActionEnd,
+  ActionIcon,
+} from '@/components/layout/ActionBar';
+import { useTheme } from '@/components/theme-provider';
 import {
   Select,
   SelectContent,
@@ -14,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CubeStore, connect, reset } from '@/lib/smartCube';
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -43,8 +57,12 @@ export function SessionSelector() {
         <SelectGroup>
           <SelectLabel>Sessions</SelectLabel>
           <SelectItem value="3bld">3BLD</SelectItem>
-          <SelectItem value="edges" disabled>Edges</SelectItem>
-          <SelectItem value="corners" disabled>Corners</SelectItem>
+          <SelectItem value="edges" disabled>
+            Edges
+          </SelectItem>
+          <SelectItem value="corners" disabled>
+            Corners
+          </SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>
@@ -68,13 +86,16 @@ export default function TimerBar() {
         <SessionSelector />
       </ActionMiddle>
       <ActionEnd>
-        <ActionButton className="gap-2 sm:aspect-auto sm:px-2" onClick={() => connect()}>
+        <ActionButton
+          className="gap-2 sm:aspect-auto sm:px-2"
+          onClick={() => connect()}
+        >
           <ActionIcon icon={cube ? BluetoothConnected : Bluetooth} />
           <span className="hidden sm:inline">
             <CubeName />
           </span>
         </ActionButton>
-        {cube && <ActionButton icon={RotateCcw} onClick={() => reset()}/>}
+        {cube && <ActionButton icon={RotateCcw} onClick={() => reset()} />}
       </ActionEnd>
     </ActionBar>
   );

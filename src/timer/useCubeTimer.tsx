@@ -15,8 +15,8 @@ import { Solve, db } from '@/lib/db';
 import { SOLVED, dnfAnalyser } from '@/lib/dnfAnalyser';
 import { CubeStore } from '@/lib/smartCube';
 import { extractAlgs } from '@/lib/solutionParser';
-import { TimerStore } from './timerStore';
 import { shouldIgnoreEvent } from '@/lib/utils';
+import { TimerStore } from './timerStore';
 
 export enum TimerState {
   Inactive = 'INACTIVE',

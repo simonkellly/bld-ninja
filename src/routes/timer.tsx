@@ -10,10 +10,7 @@ import DrawScrambleCard from '@/timer/drawScrambleCard';
 import LiveCubeCard from '@/timer/liveCubeCard';
 import ResultsCard from '@/timer/resultsCard';
 import ScrambleDisplay from '@/timer/scrambleDisplay';
-import useCubeTimer, {
-  HOLD_DOWN_TIME,
-  TimerState,
-} from '@/timer/useCubeTimer';
+import useCubeTimer, { HOLD_DOWN_TIME, TimerState } from '@/timer/useCubeTimer';
 
 export const Route = createFileRoute('/timer')({
   component: Timer,
