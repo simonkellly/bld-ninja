@@ -76,9 +76,16 @@ function Index() {
           <CardDescription>Under construction.</CardDescription>
         </CardHeader>
         <CardContent>
+        <p>
+            Use the smart timer{' '}
+            <Link to="/timer" className="underline">
+              here
+            </Link>
+            .
+          </p>
           <p>
             Try out the in progress trainer{' '}
-            <Link to="/timer" className="underline">
+            <Link to="/trainer" className="underline">
               here
             </Link>
             .
