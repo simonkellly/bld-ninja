@@ -12,7 +12,7 @@ This is a more fully featured replacement for my previous trainer [BLD Tools](ht
 
 Check it out [here](https://simonkellly.github.io/bld-ninja/)
 
-<details open>
+<details>
   <summary>Screenshots</summary>
 
   ![Timer Screenshot](https://simonkellly.github.io/bld-ninja/timer-screenshot.jpeg)
