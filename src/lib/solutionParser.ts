@@ -477,7 +477,10 @@ export async function extractAlgs(
     }
 
     return [
-      foundComm.replaceAll(',', ', ').replaceAll(':', ': '),
+      foundComm
+        .replaceAll(',', ', ')
+        .replaceAll(':', ': ')
+        .replaceAll('][', '] ['),
       comment,
       moveIdx,
     ];

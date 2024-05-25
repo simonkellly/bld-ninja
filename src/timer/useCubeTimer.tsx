@@ -133,7 +133,10 @@ export default function useCubeTimer() {
     const solution = solutionMoves.map(move => move.move);
     const solutionStr = solution.join(' ');
 
-    const penalty = await penaltyChecker(TimerStore.state.originalScramble, solutionStr);
+    const penalty = await penaltyChecker(
+      TimerStore.state.originalScramble,
+      solutionStr
+    );
 
     newScramble();
 
@@ -147,7 +150,6 @@ export default function useCubeTimer() {
     } as Solve;
 
     await db.solves.add(solve);
-
   }, [stopwatch]);
 
   const updateStateFromSpaceBar = useCallback(

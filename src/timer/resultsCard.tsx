@@ -64,7 +64,7 @@ function SolveDialog({
   const deleteSolve = () => {
     db.solves.delete(solve.id);
     close(false);
-  }
+  };
 
   const solutionStr = solve.solution.map(s => s.move).join(' ');
 
@@ -73,11 +73,13 @@ function SolveDialog({
       ? `DNF(${convertTimeToText(solve.time)})`
       : convertSolveToText(solve);
 
-  const twistyUrl = 'https://alpha.twizzle.net/edit/?' + new URLSearchParams({
-    "setup-alg": solve.scramble,
-    "alg": solve.parsed?.join('\n') || solutionStr,
-  }).toString();
-    
+  const twistyUrl =
+    'https://alpha.twizzle.net/edit/?' +
+    new URLSearchParams({
+      'setup-alg': solve.scramble,
+      alg: solve.parsed?.join('\n') || solutionStr,
+    }).toString();
+
   return (
     <Dialog open={true} onOpenChange={close}>
       <DialogContent className="sm:max-w-[425px]">
@@ -103,18 +105,14 @@ function SolveDialog({
           <li className="font-medium">Algs in solve:</li>
           <ScrollArea className="h-64">
             {!solve.parsed && solutionStr}
-            {solve.parsed && solve.parsed.map((alg, i) => (
-              <li key={i + ' ' + alg}>{alg}</li>
-            ))}
+            {solve.parsed &&
+              solve.parsed.map((alg, i) => <li key={i + ' ' + alg}>{alg}</li>)}
           </ScrollArea>
         </ul>
         {analysis && <p className="font-medium">{analysis}</p>}
         <DialogFooter>
-          
           <Button type="submit" asChild>
-            <a href={twistyUrl}>
-              Twisty
-            </a>
+            <a href={twistyUrl}>Twisty</a>
           </Button>
           <Button variant="secondary" type="button" onClick={analyse}>
             Analyse

@@ -1,8 +1,8 @@
 import { Alg } from 'cubing/alg';
 import { KPattern, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
-import { extractAlgs } from './solutionParser';
 import { Penalty } from './db';
+import { extractAlgs } from './solutionParser';
 
 export const SOLVED = 'Solved';
 export const PLUS_TWO = '+2';
@@ -173,10 +173,12 @@ function checkPlusTwo(solvedState: KTransformation, solvedPattern: KPattern) {
     }
   }
   return false;
-
 }
 
-export async function penaltyChecker(scramble: string, solution: string): Promise<Penalty> {
+export async function penaltyChecker(
+  scramble: string,
+  solution: string
+): Promise<Penalty> {
   const puzzle = await cube3x3x3.kpuzzle();
 
   const scrambleTransformation = puzzle.algToTransformation(scramble);
@@ -217,7 +219,6 @@ export async function dnfAnalyser(
   const isSolved = checkIsSolved(totalTransformation.toKPattern());
 
   if (isSolved) return SOLVED;
-
 
   const isInverseAlg = checkInverseAlg(
     scramblePattern,
