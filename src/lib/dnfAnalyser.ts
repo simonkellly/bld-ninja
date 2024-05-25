@@ -63,14 +63,11 @@ async function check1MoveDnf(
 
   const isOneMove = cornerCount == 4 && edgeCount == 8;
   if (!isOneMove) {
-    console.log('Not one move from state');
     return false;
   }
 
   // check through the moves;
   const moves = ['U', 'D', 'R', 'L', 'F', 'B'];
-
-  console.log('Solution:', solution.join(' '));
 
   let checkedState = scramble;
   for (let solutionIdx = 0; solutionIdx <= solution.length; solutionIdx++) {
@@ -94,7 +91,6 @@ async function check1MoveDnf(
           const newAnalysis = await extractAlgs(solutionWithMove);
           const brokenAlgIdx = newAnalysis.findIndex(a => a[2] > solutionIdx);
           if (solutionIdx == solution.length) return PLUS_TWO;
-          console.log('Broken alg:', brokenAlgIdx, newAnalysis, solutionIdx);
           return algs[brokenAlgIdx] + ' -> ' + newAnalysis[brokenAlgIdx][0];
         }
       }
@@ -153,7 +149,6 @@ function checkPlusTwo(solvedState: KTransformation, solvedPattern: KPattern) {
 
   const isOneMove = cornerCount == 4 && edgeCount == 8;
   if (!isOneMove) {
-    console.log('Not one move from state');
     return false;
   }
 
