@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useStore } from '@tanstack/react-store';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import LiveCubeCard from '@/timer/liveCubeCard';
+import LiveCubeCard from '@/timer/LiveCubeCard';
 import DrawSolutionCard from '@/trainer/DrawSolutionCard';
 import SolutionDisplay from '@/trainer/SolutionDisplay';
 import TrainerBar from '@/trainer/TrainerBar';

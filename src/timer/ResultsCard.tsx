@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { Penalty, Solve, db } from '@/lib/db';
-import { AlgTable } from './algTable';
+import { AlgTable } from './AlgTable';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
