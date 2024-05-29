@@ -74,9 +74,14 @@ function SolveDialog({
       alg: solve.algs?.join('\n') || solutionStr,
     }).toString();
 
+  const exec = solve.solution[0]?.localTimestamp
+    ? solve.now - solve.solution[0].localTimestamp
+    : undefined;
+  const memo = exec ? solve.time - exec : undefined;
+
   return (
     <Dialog open={true} onOpenChange={close}>
-      <DialogContent className="sm:mgax-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Solve #{idx + 1}</DialogTitle>
           <DialogDescription>
@@ -84,7 +89,12 @@ function SolveDialog({
           </DialogDescription>
         </DialogHeader>
         <h2 className="text-3xl font-bold">{timeText}</h2>
-        <h2 className="text-l font-bold">{solve.scramble}</h2>
+        {exec && memo && (
+          <h4 className="text-m text-muted-foreground">
+            {convertTimeToText(memo)} + {convertTimeToText(exec)} = {timeText}
+          </h4>
+        )}
+        <h3 className="text-l font-bold">{solve.scramble}</h3>
         <div className="flex">
           <DrawScramble
             scramble={solve.scramble}
@@ -96,10 +106,16 @@ function SolveDialog({
           />
         </div>
         <AlgTable solve={solve} />
-        <p className="font-medium">{solve.dnfReason || ' '}</p>
+        {solve.penalty == Penalty.DNF && (
+          <p className="font-medium">
+            DNF Reason: {solve.dnfReason || 'Not analysed'}
+          </p>
+        )}
         <DialogFooter>
           <Button type="submit" asChild>
-            <a href={twistyUrl} target="_blank" rel="noopener noreferrer">Recon</a>
+            <a href={twistyUrl} target="_blank" rel="noopener noreferrer">
+              Recon
+            </a>
           </Button>
           <Button variant="secondary" type="button" onClick={analyse}>
             Re-Analyse

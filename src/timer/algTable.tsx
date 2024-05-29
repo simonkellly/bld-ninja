@@ -1,5 +1,5 @@
-import DrawScramble from "@/components/cubing/drawScramble";
-import { ScrollArea } from "@/components/ui/scroll-area"
+import DrawScramble from '@/components/cubing/drawScramble';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
   TableBody,
@@ -7,23 +7,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Solve } from "@/lib/db"
+} from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Solve } from '@/lib/db';
 
 export function AlgTable({ solve }: { solve: Solve }) {
   const solutionStr = solve.solution.map(s => s.move).join(' ');
 
-  if (!solve.algs) return (
-    <ul className="rounded-md border p-2">
-      <li className="font-medium">Algs in solve:</li>
-      <ScrollArea className="h-64">
-        {solutionStr}
-      </ScrollArea>
-    </ul>
-  );
+  if (!solve.algs)
+    return (
+      <ul className="rounded-md border p-2">
+        <li className="font-medium">Algs in solve:</li>
+        <ScrollArea className="h-64">{solutionStr}</ScrollArea>
+      </ul>
+    );
 
-  let time = solve.solution[0].cubeTimestamp;
+  let time = solve.solution[0]?.cubeTimestamp ?? 0;
 
   return (
     <ScrollArea className="h-64 w-full rounded-md border">
@@ -36,9 +39,10 @@ export function AlgTable({ solve }: { solve: Solve }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {solve.algs.map((alg) => {
+          {solve.algs.map(alg => {
             const moveIdx = alg[2];
-            const algTime = (solve.solution[moveIdx]?.cubeTimestamp - time) / 1000;
+            const algTime =
+              (solve.solution[moveIdx]?.cubeTimestamp - time) / 1000;
             time = solve.solution[moveIdx]?.cubeTimestamp;
 
             return (
@@ -63,5 +67,5 @@ export function AlgTable({ solve }: { solve: Solve }) {
         </TableBody>
       </Table>
     </ScrollArea>
-  )
+  );
 }

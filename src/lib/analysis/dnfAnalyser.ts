@@ -15,9 +15,10 @@ export enum AnalysisResult {
   SOLVED = 'Solved',
   PLUS_TWO = '+2',
   UNKNOWN = 'Unknown',
-  ONE_MOVE = 'One Move Mistake',
-  MISSED_TWIST_FLIP = 'Missed Twist or Flip',
-  INVERSE_ALG = 'Inverse Alg',
+  NO_MOVES = 'No recorded moves',
+  ONE_MOVE = 'One move mistake',
+  MISSED_TWIST_FLIP = 'Missed twist or flip',
+  INVERSE_ALG = 'Inverse alg',
 }
 
 function check1MoveOff(
@@ -157,6 +158,8 @@ export async function analyseSolve(
 
   const parsedSolution = await extractAlgs(solutionMoves);
   const actualComms = parsedSolution.map(s => makeAlgToComm(s, puzzle));
+
+  if (solutionMoves.length == 0) return [AnalysisResult.NO_MOVES, actualComms];
 
   if (checkIsSolved(solvedState.toKPattern()))
     return [AnalysisResult.SOLVED, actualComms];

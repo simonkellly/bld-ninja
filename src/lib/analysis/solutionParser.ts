@@ -448,15 +448,16 @@ export async function extractAlgs(
     ];
   });
 
-
   let startingIdx = solutionLength - 1 - (inverseAlgs.at(-1)?.[2] ?? 0);
 
   let last = 0;
-  const lengths = inverseAlgs.map(val => {
-    const ret = val[2] - last;
-    last = val[2];
-    return ret;
-  }).reverse();
+  const lengths = inverseAlgs
+    .map(val => {
+      const ret = val[2] - last;
+      last = val[2];
+      return ret;
+    })
+    .reverse();
 
   inverseAlgs = inverseAlgs.reverse().map((val, idx) => {
     const actualAlg = new Alg(val[0]).invert().toString();

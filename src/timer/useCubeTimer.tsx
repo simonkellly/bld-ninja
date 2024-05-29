@@ -128,7 +128,9 @@ export default function useCubeTimer() {
     const solutionMoves = fullMoves
       ? moves.current.length > fullMoves.length
         ? moves.current
-        : cubeTimestampLinearFit(fullMoves).slice(-moves.current.length)
+        : moves.current.length > 0
+          ? cubeTimestampLinearFit(fullMoves).slice(-moves.current.length)
+          : moves.current
       : moves.current;
 
     const solve = {
