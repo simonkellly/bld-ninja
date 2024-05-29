@@ -147,7 +147,8 @@ export default function useCubeTimer() {
         : analysis == AnalysisResult.PLUS_TWO
           ? Penalty.PLUS_TWO
           : Penalty.DNF;
-    solve.parsed = parsedAlgs.map(([alg]) => alg);
+    solve.algs = parsedAlgs;
+    solve.dnfReason = analysis;
 
     newScramble();
 

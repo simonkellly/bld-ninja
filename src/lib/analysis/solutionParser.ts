@@ -369,6 +369,7 @@ export async function extractAlgs(
     is2E2C: boolean,
     isTwist: boolean,
   ][] = [];
+  const solutionLength = moveSet.length;
 
   moveSet = moveSet.slice();
 
@@ -407,7 +408,7 @@ export async function extractAlgs(
     moves = Alg.fromString(uncancelled.alg).invert().toString();
   }
 
-  let inverseAlgs: [string, AlgType, number][] = [];
+  let inverseAlgs: ExtractedAlg[] = [];
   if (moves.length > 0) {
     const [isEdge, isCorner, is2E2C, isTwist] = checkTransformationIsAlg(
       puzzle.algToTransformation(moves)
@@ -447,13 +448,20 @@ export async function extractAlgs(
     ];
   });
 
-  const remainingLength = Math.max(...inverseAlgs.map(val => val[2]));
-  const lastIdx = mappedComms.at(-1)?.[2] ?? 0;
 
-  inverseAlgs = inverseAlgs.reverse().map(val => {
+  let startingIdx = solutionLength - 1 - (inverseAlgs.at(-1)?.[2] ?? 0);
+
+  let last = 0;
+  const lengths = inverseAlgs.map(val => {
+    const ret = val[2] - last;
+    last = val[2];
+    return ret;
+  }).reverse();
+
+  inverseAlgs = inverseAlgs.reverse().map((val, idx) => {
     const actualAlg = new Alg(val[0]).invert().toString();
-    const moveIdx = lastIdx + remainingLength - val[2];
-
+    const moveIdx = startingIdx + lengths[idx];
+    startingIdx = moveIdx;
     return [actualAlg, val[1], moveIdx] satisfies [string, AlgType, number];
   });
 

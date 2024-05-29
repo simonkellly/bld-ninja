@@ -155,10 +155,8 @@ export async function analyseSolve(
     solutionTransformation
   );
 
-  console.log('New Solution');
   const parsedSolution = await extractAlgs(solutionMoves);
   const actualComms = parsedSolution.map(s => makeAlgToComm(s, puzzle));
-  console.table(actualComms);
 
   if (checkIsSolved(solvedState.toKPattern()))
     return [AnalysisResult.SOLVED, actualComms];

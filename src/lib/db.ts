@@ -1,5 +1,7 @@
 import Dexie, { Table } from 'dexie';
 import { GanCubeMove } from 'gan-web-bluetooth';
+import { ExtractedAlg } from './analysis/solutionParser';
+import { AnalysisResult } from './analysis/dnfAnalyser';
 
 export enum Penalty {
   SOLVED = 0,
@@ -14,7 +16,8 @@ export interface Solve {
   now: number;
   scramble: string;
   solution: GanCubeMove[];
-  parsed?: string[];
+  algs?: ExtractedAlg[];
+  dnfReason?: AnalysisResult;
   penalty?: Penalty;
 }
 

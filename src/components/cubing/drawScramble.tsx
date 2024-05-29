@@ -6,9 +6,11 @@ import cubeImage from '/cube-colors.png';
 export default function DrawScramble({
   className,
   scramble,
+  reverse = false,
 }: {
   className: string;
   scramble: string;
+  reverse?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
@@ -26,6 +28,7 @@ export default function DrawScramble({
       tempoScale: 2,
       experimentalStickering: 'picture',
       experimentalSprite: cubeImage,
+      experimentalSetupAnchor: reverse ? 'end' : 'start',
     });
 
     newPlayer.style.width = '100%';
@@ -34,7 +37,7 @@ export default function DrawScramble({
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(newPlayer);
     setPlayer(newPlayer);
-  }, [containerRef]);
+  }, [containerRef, reverse]);
 
   useEffect(() => {
     if (!player) return;

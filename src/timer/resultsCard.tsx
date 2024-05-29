@@ -12,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { Penalty, Solve, db } from '@/lib/db';
+import { AlgTable } from './algTable';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
@@ -50,12 +50,9 @@ function SolveDialog({
   idx: number;
   close: (open: boolean) => void;
 }) {
-  const [analysis, setAnalysis] = useState<string | undefined>();
-
   const analyse = async () => {
-    const [analysis, parsedAlgs] = await analyseSolve(solve);
-    setAnalysis(analysis);
-    db.solves.update(solve.id, { parsed: parsedAlgs.map(([alg]) => alg) });
+    const [analysis, algs] = await analyseSolve(solve);
+    db.solves.update(solve.id, { algs, dnfReason: analysis });
   };
 
   const deleteSolve = () => {
@@ -74,7 +71,7 @@ function SolveDialog({
     'https://alg.cubing.net/?' +
     new URLSearchParams({
       setup: solve.scramble,
-      alg: solve.parsed?.join('\n') || solutionStr,
+      alg: solve.algs?.join('\n') || solutionStr,
     }).toString();
 
   return (
@@ -98,21 +95,14 @@ function SolveDialog({
             className="w-full h-32 mx-auto"
           />
         </div>
-        <ul className="rounded-md border p-2">
-          <li className="font-medium">Algs in solve:</li>
-          <ScrollArea className="h-64">
-            {!solve.parsed && solutionStr}
-            {solve.parsed &&
-              solve.parsed.map((alg, i) => <li key={i + ' ' + alg}>{alg}</li>)}
-          </ScrollArea>
-        </ul>
-        {analysis && <p className="font-medium">{analysis}</p>}
+        <AlgTable solve={solve} />
+        <p className="font-medium">{solve.dnfReason || ' '}</p>
         <DialogFooter>
           <Button type="submit" asChild>
             <a href={twistyUrl} target="_blank" rel="noopener noreferrer">Recon</a>
           </Button>
           <Button variant="secondary" type="button" onClick={analyse}>
-            Analyse
+            Re-Analyse
           </Button>
           <Button variant="destructive" type="submit" onClick={deleteSolve}>
             Delete

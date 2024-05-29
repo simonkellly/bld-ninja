@@ -5,7 +5,7 @@ import {
   createRouter,
 } from '@tanstack/react-router';
 import { setSearchDebug } from 'cubing/search';
-import { StrictMode } from 'react';
+// import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
@@ -35,13 +35,13 @@ const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
-    <StrictMode>
+    // <StrictMode>
       <ThemeProvider>
         <TooltipProvider>
           <RouterProvider router={router} />
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>
-    </StrictMode>
+    // </StrictMode>
   );
 }
