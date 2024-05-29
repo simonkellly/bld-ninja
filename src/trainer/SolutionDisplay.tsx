@@ -1,5 +1,5 @@
 import { useStore } from '@tanstack/react-store';
-import { simplify } from '@/lib/solutionParser';
+import { simplify } from '@/lib/analysis/solutionParser';
 import { cn } from '@/lib/utils';
 import { TrainerStore } from './trainerStore';
 

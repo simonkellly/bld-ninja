@@ -7,8 +7,8 @@ import {
 } from 'gan-web-bluetooth';
 import { useCallback, useEffect, useState } from 'react';
 import { Key } from 'ts-key-enum';
+import { extractAlgs } from '@/lib/analysis/solutionParser';
 import { CubeStore } from '@/lib/smartCube';
-import { extractAlgs } from '@/lib/solutionParser';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { AlgSheet, fetchGoogleSheet } from './algSheet';
 import { TrainerStore } from './trainerStore';

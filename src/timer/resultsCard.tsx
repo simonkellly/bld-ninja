@@ -13,9 +13,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { Penalty, Solve, db } from '@/lib/db';
-import { dnfAnalyser } from '@/lib/dnfAnalyser';
-import { extractAlgs } from '@/lib/solutionParser';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
@@ -54,11 +53,9 @@ function SolveDialog({
   const [analysis, setAnalysis] = useState<string | undefined>();
 
   const analyse = async () => {
-    const moves = solve.solution.map(s => s.move);
-    const algs = await extractAlgs(moves);
-    const analysis = await dnfAnalyser(solve.scramble, moves.join(' '), algs);
+    const [analysis, parsedAlgs] = await analyseSolve(solve);
     setAnalysis(analysis);
-    db.solves.update(solve.id, { parsed: algs.map(([alg]) => alg) });
+    db.solves.update(solve.id, { parsed: parsedAlgs.map(([alg]) => alg) });
   };
 
   const deleteSolve = () => {
@@ -74,15 +71,15 @@ function SolveDialog({
       : convertSolveToText(solve);
 
   const twistyUrl =
-    'https://alpha.twizzle.net/edit/?' +
+    'https://alg.cubing.net/?' +
     new URLSearchParams({
-      'setup-alg': solve.scramble,
+      setup: solve.scramble,
       alg: solve.parsed?.join('\n') || solutionStr,
     }).toString();
 
   return (
     <Dialog open={true} onOpenChange={close}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:mgax-w-[425px]">
         <DialogHeader>
           <DialogTitle>Solve #{idx + 1}</DialogTitle>
           <DialogDescription>
@@ -112,7 +109,7 @@ function SolveDialog({
         {analysis && <p className="font-medium">{analysis}</p>}
         <DialogFooter>
           <Button type="submit" asChild>
-            <a href={twistyUrl}>Twisty</a>
+            <a href={twistyUrl} target="_blank" rel="noopener noreferrer">Recon</a>
           </Button>
           <Button variant="secondary" type="button" onClick={analyse}>
             Analyse

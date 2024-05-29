@@ -11,8 +11,8 @@ import {
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
 import { Key } from 'ts-key-enum';
-import { Solve, db } from '@/lib/db';
-import { penaltyChecker } from '@/lib/dnfAnalyser';
+import { AnalysisResult, analyseSolve } from '@/lib/analysis/dnfAnalyser';
+import { Penalty, Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { TimerStore } from './timerStore';
@@ -130,15 +130,6 @@ export default function useCubeTimer() {
         ? moves.current
         : cubeTimestampLinearFit(fullMoves).slice(-moves.current.length)
       : moves.current;
-    const solution = solutionMoves.map(move => move.move);
-    const solutionStr = solution.join(' ');
-
-    const penalty = await penaltyChecker(
-      TimerStore.state.originalScramble,
-      solutionStr
-    );
-
-    newScramble();
 
     const solve = {
       time: endTime,
@@ -146,8 +137,19 @@ export default function useCubeTimer() {
       now: now(),
       scramble: TimerStore.state.originalScramble,
       solution: solutionMoves,
-      penalty,
     } as Solve;
+
+    const [analysis, parsedAlgs] = await analyseSolve(solve);
+
+    solve.penalty =
+      analysis == AnalysisResult.SOLVED
+        ? Penalty.SOLVED
+        : analysis == AnalysisResult.PLUS_TWO
+          ? Penalty.PLUS_TWO
+          : Penalty.DNF;
+    solve.parsed = parsedAlgs.map(([alg]) => alg);
+
+    newScramble();
 
     await db.solves.add(solve);
   }, [stopwatch]);

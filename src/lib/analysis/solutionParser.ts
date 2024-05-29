@@ -1,7 +1,17 @@
 import { Alg } from 'cubing/alg';
 import type { KPuzzle, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
-import commutator from './vendor/commutator';
+import commutator from '@/lib/vendor/commutator';
+
+export enum AlgType {
+  EDGE = 'Edge',
+  CORNER = 'Corner',
+  TWIST_FLIP = 'Twist/Flip',
+  TWO_E_TWO_C = '2E2C',
+  UNKNOWN = 'Unknown',
+}
+
+export type ExtractedAlg = [alg: string, type: AlgType, moveIdx: number];
 
 const POSSIBLE_MOVES = ['U', 'F', 'R', 'D', 'B', 'L', 'E', 'S', 'M'];
 const POSSIBLE_AMOUNTS = ['2', '', "'"];
@@ -78,7 +88,7 @@ function applyRotation(rotation: string, move: string) {
   return result;
 }
 
-export function fixSlicesForComm(alg: Alg, puzzle: KPuzzle) {
+function fixSlicesForComm(alg: Alg, puzzle: KPuzzle) {
   const transformation = puzzle.algToTransformation(alg);
   const centerPermutations =
     transformation.transformationData['CENTERS'].permutation;
@@ -226,7 +236,7 @@ export function convertToSliceMoves(moves: string[]) {
   return newMoves;
 }
 
-export function checkTransformationIsAlg(
+function checkTransformationIsAlg(
   transformation: KTransformation
 ): [
   isEdge3Cycle: boolean,
@@ -348,8 +358,9 @@ export function simplify(alg: string) {
 // TODO: Handle AUF +2
 // TODO: Try collapsing algs to see if they are just solving one case
 export async function extractAlgs(
-  moveSet: string[]
-): Promise<[string, string, number][]> {
+  moveSet: string[],
+  allowCheckInverse = true
+): Promise<ExtractedAlg[]> {
   const comms: [
     alg: string,
     moveIdx: number,
@@ -396,14 +407,21 @@ export async function extractAlgs(
     moves = Alg.fromString(uncancelled.alg).invert().toString();
   }
 
+  let inverseAlgs: [string, AlgType, number][] = [];
   if (moves.length > 0) {
     const [isEdge, isCorner, is2E2C, isTwist] = checkTransformationIsAlg(
       puzzle.algToTransformation(moves)
     );
-    comms.push([moves, moveIdx, isEdge, isCorner, is2E2C, isTwist]);
+    const isAnyAlg = isEdge || isCorner || isTwist || is2E2C;
+    if (!isAnyAlg && allowCheckInverse) {
+      inverseAlgs = await extractAlgs(
+        new Alg(moves).invert().toString().split(' '),
+        false
+      );
+    } else comms.push([moves, moveIdx, isEdge, isCorner, is2E2C, isTwist]);
   }
 
-  return comms.map(val => {
+  const mappedComms = comms.map(val => {
     const comm = val[0];
     const moveIdx = val[1];
     const isEdgeComm = val[2];
@@ -412,77 +430,106 @@ export async function extractAlgs(
     const isTwist = val[5];
 
     const isAnyAlg = isEdgeComm || isCornerComm || isTwist || is2E2C;
-    const comment =
-      ' // ' +
-      (!isAnyAlg
-        ? ' // ?'
-        : isEdgeComm
-          ? 'Edge'
-          : isCornerComm
-            ? 'Corner'
-            : isTwist
-              ? 'Twist/Flip'
-              : '2E2C');
+    const comment = !isAnyAlg
+      ? AlgType.UNKNOWN
+      : isEdgeComm
+        ? AlgType.EDGE
+        : isCornerComm
+          ? AlgType.CORNER
+          : isTwist
+            ? AlgType.TWIST_FLIP
+            : AlgType.TWO_E_TWO_C;
 
-    const simplifiedComm = simplify(comm);
-    let foundComm: string | undefined;
+    return [simplify(comm).toString(), comment, moveIdx] satisfies [
+      string,
+      AlgType,
+      number,
+    ];
+  });
 
-    if (is2E2C) {
-      return [simplifiedComm.toString(), comment, moveIdx];
-    }
+  const remainingLength = Math.max(...inverseAlgs.map(val => val[2]));
+  const lastIdx = mappedComms.at(-1)?.[2] ?? 0;
 
-    if (isEdgeComm || isTwist) {
-      const slicesWithRotations = convertToSliceMoves(
-        simplifiedComm.toString().split(' ')
-      );
-      const slices = removeRotations(slicesWithRotations);
-      const fixedAlg = fixSlicesForComm(new Alg(slices.join(' ')), puzzle);
-      foundComm = commutator.search({
-        algorithm: simplify(fixedAlg.join(' ')).toString(),
-        outerBracket: true,
-      })[0];
+  inverseAlgs = inverseAlgs.reverse().map(val => {
+    const actualAlg = new Alg(val[0]).invert().toString();
+    const moveIdx = lastIdx + remainingLength - val[2];
 
-      foundComm = foundComm.replaceAll('u', 'Uw');
-      foundComm = foundComm.replaceAll('f', 'Fw');
-      foundComm = foundComm.replaceAll('r', 'Rw');
-      foundComm = foundComm.replaceAll('b', 'Bw');
-      foundComm = foundComm.replaceAll('l', 'Lw');
-      foundComm = foundComm.replaceAll('d', 'Dw');
-    }
+    return [actualAlg, val[1], moveIdx] satisfies [string, AlgType, number];
+  });
 
-    if (!isAnyAlg) {
-      return [simplify(comm.trim()).toString(), comment, moveIdx];
-    }
+  return [...mappedComms, ...inverseAlgs];
+}
 
-    if (!foundComm || foundComm.endsWith('.')) {
-      foundComm = commutator.search({
-        algorithm: simplify(comm).toString(),
-        outerBracket: true,
-      })[0];
-    }
+export function makeAlgToComm(
+  alg: ExtractedAlg,
+  puzzle: KPuzzle
+): ExtractedAlg {
+  const comm = alg[0];
+  const algType = alg[1];
+  const moveIdx = alg[2];
+  const simplifiedComm = simplify(comm);
+  let foundComm: string | undefined;
 
-    if (!foundComm || foundComm.endsWith('.')) {
-      foundComm = commutator.search({
-        algorithm: comm,
-        outerBracket: true,
-      })[0];
-    }
+  if (algType == AlgType.TWO_E_TWO_C || algType == AlgType.UNKNOWN)
+    return [simplifiedComm.toString(), algType, moveIdx];
 
-    if (foundComm.endsWith('.')) {
+  if (algType == AlgType.EDGE || algType == AlgType.TWIST_FLIP) {
+    const slicesWithRotations = convertToSliceMoves(
+      simplifiedComm.toString().split(' ')
+    );
+    const slices = removeRotations(slicesWithRotations);
+    const fixedAlg = fixSlicesForComm(new Alg(slices.join(' ')), puzzle);
+    foundComm = commutator.search({
+      algorithm: simplify(fixedAlg.join(' ')).toString(),
+      outerBracket: true,
+      maxDepth: 1,
+    })[0]!;
+
+    foundComm = foundComm.replaceAll('u', 'Uw');
+    foundComm = foundComm.replaceAll('f', 'Fw');
+    foundComm = foundComm.replaceAll('r', 'Rw');
+    foundComm = foundComm.replaceAll('b', 'Bw');
+    foundComm = foundComm.replaceAll('l', 'Lw');
+    foundComm = foundComm.replaceAll('d', 'Dw');
+
+    if (algType == AlgType.TWIST_FLIP) {
       return [
-        simplify(comm.trim()).toString(),
-        comment + ' (comm not found)',
+        (foundComm.endsWith('.') ? fixedAlg.join(' ') : foundComm)
+          .replaceAll(',', ', ')
+          .replaceAll(':', ': ')
+          .replaceAll('][', '] ['),
+        algType,
         moveIdx,
       ];
     }
+  }
 
-    return [
-      foundComm
-        .replaceAll(',', ', ')
-        .replaceAll(':', ': ')
-        .replaceAll('][', '] ['),
-      comment,
-      moveIdx,
-    ];
-  });
+  if (!foundComm || foundComm.endsWith('.')) {
+    foundComm = commutator.search({
+      algorithm: simplify(comm).toString(),
+      outerBracket: true,
+      maxDepth: 1,
+    })[0];
+  }
+
+  if (!foundComm || foundComm.endsWith('.')) {
+    foundComm = commutator.search({
+      algorithm: comm,
+      outerBracket: true,
+      maxDepth: 1,
+    })[0];
+  }
+
+  if (foundComm.endsWith('.')) {
+    return [simplify(comm.trim()).toString(), algType, moveIdx];
+  }
+
+  return [
+    foundComm
+      .replaceAll(',', ', ')
+      .replaceAll(':', ': ')
+      .replaceAll('][', '] ['),
+    algType,
+    moveIdx,
+  ];
 }

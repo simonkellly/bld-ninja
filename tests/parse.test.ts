@@ -3,7 +3,7 @@ import {
   convertToSliceMoves,
   extractAlgs,
   removeRotations,
-} from '@/lib/solutionParser';
+} from '@/lib/analysis/solutionParser';
 
 describe('Slice Moves', () => {
   test('Converts slice moves M', () => {

@@ -2,7 +2,7 @@ import { Alg as CubingAlg } from 'cubing/alg';
 import { z } from 'zod';
 
 const SHEET_ID = '1NEYh8MeTqHwnwA4s_CAYBGWU76pqdlutxR0SA2hNZKk';
-const SHEET_NAME = 'UFR Corners';
+const SHEET_NAME = 'UF Edges';
 
 const letter = z.string().length(1);
 
