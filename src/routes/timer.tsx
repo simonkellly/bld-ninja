@@ -5,11 +5,11 @@ import {
 } from 'react-use-precision-timer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import TimerBar from '@/timer/TimerBar';
 import DrawScrambleCard from '@/timer/DrawScrambleCard';
 import LiveCubeCard from '@/timer/LiveCubeCard';
 import ResultsCard from '@/timer/ResultsCard';
 import ScrambleDisplay from '@/timer/ScrambleDisplay';
+import TimerBar from '@/timer/TimerBar';
 import useCubeTimer, { HOLD_DOWN_TIME, TimerState } from '@/timer/useCubeTimer';
 
 export const Route = createFileRoute('/timer')({
