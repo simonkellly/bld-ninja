@@ -138,15 +138,16 @@ function checkInverseAlg(scramble: KPattern, algs: string[]) {
   return false;
 }
 
-export async function analyseSolve(
-  solve: Solve
+export async function analyseSolveString(
+  scramble: string,
+  solution: string,
 ): Promise<[AnalysisResult, ExtractedAlg[]]> {
   const puzzle = await cube3x3x3.kpuzzle();
 
-  const solutionMoves = solve.solution.map(s => s.move);
-  const solutionStr = solutionMoves.join(' ');
+  const solutionMoves = solution.split(' ');
+  const solutionStr = solution
 
-  const scrambleTransformation = puzzle.algToTransformation(solve.scramble);
+  const scrambleTransformation = puzzle.algToTransformation(scramble);
   const solutionTransformation = puzzle.algToTransformation(solutionStr);
 
   const scramblePattern = puzzle
@@ -203,4 +204,14 @@ export async function analyseSolve(
   if (isInverseAlgs) return [isInverseAlgs, actualComms];
 
   return [AnalysisResult.UNKNOWN, actualComms];
+}
+
+
+export async function analyseSolve(
+  solve: Solve
+): Promise<[AnalysisResult, ExtractedAlg[]]> {
+  const solutionMoves = solve.solution.map(s => s.move);
+  const solutionStr = solutionMoves.join(' ');
+
+  return await analyseSolveString(solve.scramble, solutionStr);
 }
