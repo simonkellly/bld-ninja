@@ -19,6 +19,9 @@ export enum AnalysisResult {
   ONE_MOVE = 'One move mistake',
   MISSED_TWIST_FLIP = 'Missed twist or flip',
   INVERSE_ALG = 'Inverse alg',
+  // TODO
+  // WRONG_ORDER = 'Wrong order',
+  // TWIST_WRONG = 'Wrong twist direction
 }
 
 function check1MoveOff(

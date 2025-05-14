@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Solve } from '@/lib/db';
+import { TooltipPortal } from '@radix-ui/react-tooltip';
 
 export function AlgTable({ solve }: { solve: Solve }) {
   const solutionStr = solve.solution.map(s => s.move).join(' ');
@@ -46,21 +47,23 @@ export function AlgTable({ solve }: { solve: Solve }) {
             time = solve.solution[moveIdx]?.cubeTimestamp!;
 
             return (
-              <Tooltip>
+              <Tooltip key={alg[2] + algTime}>
                 <TooltipTrigger asChild>
-                  <TableRow key={alg[2]}>
+                  <TableRow>
                     <TableCell>{algTime.toFixed(2)}s</TableCell>
                     <TableCell>{alg[0]}</TableCell>
                     <TableCell className="text-left">{alg[1]}</TableCell>
                   </TableRow>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipPortal> 
+                  <TooltipContent>
                   <DrawScramble
-                    scramble={alg[0]}
-                    className="w-32 h-32 mx-auto"
-                    reverse
-                  />
-                </TooltipContent>
+                      scramble={alg[0]}
+                      className="w-32 h-32 mx-auto"
+                      reverse
+                    />
+                  </TooltipContent>
+                </TooltipPortal>
               </Tooltip>
             );
           })}
