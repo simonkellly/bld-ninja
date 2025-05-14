@@ -119,14 +119,28 @@ export default function useCubeTimer() {
 
   const finishSolve = useCallback(async () => {
     const endTime = stopwatch.getElapsedRunningTime();
-    const fullMoves = CubeStore.state.lastMoves;
-    const solutionMoves = fullMoves
-      ? moves.current.length > fullMoves.length
-        ? moves.current
-        : moves.current.length > 0
-          ? cubeTimestampLinearFit(fullMoves).slice(-moves.current.length)
-          : moves.current
-      : moves.current;
+
+    const cube = CubeStore.state.cube;
+    if (cube) {
+      let newEventHappened = false;
+      const newMovesSub = cube.events.moves.subscribe(sub => {
+        moves.current.push(sub);
+      });
+
+      const newEventSub = cube.events.state.subscribe(sub => {
+        if (sub.type !== 'freshState') return;
+        newEventHappened = true;
+        newEventSub!.unsubscribe();
+        newMovesSub.unsubscribe();
+      });
+      
+      await cube.freshState();
+      while (!newEventHappened) {
+        await new Promise(resolve => setTimeout(resolve, 25));
+      } 
+    }
+
+    const solutionMoves = cubeTimestampLinearFit(moves.current);
 
     const solve = {
       time: endTime,

@@ -72,7 +72,9 @@ function SolveDialog({
     'https://alg.cubing.net/?' +
     new URLSearchParams({
       setup: solve.scramble,
-      alg: solve.algs?.join('\n') || solutionStr,
+      alg: solve.algs?.map(a => {
+        return `${a[0]} // ${a[1]} - ${a[2]}`
+      }).join('\n') || solutionStr,
     }).toString();
 
   const exec = solve.solution[0]?.localTimestamp

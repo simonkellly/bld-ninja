@@ -131,6 +131,5 @@ describe('Analyse Solve', () => {
     const analysis = await analyseSolveString(scramble, solution);
     expect(analysis[0]).toBe(AnalysisResult.INVERSE_ALG);
     expect(analysis[1].length).toBe(12);
-    console.log(analysis);
   });
 });

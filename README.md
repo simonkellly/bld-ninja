@@ -4,7 +4,6 @@
 ![GitHub Last Commit](https://img.shields.io/github/last-commit/simonkellly/bld-ninja?style=for-the-badge)
 ![GitHub License](https://img.shields.io/github/license/simonkellly/bld-ninja?style=for-the-badge)
 
-
 ![BLD Ninja logo](https://simonkellly.github.io/bld-ninja/bldninja-logo-v1.svg)
 
 This is a work in progress 3BLD trainer. It is designed to be used with a smart cube to analyse solves and identify places to improve.
@@ -21,24 +20,15 @@ Check it out [here](https://simonkellly.github.io/bld-ninja/)
 
 ## Planned features
 
-- [ ] Standard timer functionality
-- [ ] DNF Analysis
-- [ ] In solve case timing
+- [X] Standard timer functionality
+- [X] DNF Analysis
+- [X] In solve case timing
 - [ ] Algsheet importing and generation
-- [ ] Reconstruction export
+- [X] Reconstruction export
+- [ ] Fully featured alg trainer
 
-I can only really guarantee support the GAN 356i Carry 2 as I have one which I can use to test with.
-
-Theoretically the supported smart cubes (thanks to the [gan-web-bluetooth](https://github.com/afedotov/gan-web-bluetooth) library) are:
-- GAN Mini ui FreePlay
-- GAN12 ui
-- GAN12 ui FreePlay
-- GAN356 i 3
-- GAN356 i Carry
-- GAN356 i Carry 2
-- GAN356 i Carry S
-- MoYu AI 2023
-- Monster Go 3Ai
+This tool is only made to work with the Qiyi smart cube (QYSC), and is based on the [qysc-web](https://github.com/simonkellly/qysc-web) library.
+Previously this tool supported gan cubes, but having switched to the inexpensive qiyi option myself, I think this is a reasonable change.
 
 ## Development
 
