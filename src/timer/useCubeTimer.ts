@@ -2,12 +2,6 @@ import { useStore } from '@tanstack/react-store';
 import { Alg } from 'cubing/alg';
 import { randomScrambleForEvent } from 'cubing/scramble';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
-import {
-  GanCubeEvent,
-  GanCubeMove,
-  cubeTimestampLinearFit,
-  now,
-} from 'gan-web-bluetooth';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
 import { Key } from 'ts-key-enum';
@@ -16,6 +10,7 @@ import { Penalty, Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { TimerStore } from './timerStore';
+import { CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
 
 export enum TimerState {
   Inactive = 'INACTIVE',
@@ -59,7 +54,7 @@ async function updateScrambleFromCubeState(originalScramble: Alg | string) {
   }));
 }
 
-async function processScramblingMove(ev: GanCubeMove) {
+async function processScramblingMove(ev: CubeMoveEvent) {
   const ogScramble = TimerStore.state.originalScramble;
   const scrambleMoves = TimerStore.state.scramble.split(' ');
   if (scrambleMoves.length === 0) {
@@ -114,7 +109,7 @@ export default function useCubeTimer() {
   const stopwatch = useStopwatch();
 
   const state = useRef<TimerState>(TimerState.Inactive);
-  const moves = useRef<GanCubeMove[]>([]);
+  const moves = useRef<CubeMoveEvent[]>([]);
 
   const cube = useStore(CubeStore, state => state.cube);
 
@@ -233,9 +228,7 @@ export default function useCubeTimer() {
   }, [stopwatch, updateStateFromSpaceBar]);
 
   useEffect(() => {
-    const subscription = cube?.events$.subscribe((event: GanCubeEvent) => {
-      if (event.type !== 'MOVE') return;
-
+    const subscription = cube?.events.moves.subscribe((event: CubeMoveEvent) => {
       if (stopwatch.isRunning()) {
         moves.current.push(event);
         return;

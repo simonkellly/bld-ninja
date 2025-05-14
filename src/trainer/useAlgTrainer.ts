@@ -1,17 +1,13 @@
 import { useStore } from '@tanstack/react-store';
 import { cube3x3x3 } from 'cubing/puzzles';
-import {
-  GanCubeEvent,
-  GanCubeMove,
-  cubeTimestampLinearFit,
-} from 'gan-web-bluetooth';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { Key } from 'ts-key-enum';
 import { extractAlgs } from '@/lib/analysis/solutionParser';
 import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { AlgSheet, fetchGoogleSheet } from './algSheet';
 import { TrainerStore } from './trainerStore';
+import { CubeMoveEvent, cubeTimestampLinearFit } from 'qysc-web';
 
 function randomAlg(sheet: AlgSheet) {
   const randomLetter =
@@ -25,6 +21,8 @@ function randomAlg(sheet: AlgSheet) {
 export default function useAlgTrainer() {
   const [algs, setAlgs] = useState<AlgSheet | undefined>();
   const cube = useStore(CubeStore, state => state.cube);
+  const isProcessing = useRef(false);
+  const moveQueue = useRef<CubeMoveEvent[]>([]);
 
   useEffect(() => {
     fetchGoogleSheet().then(sheet => {
@@ -33,8 +31,13 @@ export default function useAlgTrainer() {
     });
   }, [setAlgs]);
 
-  const processMove = useCallback(
-    async (move: GanCubeMove) => {
+  const processNextMove = useCallback(async () => {
+    if (isProcessing.current || moveQueue.current.length === 0) return;
+
+    isProcessing.current = true;
+    const move = moveQueue.current.shift()!;
+
+    try {
       const moves = [...TrainerStore.state.moves, move];
 
       const currentAlg = TrainerStore.state.alg?.alg;
@@ -65,7 +68,7 @@ export default function useAlgTrainer() {
             : cubeTimestampLinearFit(fullMoves).slice(-moves.length)
           : moves;
         const time =
-          fixedMoves.at(-1)!.cubeTimestamp - fixedMoves.at(0)!.cubeTimestamp;
+          fixedMoves.at(-1)!.cubeTimestamp! - fixedMoves.at(0)!.cubeTimestamp!;
         console.log(time);
       } else {
         const analysis = await extractAlgs(solutionMoves);
@@ -75,13 +78,24 @@ export default function useAlgTrainer() {
           analysedMoves: analysis.map(a => a[0]).join(' '),
         }));
       }
+    } finally {
+      isProcessing.current = false;
+      // Process next move in queue if any
+      processNextMove();
+    }
+  }, [algs]);
+
+  const processMove = useCallback(
+    (move: CubeMoveEvent) => {
+      moveQueue.current.push(move);
+      processNextMove();
     },
-    [algs]
+    [processNextMove]
   );
 
   useEffect(() => {
-    const subscription = cube?.events$.subscribe((event: GanCubeEvent) => {
-      if (event.type !== 'MOVE') return;
+    const subscription = cube?.events.moves.subscribe((event: CubeMoveEvent) => {
+      console.log(event.move);
       processMove(event);
     });
 

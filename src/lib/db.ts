@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie';
-import { GanCubeMove } from 'gan-web-bluetooth';
 import { AnalysisResult } from './analysis/dnfAnalyser';
 import { ExtractedAlg } from './analysis/solutionParser';
+import { CubeMoveEvent } from 'qysc-web';
 
 export enum Penalty {
   SOLVED = 0,
@@ -15,7 +15,7 @@ export interface Solve {
   time: number;
   now: number;
   scramble: string;
-  solution: GanCubeMove[];
+  solution: CubeMoveEvent[];
   algs?: ExtractedAlg[];
   dnfReason?: AnalysisResult;
   penalty?: Penalty;

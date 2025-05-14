@@ -1,9 +1,9 @@
 import { Store } from '@tanstack/react-store';
-import { GanCubeMove } from 'gan-web-bluetooth';
 import { Alg } from './algSheet';
+import { CubeMoveEvent } from 'qysc-web';
 
 export const TrainerStore = new Store({
   alg: undefined as Alg | undefined,
-  moves: [] as GanCubeMove[],
+  moves: [] as CubeMoveEvent[],
   analysedMoves: '',
 });

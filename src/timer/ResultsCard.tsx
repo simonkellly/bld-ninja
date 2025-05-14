@@ -53,6 +53,7 @@ function SolveDialog({
   const analyse = async () => {
     const [analysis, algs] = await analyseSolve(solve);
     db.solves.update(solve.id, { algs, dnfReason: analysis });
+    navigator.clipboard.writeText(solve.scramble + " == " + solve.solution.map(s => s.move).join(' '));
   };
 
   const deleteSolve = () => {
