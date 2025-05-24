@@ -7,7 +7,7 @@ import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { AlgSheet, fetchGoogleSheet } from './algSheet';
 import { TrainerStore } from './trainerStore';
-import { CubeMoveEvent, cubeTimestampLinearFit } from 'qysc-web';
+import { CubeMoveEvent } from 'qysc-web';
 
 function randomAlg(sheet: AlgSheet) {
   const randomLetter =
@@ -61,15 +61,6 @@ export default function useAlgTrainer() {
           analysedMoves: '',
           alg: randomAlg(algs),
         }));
-        const fullMoves = CubeStore.state.lastMoves;
-        const fixedMoves = fullMoves
-          ? moves.length > fullMoves.length
-            ? moves
-            : cubeTimestampLinearFit(fullMoves).slice(-moves.length)
-          : moves;
-        const time =
-          fixedMoves.at(-1)!.cubeTimestamp! - fixedMoves.at(0)!.cubeTimestamp!;
-        console.log(time);
       } else {
         const analysis = await extractAlgs(solutionMoves);
         TrainerStore.setState(state => ({
@@ -95,7 +86,6 @@ export default function useAlgTrainer() {
 
   useEffect(() => {
     const subscription = cube?.events.moves.subscribe((event: CubeMoveEvent) => {
-      console.log(event.move);
       processMove(event);
     });
 

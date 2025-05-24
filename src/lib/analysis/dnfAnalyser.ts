@@ -28,7 +28,15 @@ function check1MoveOff(
   solvedState: KTransformation,
   scramble: KPattern,
   solution: string[]
-) {
+): {
+  result: AnalysisResult.UNKNOWN
+} | {
+  result: AnalysisResult.ONE_MOVE;
+  idx: number;
+  move: string;
+} | {
+  result: AnalysisResult.PLUS_TWO;
+} {
   const corners = solvedState.transformationData['CORNERS'];
   const edges = solvedState.transformationData['EDGES'];
 
@@ -48,29 +56,38 @@ function check1MoveOff(
     if (positionMatches && orientationMatches) edgeCount++;
   }
 
-  const isOneMove = cornerCount == 4 && edgeCount == 8;
+  const isOneMove = (cornerCount == 4 && edgeCount == 8) || (cornerCount == 0 && edgeCount == 4);
   if (!isOneMove) {
-    return false;
+    return {
+      result: AnalysisResult.UNKNOWN,
+    };
   }
 
-  const moves = ['U', 'D', 'R', 'L', 'F', 'B'];
+  const moves = [
+    'S', 'S\'', 'S2', 'M', 'M\'', 'M2', 'E', 'E\'', 'E2', 
+    'U2', 'D2', 'R2', 'L2', 'F2', 'B2',
+    'U', 'D', 'R', 'L', 'F', 'B',
+    'U\'', 'D\'', 'R\'', 'L\'', 'F\'', 'B\'',
+  ];
 
   let checkedState = scramble;
   for (let solutionIdx = 0; solutionIdx <= solution.length; solutionIdx++) {
     const remainingSolution = solution.slice(solutionIdx).join(' ');
 
     for (const move of moves) {
-      let moveState = checkedState;
-      for (let attempt = 0; attempt < 3; attempt++) {
-        moveState = moveState.applyMove(move);
+      const moveState = checkedState.applyMove(move);
+      const appliedState = moveState.applyAlg(remainingSolution);
+      const isSolved = checkIsSolved(appliedState);
 
-        const appliedState = moveState.applyAlg(remainingSolution);
-        const isSolved = checkIsSolved(appliedState);
-
-        if (isSolved) {
-          if (solutionIdx == solution.length) return AnalysisResult.PLUS_TWO;
-          return AnalysisResult.ONE_MOVE;
-        }
+      if (isSolved) {
+        if (solutionIdx == solution.length) return {
+          result: AnalysisResult.PLUS_TWO,
+        };
+        return {
+          result: AnalysisResult.ONE_MOVE,
+          idx: solutionIdx,
+          move: solution[solutionIdx],
+        };
       }
     }
 
@@ -78,7 +95,9 @@ function check1MoveOff(
     checkedState = checkedState.applyMove(solution[solutionIdx]);
   }
 
-  return false;
+  return {
+    result: AnalysisResult.UNKNOWN,
+  };
 }
 
 // TODO Make sure there is no more than 1 extra flip/twist in finished state
@@ -120,7 +139,13 @@ function checkTwistFlip(
   return false;
 }
 
-function checkInverseAlg(scramble: KPattern, algs: string[]) {
+function checkInverseAlg(scramble: KPattern, algs: string[]):
+{
+  result: AnalysisResult.UNKNOWN
+} | {
+  result: AnalysisResult.INVERSE_ALG;
+  algErrorIdx: number;
+} {
   const actualAlgs = algs.map(a => new Alg(a));
 
   let checkedState = scramble;
@@ -133,18 +158,30 @@ function checkInverseAlg(scramble: KPattern, algs: string[]) {
       innerState = innerState.applyAlg(innerAlg);
     }
     const isSolved = checkIsSolved(innerState);
-    if (isSolved) return AnalysisResult.INVERSE_ALG;
+    if (isSolved) return {
+      result: AnalysisResult.INVERSE_ALG,
+      algErrorIdx: i,
+    }
 
     checkedState = checkedState.applyAlg(alg);
   }
 
-  return false;
+  return {
+    result: AnalysisResult.UNKNOWN,
+  }
+}
+
+export type SolveAnalysis ={
+  extractedAlgs: ExtractedAlg[];
+  algErrorIdx?: number;
+  result: AnalysisResult;
+  reason?: string;
 }
 
 export async function analyseSolveString(
   scramble: string,
   solution: string,
-): Promise<[AnalysisResult, ExtractedAlg[]]> {
+): Promise<SolveAnalysis> {
   const puzzle = await cube3x3x3.kpuzzle();
 
   const solutionMoves = solution.split(' ');
@@ -163,56 +200,73 @@ export async function analyseSolveString(
   const parsedSolution = await extractAlgs(solutionMoves);
   const actualComms = parsedSolution.map(s => makeAlgToComm(s, puzzle));
 
-  if (solutionMoves.length == 0) return [AnalysisResult.NO_MOVES, actualComms];
+  if (solutionMoves.length == 0) return {
+    extractedAlgs: actualComms,
+    result: AnalysisResult.NO_MOVES,
+  };
 
-  if (checkIsSolved(solvedState.toKPattern()))
-    return [AnalysisResult.SOLVED, actualComms];
-
-  const corners = solvedState.transformationData['CORNERS'];
-  const edges = solvedState.transformationData['EDGES'];
-
-  let cornerCount = 0;
-  for (let i = 0; i < 8; i++) {
-    const positionMatches = corners.permutation[i] == i;
-    const orientationMatches = corners.orientationDelta[i] == 0;
-
-    if (positionMatches && orientationMatches) cornerCount++;
-  }
-
-  let edgeCount = 0;
-  for (let i = 0; i < 12; i++) {
-    const positionMatches = edges.permutation[i] == i;
-    const orientationMatches = edges.orientationDelta[i] == 0;
-
-    if (positionMatches && orientationMatches) edgeCount++;
-  }
-
-  const isOneMove = cornerCount == 4 && edgeCount == 8;
-  if (isOneMove) {
-    const oneMoveOff = check1MoveOff(
-      solvedState,
-      scramblePattern,
-      solutionMoves
-    );
-    if (oneMoveOff) return [oneMoveOff, actualComms];
-  }
+  if (checkIsSolved(solvedState.toKPattern())) return {
+    extractedAlgs: actualComms,
+    result: AnalysisResult.SOLVED,
+  };
 
   const isTwistFlip = checkTwistFlip(scrambleTransformation, solvedState);
-  if (isTwistFlip) return [isTwistFlip, actualComms];
+  if (isTwistFlip) return {
+    extractedAlgs: actualComms,
+    result: isTwistFlip,
+  };
 
   const isInverseAlgs = checkInverseAlg(
     scramblePattern,
     parsedSolution.map(s => s[0])
   );
-  if (isInverseAlgs) return [isInverseAlgs, actualComms];
+  if (isInverseAlgs.result === AnalysisResult.INVERSE_ALG) return {
+    extractedAlgs: actualComms,
+    result: isInverseAlgs.result,
+    algErrorIdx: isInverseAlgs.algErrorIdx,
+    reason: `${actualComms[isInverseAlgs.algErrorIdx][0]}`,
+  };
 
-  return [AnalysisResult.UNKNOWN, actualComms];
+  const oneMoveOff = check1MoveOff(
+    solvedState,
+    scramblePattern,
+    solutionMoves
+  );
+  if (oneMoveOff.result === AnalysisResult.ONE_MOVE) {
+    const algs = actualComms.map(a => a[2]);
+    let algIdx = 0;
+    while (algs[algIdx] < oneMoveOff.idx) {
+      algIdx++;
+    }
+    
+    // insert move at idx
+    // TODO why is this needed? Make sure we can tell between the fixed comms and what was actually done
+    const inverse = oneMoveOff.move.endsWith("2") ? oneMoveOff.move : oneMoveOff.move.endsWith("'") ? oneMoveOff.move[0] + "2" : oneMoveOff.move + "'";
+
+    const fixedSolution = [...solutionMoves.slice(0, oneMoveOff.idx), inverse, ...solutionMoves.slice(oneMoveOff.idx)];
+
+    const fixedAlgs = await extractAlgs(fixedSolution);
+
+    const fixedComms = fixedAlgs.map(s => makeAlgToComm(s, puzzle));
+
+    return {
+      extractedAlgs: fixedComms,
+      algErrorIdx: algIdx,
+      result: AnalysisResult.ONE_MOVE,
+      reason: `Messed up at comm: ${fixedComms[algIdx][0]} (${oneMoveOff.idx} -> ${oneMoveOff.move})`,
+    };
+  }
+
+  return {
+    extractedAlgs: actualComms,
+    result: AnalysisResult.UNKNOWN,
+  };
 }
 
 
 export async function analyseSolve(
   solve: Solve
-): Promise<[AnalysisResult, ExtractedAlg[]]> {
+): Promise<SolveAnalysis> {
   const solutionMoves = solve.solution.map(s => s.move);
   const solutionStr = solutionMoves.join(' ');
 

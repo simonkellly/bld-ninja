@@ -4,7 +4,7 @@ import { cube3x3x3 } from 'cubing/puzzles';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { connectQYSC, CubeMoveEvent, QYSC } from 'qysc-web';
 
-type CubeStoreType = {
+export type CubeStoreType = {
   cube?: QYSC | null;
   startingState?: string;
   lastMoves?: CubeMoveEvent[];

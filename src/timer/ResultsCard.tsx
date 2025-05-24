@@ -51,8 +51,8 @@ function SolveDialog({
   close: (open: boolean) => void;
 }) {
   const analyse = async () => {
-    const [analysis, algs] = await analyseSolve(solve);
-    db.solves.update(solve.id, { algs, dnfReason: analysis });
+    const { result: analysis, extractedAlgs: algs, reason } = await analyseSolve(solve);
+    db.solves.update(solve.id, { algs, dnfReason: analysis + (reason ? ": " + reason : "") });
     navigator.clipboard.writeText(solve.scramble + " == " + solve.solution.map(s => s.move).join(' '));
   };
 

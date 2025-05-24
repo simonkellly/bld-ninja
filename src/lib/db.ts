@@ -1,5 +1,4 @@
 import Dexie, { Table } from 'dexie';
-import { AnalysisResult } from './analysis/dnfAnalyser';
 import { ExtractedAlg } from './analysis/solutionParser';
 import { CubeMoveEvent } from 'qysc-web';
 
@@ -17,13 +16,11 @@ export interface Solve {
   scramble: string;
   solution: CubeMoveEvent[];
   algs?: ExtractedAlg[];
-  dnfReason?: AnalysisResult;
+  dnfReason?: string;
   penalty?: Penalty;
 }
 
 export class MySubClassedDexie extends Dexie {
-  // 'friends' is added by dexie when declaring the stores()
-  // We just tell the typing system this is the case
   solves!: Table<Solve>;
 
   constructor() {

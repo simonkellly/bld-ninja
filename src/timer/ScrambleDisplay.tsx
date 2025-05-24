@@ -27,7 +27,7 @@ export default function ScrambleDisplay() {
           );
         })}
       {scrambleIndex === scrambleMoves.length && (
-        <Check className="m-auto h-8 w-8 text-secondary" strokeWidth={3} />
+        <Check className="m-auto h-8 w-8 text-primary" strokeWidth={3} />
       )}
     </h2>
   );

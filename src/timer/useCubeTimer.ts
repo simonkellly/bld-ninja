@@ -97,7 +97,7 @@ async function processScramblingMove(ev: CubeMoveEvent) {
 }
 
 async function newScramble() {
-  const scramble = await randomScrambleForEvent('333');
+  const scramble =  await randomScrambleForEvent('333');
   TimerStore.setState(state => ({
     ...state,
     originalScramble: scramble.toString(),
@@ -142,15 +142,18 @@ export default function useCubeTimer() {
 
     const solutionMoves = cubeTimestampLinearFit(moves.current);
 
-    const solve = {
+    const solve: Solve = {
       time: endTime,
       timeStamp: Date.now(),
       now: now(),
       scramble: TimerStore.state.originalScramble,
       solution: solutionMoves,
-    } as Solve;
+    };
 
-    const [analysis, parsedAlgs] = await analyseSolve(solve);
+    const { result: analysis, extractedAlgs: parsedAlgs, reason } = await analyseSolve(solve);
+
+    solve.dnfReason = analysis + (reason ? ": " + reason : "");
+    solve.algs = parsedAlgs;
 
     solve.penalty =
       analysis == AnalysisResult.SOLVED
@@ -158,8 +161,6 @@ export default function useCubeTimer() {
         : analysis == AnalysisResult.PLUS_TWO
           ? Penalty.PLUS_TWO
           : Penalty.DNF;
-    solve.algs = parsedAlgs;
-    solve.dnfReason = analysis;
 
     newScramble();
 
@@ -211,6 +212,10 @@ export default function useCubeTimer() {
         ev.preventDefault();
         ev.stopImmediatePropagation();
         updateStateFromSpaceBar(true);
+      } else if (ev.key.length === 1 && ev.key.toUpperCase() !== ev.key.toLowerCase()) {
+        if (state.current === TimerState.Active) {
+          updateStateFromSpaceBar(true);
+        }
       }
 
       if (ev.key === Key.Escape) {
