@@ -5,10 +5,14 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
 import { AnalysisResult, analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { Penalty, Solve, db } from '@/lib/db';
+import {
+  adjustScramble,
+  getRandomRotation,
+  solveRotation,
+} from '@/lib/scramble';
 import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { TimerStore } from './timerStore';
-import { adjustScramble, getRandomRotation, solveRotation } from '@/lib/scramble';
 
 export enum TimerState {
   Inactive = 'INACTIVE',
@@ -20,23 +24,28 @@ export enum TimerState {
 export const HOLD_DOWN_TIME = 300;
 
 async function updateScrambleFromCubeState(scramble: string, rotation: string) {
-  const { rotationlessScramble, rotationMove } = await adjustScramble(scramble, rotation, CubeStore.state.kpattern);
+  const { rotationlessScramble, rotationMove } = await adjustScramble(
+    scramble,
+    rotation,
+    CubeStore.state.kpattern
+  );
 
   TimerStore.setState(state => ({
     ...state,
     solvedRotation: solveRotation(rotation).join(' '),
-    scramble: rotationlessScramble + " " + rotationMove,
+    scramble: rotationlessScramble + ' ' + rotationMove,
     scrambleIdx: 0,
   }));
 }
 
-async function processScramblingMove(ev: CubeMoveEvent) {  
+async function processScramblingMove(ev: CubeMoveEvent) {
   const ogScramble = TimerStore.state.originalScramble;
   const rotation = TimerStore.state.rotation;
   const scrambleMoves = TimerStore.state.scramble.split(' ');
-  
+
   if (scrambleMoves.length === 0) {
-    if (ogScramble.length > 0) await updateScrambleFromCubeState(ogScramble, rotation);
+    if (ogScramble.length > 0)
+      await updateScrambleFromCubeState(ogScramble, rotation);
     return;
   }
 
@@ -54,8 +63,13 @@ async function processScramblingMove(ev: CubeMoveEvent) {
 
   if (isWideMove) {
     const solvedRotation = TimerStore.state.solvedRotation.split(' ');
-    const actualMove = solvedRotation[solvedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
-    const inv = actualMove.endsWith("2") ? actualMove : actualMove.endsWith("'") ? actualMove.replace("'", "") : actualMove + "'";
+    const actualMove =
+      solvedRotation[solvedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
+    const inv = actualMove.endsWith('2')
+      ? actualMove
+      : actualMove.endsWith("'")
+        ? actualMove.replace("'", '')
+        : actualMove + "'";
     adjustedMove = inv;
   }
 
@@ -63,20 +77,22 @@ async function processScramblingMove(ev: CubeMoveEvent) {
     adjustedMove.length == 2 &&
     adjustedMove[1] === '2' &&
     ev.move[0] === adjustedMove[0]
-  ) {    
+  ) {
     const didPrime = ev.move.endsWith("'");
     const editedScramble = [...scrambleMoves];
-    editedScramble[currentIdx] = currentMove.replace("2", didPrime ? "'" : "");
+    editedScramble[currentIdx] = currentMove.replace('2', didPrime ? "'" : '');
 
     let solvedRotation = TimerStore.state.solvedRotation;
     if (isWideMove) {
       const editedRotation = [...solvedRotation.split(' ')];
-      const actualMove = editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
-      const inv = actualMove.replace('2', didPrime ? "" : "'");
-      editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1] = inv;
+      const actualMove =
+        editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
+      const inv = actualMove.replace('2', didPrime ? '' : "'");
+      editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1] =
+        inv;
       solvedRotation = editedRotation.join(' ');
     }
-    
+
     TimerStore.setState(state => ({
       ...state,
       scramble: editedScramble.join(' '),
@@ -270,7 +286,11 @@ export default function useCubeTimer() {
       }
     );
 
-    if (TimerStore.state.originalScramble) updateScrambleFromCubeState(TimerStore.state.originalScramble, TimerStore.state.rotation);
+    if (TimerStore.state.originalScramble)
+      updateScrambleFromCubeState(
+        TimerStore.state.originalScramble,
+        TimerStore.state.rotation
+      );
 
     return () => {
       subscription?.unsubscribe();
