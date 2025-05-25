@@ -8,6 +8,12 @@ export const Route = createFileRoute('/dev')({
   component: Dev,
 });
 
+function resetData() {
+  db.delete();
+  db.open();
+  localStorage.clear();
+}
+
 function Dev() {
   const [leftToAnalyse, setLeftToAnalyse] = useState(0);
 
@@ -37,11 +43,16 @@ function Dev() {
 
   return (
     <div className="p-4">
-      <Button onClick={reanalyzeSolves} disabled={leftToAnalyse > 0}>
-        {leftToAnalyse > 0
-          ? `${leftToAnalyse} solves left`
-          : 'Reanalyze All Solves'}
-      </Button>
+      <div className="space-y-2">
+        <Button onClick={reanalyzeSolves} disabled={leftToAnalyse > 0}>
+          {leftToAnalyse > 0
+            ? `${leftToAnalyse} solves left`
+            : 'Reanalyze All Solves'}
+        </Button>
+        <Button onClick={resetData} variant="destructive">
+          Reset All Data
+        </Button>
+      </div>
     </div>
   );
 }

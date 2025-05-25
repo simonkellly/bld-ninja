@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { db } from '@/lib/db';
 import bldNinjaLogo from '/bldninja-logo-v1.svg';
 
 export const Route = createFileRoute('/')({
@@ -68,12 +67,6 @@ function ThemeToggle() {
   );
 }
 
-function resetData() {
-  db.delete();
-  db.open();
-  localStorage.clear();
-}
-
 function Index() {
   return (
     <main className="flex flex-col h-dvh w-screen items-center justify-center container">
@@ -90,19 +83,12 @@ function Index() {
             </Link>
             .
           </p>
-          <p>
-            Try out the in progress trainer{' '}
-            <Link to="/trainer" className="underline">
-              here
-            </Link>
-            .
-          </p>
           <br />
           <p>
-            If you want to reset all data then click{' '}
-            <button className="underline" onClick={resetData}>
-              <span>here</span>
-            </button>
+            See dev options and settings{' '}
+            <Link to="/dev" className="underline">
+              here
+            </Link>
             .
           </p>
           <br />
