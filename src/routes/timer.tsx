@@ -4,12 +4,13 @@ import {
   TimerRenderer,
 } from 'react-use-precision-timer';
 import { cn } from '@/lib/utils';
+import DrawScrambleCard from '@/timer/DrawScrambleCard';
+import LiveCubeCard from '@/timer/LiveCubeCard';
+import Placeholder from '@/timer/Placeholder';
 import Results from '@/timer/Results';
 import ScrambleDisplay from '@/timer/ScrambleDisplay';
 import TimerBar from '@/timer/TimerBar';
 import useCubeTimer, { HOLD_DOWN_TIME, TimerState } from '@/timer/useCubeTimer';
-import DrawScrambleCard from '@/timer/DrawScrambleCard';
-import LiveCubeCard from '@/timer/LiveCubeCard';
 
 export const Route = createFileRoute('/timer')({
   component: NewTimer,
@@ -72,6 +73,7 @@ function NewTimer() {
           <div id="bottom-bar" className="flex gap-2 h-64">
             <LiveCubeCard />
             <DrawScrambleCard />
+            <Placeholder />
           </div>
         </div>
       </div>

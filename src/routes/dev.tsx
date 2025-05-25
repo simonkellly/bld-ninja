@@ -1,12 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Solve, db } from '@/lib/db';
-import { Button } from '@/components/ui/button';
+import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { analyseSolve } from '@/lib/analysis/dnfAnalyser';
+import { Solve, db } from '@/lib/db';
 
 export const Route = createFileRoute('/dev')({
   component: Dev,
-})
+});
 
 function Dev() {
   const [leftToAnalyse, setLeftToAnalyse] = useState(0);
@@ -31,17 +31,16 @@ function Dev() {
       if (solve.solution) {
         await analyse(solve);
       }
-      setLeftToAnalyse((state) => state - 1);
+      setLeftToAnalyse(state => state - 1);
     }
   };
 
   return (
     <div className="p-4">
-      <Button 
-        onClick={reanalyzeSolves}
-        disabled={leftToAnalyse > 0}
-      >
-        {leftToAnalyse > 0 ? `${leftToAnalyse} solves left` : 'Reanalyze All Solves'}
+      <Button onClick={reanalyzeSolves} disabled={leftToAnalyse > 0}>
+        {leftToAnalyse > 0
+          ? `${leftToAnalyse} solves left`
+          : 'Reanalyze All Solves'}
       </Button>
     </div>
   );

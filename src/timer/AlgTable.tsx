@@ -43,8 +43,8 @@ export function AlgTable({ solve }: { solve: Solve }) {
           {solve.algs.map(alg => {
             const moveIdx = alg[2];
             const algTime =
-              (solve.solution[moveIdx]?.cubeTimestamp! - time) / 1000;
-            time = solve.solution[moveIdx]?.cubeTimestamp!;
+              (solve.solution[moveIdx]?.cubeTimestamp ?? 0 - time) / 1000;
+            time = solve.solution[moveIdx]?.cubeTimestamp ?? 0;
 
             return (
               <Tooltip key={alg[2] + algTime}>

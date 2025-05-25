@@ -5,7 +5,6 @@ import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
-import { Key } from 'ts-key-enum';
 import { AnalysisResult, analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { Penalty, Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
@@ -226,7 +225,7 @@ export default function useCubeTimer() {
         }
       }
 
-      if (ev.key === Key.Escape) {
+      if (ev.key === 'Escape') {
         ev.preventDefault();
         ev.stopImmediatePropagation();
         stopwatch.stop();

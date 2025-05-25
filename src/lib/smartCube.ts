@@ -49,9 +49,7 @@ export const connect = async () => {
     const sub = newConn.events.state.subscribe(async ev => {
       if (startingState && (ev.type === 'state' || ev.type === 'freshState'))
         return;
-      const solution = await experimentalSolve3x3x3IgnoringCenters(
-        ev.pattern as any
-      );
+      const solution = await experimentalSolve3x3x3IgnoringCenters(ev.pattern);
       const scramble = solution.invert();
       startingState = scramble.toString();
     });

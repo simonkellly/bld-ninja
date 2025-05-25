@@ -18,15 +18,6 @@ import {
   ActionIcon,
 } from '@/components/layout/ActionBar';
 import { useTheme } from '@/components/theme-provider';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { CubeStore, connect, reset } from '@/lib/smartCube';
 
 function ThemeToggle() {
@@ -47,28 +38,6 @@ function ThemeToggle() {
   );
 }
 
-export function SessionSelector() {
-  return (
-    <Select value="3bld">
-      <SelectTrigger className="max-w-40 h-full py-0">
-        <SelectValue placeholder="Sessions" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Sessions</SelectLabel>
-          <SelectItem value="3bld">3BLD</SelectItem>
-          <SelectItem value="edges" disabled>
-            Edges
-          </SelectItem>
-          <SelectItem value="corners" disabled>
-            Corners
-          </SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  );
-}
-
 export default function TimerBar() {
   const cube = useStore(CubeStore, state => state.cube);
 
@@ -82,9 +51,7 @@ export default function TimerBar() {
         </ActionButton>
         <ThemeToggle />
       </ActionStart>
-      <ActionMiddle>
-        <SessionSelector />
-      </ActionMiddle>
+      <ActionMiddle />
       <ActionEnd>
         <ActionButton
           className="gap-2 sm:aspect-auto sm:px-2"

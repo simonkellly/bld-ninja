@@ -15,8 +15,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AnalysisResult, analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { Penalty, Solve, db } from '@/lib/db';
 import { AlgTable } from './AlgTable';
-import { DataTable } from './data-table';
 import ResultsStats from './ResultsStats';
+import { DataTable } from './data-table';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
@@ -177,10 +177,7 @@ export function ResultsOld() {
           let mo3: string | undefined;
           if (reverseIdx < 2) mo3 = '-';
           else {
-            const prevSolves = data.slice(
-              idx,
-              idx + 3
-            );
+            const prevSolves = data.slice(idx, idx + 3);
 
             let sum = 0;
             for (const solve of prevSolves) {
@@ -209,9 +206,7 @@ export function ResultsOld() {
               <div className="">
                 <pre>
                   <span className="text-primary group-hover:text-primary-foreground">
-                    {(reverseIdx + 1)
-                      .toString()
-                      .padStart(padAmountForIdx, ' ')}
+                    {(reverseIdx + 1).toString().padStart(padAmountForIdx, ' ')}
                     .
                   </span>
                   <span>{timeText.padStart(7, ' ')}</span>
@@ -263,7 +258,7 @@ export default function Results() {
       header: '#',
       cell: ({ row }) => {
         const originalIndex = row.original.originalIndex;
-        return data.length - originalIndex + ".";
+        return data.length - originalIndex + '.';
       },
       size: 60,
     },
@@ -291,7 +286,7 @@ export default function Results() {
         return DNFReasonShorthand(row.original.dnfResult) ?? '';
       },
       size: 100,
-    }
+    },
   ];
 
   // Add original index to each solve for proper calculations

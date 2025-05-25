@@ -75,7 +75,6 @@ function applyRotation(rotation: string, move: string) {
   }
 
   let result = applied;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const newRes = result
       .replaceAll("''", '')

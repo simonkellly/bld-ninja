@@ -2,7 +2,6 @@ import { useStore } from '@tanstack/react-store';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { CubeMoveEvent } from 'qysc-web';
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { Key } from 'ts-key-enum';
 import { extractAlgs } from '@/lib/analysis/solutionParser';
 import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
@@ -114,7 +113,7 @@ export default function useAlgTrainer() {
         }));
       }
 
-      if (ev.key === Key.Escape) {
+      if (ev.key === 'Escape') {
         ev.preventDefault();
         ev.stopImmediatePropagation();
 

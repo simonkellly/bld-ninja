@@ -124,7 +124,9 @@ function SolveDialog({
         <AlgTable solve={solve} />
         {solve.penalty == Penalty.DNF && (
           <p className="font-medium">
-            DNF Reason: {solve.dnfResult + (solve.dnfReason ? ': ' + solve.dnfReason : '') || 'Not analysed'}
+            DNF Reason:{' '}
+            {solve.dnfResult +
+              (solve.dnfReason ? ': ' + solve.dnfReason : '') || 'Not analysed'}
           </p>
         )}
         <DialogFooter>
