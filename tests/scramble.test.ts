@@ -1,4 +1,4 @@
-import { adjustScramble, getRandomRotation } from "@/lib/scramble";
+import { adjustScramble, getRandomRotation, possibleRotations } from "@/lib/scramble";
 import { expect, test, describe } from 'bun:test';
 import { cube3x3x3 } from "cubing/puzzles";
 import { randomScrambleForEvent } from "cubing/scramble";
@@ -33,7 +33,15 @@ describe('Scramble', async () => {
     const rotatedRealScramble = puzzle.defaultPattern().applyAlg(scramble).applyAlg(rotation);
     const displayScramble = puzzle.defaultPattern().applyAlg(rotationlessScramble).applyAlg(rotationMove);
     expect(rotatedRealScramble.isIdentical(displayScramble)).toBeTrue();
-  }, {
-    repeats: 10,
+  });
+
+  test('Adjusts all rotations', async () => {
+    for (const rotation of possibleRotations) {
+      const scramble = (await randomScrambleForEvent('333')).toString();
+      const { rotationlessScramble, rotationMove } = await adjustScramble(scramble, rotation);
+      const rotatedRealScramble = puzzle.defaultPattern().applyAlg(scramble).applyAlg(rotation);
+      const displayScramble = puzzle.defaultPattern().applyAlg(rotationlessScramble).applyAlg(rotationMove);
+      expect(rotatedRealScramble.isIdentical(displayScramble)).toBeTrue();
+    }
   });
 });

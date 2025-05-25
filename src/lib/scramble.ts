@@ -13,7 +13,7 @@ import { experimentalSolve3x3x3IgnoringCenters } from "cubing/search";
 // [BF] -> x', x' y, x' y2, x' y'
 // [RL] -> z, z y, z y2, z y'
 // [LR] -> z', z' y, z' y2, z' y'
-const possibleRotations = [
+export const possibleRotations = [
   "", "y", "y2", "y'",
   "z2", "z2 y", "z2 y2", "z2 y'",
   "x", "x y", "x y2", "x y'",
