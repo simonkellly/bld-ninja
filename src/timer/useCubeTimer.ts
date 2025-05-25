@@ -1,7 +1,5 @@
 import { useStore } from '@tanstack/react-store';
-import { Alg } from 'cubing/alg';
 import { randomScrambleForEvent } from 'cubing/scramble';
-import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
@@ -10,6 +8,7 @@ import { Penalty, Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { TimerStore } from './timerStore';
+import { adjustScramble, getRandomRotation, solveRotation } from '@/lib/scramble';
 
 export enum TimerState {
   Inactive = 'INACTIVE',
@@ -20,70 +19,68 @@ export enum TimerState {
 
 export const HOLD_DOWN_TIME = 300;
 
-async function updateScrambleFromCubeState(originalScramble: Alg | string) {
-  const ogScrambleStr = originalScramble.toString();
-  if (!CubeStore.state.kpattern) {
-    TimerStore.setState(state => ({
-      ...state,
-      scramble: ogScrambleStr,
-      scrambleIdx: 0,
-    }));
-    return;
-  }
+async function updateScrambleFromCubeState(scramble: string, rotation: string) {
+  const { rotationlessScramble, rotationMove } = await adjustScramble(scramble, rotation, CubeStore.state.kpattern);
 
-  const scrambleAlg =
-    typeof originalScramble === 'string'
-      ? new Alg(originalScramble)
-      : originalScramble;
-  const solved = await experimentalSolve3x3x3IgnoringCenters(
-    CubeStore.state.kpattern!
-  );
-  const newPattern = CubeStore.state
-    .puzzle!.defaultPattern()
-    .applyAlg(scrambleAlg.invert())
-    .applyAlg(solved.invert());
-
-  const customScramble =
-    await experimentalSolve3x3x3IgnoringCenters(newPattern);
   TimerStore.setState(state => ({
     ...state,
-    scrambleAlg: scrambleAlg.toString(),
+    solvedRotation: solveRotation(rotation).join(' '),
+    scramble: rotationlessScramble + " " + rotationMove,
     scrambleIdx: 0,
-    scramble: customScramble.toString(),
   }));
 }
 
 async function processScramblingMove(ev: CubeMoveEvent) {
   const ogScramble = TimerStore.state.originalScramble;
+  const rotation = TimerStore.state.rotation;
   const scrambleMoves = TimerStore.state.scramble.split(' ');
   if (scrambleMoves.length === 0) {
-    if (ogScramble.length > 0) await updateScrambleFromCubeState(ogScramble);
+    if (ogScramble.length > 0) await updateScrambleFromCubeState(ogScramble, rotation);
     return;
   }
 
   if (scrambleMoves.length === TimerStore.state.scrambleIdx) {
-    await updateScrambleFromCubeState(ogScramble);
+    await updateScrambleFromCubeState(ogScramble, rotation);
     return;
   }
 
   const currentIdx = TimerStore.state.scrambleIdx;
   const currentMove = scrambleMoves[currentIdx];
+  let adjustedMove = currentMove;
 
-  // If its a double move, and you are turning that face, just redo that move
+  const isWideMove = currentMove.includes('w');
+  const isLastMove = currentIdx === scrambleMoves.length - 1;
+
+  if (isWideMove) {
+    const solvedRotation = TimerStore.state.solvedRotation.split(' ');
+    const actualMove = solvedRotation[solvedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
+    const inv = actualMove.endsWith("2") ? actualMove : actualMove.endsWith("'") ? actualMove.replace("'", "") : actualMove + "'";
+    adjustedMove = inv;
+  }
+
   if (
-    currentMove.length == 2 &&
-    currentMove[1] === '2' &&
-    ev.move[0] === currentMove[0]
+    adjustedMove.length == 2 &&
+    adjustedMove[1] === '2' &&
+    ev.move[0] === adjustedMove[0]
   ) {
+    const didPrime = ev.move.endsWith("'");
+    const editedScramble = [...scrambleMoves];
+    editedScramble[currentIdx] = currentMove.replace("2", didPrime ? "'" : "");
+
+    const editedRotation = [...TimerStore.state.solvedRotation.split(' ')];
+    const actualMove = editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
+    const inv = actualMove.replace('2', didPrime ? "" : "'");
+    editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1] = inv;
     TimerStore.setState(state => ({
       ...state,
-      scramble: state.scramble.replace(currentMove, ev.move),
+      scramble: editedScramble.join(' '),
+      solvedRotation: editedRotation.join(' '),
     }));
 
     return;
   }
 
-  if (currentMove === ev.move) {
+  if (adjustedMove === ev.move) {
     TimerStore.setState(state => ({
       ...state,
       scrambleIdx: state.scrambleIdx + 1,
@@ -92,16 +89,20 @@ async function processScramblingMove(ev: CubeMoveEvent) {
     return;
   }
 
-  await updateScrambleFromCubeState(ogScramble);
+  await updateScrambleFromCubeState(ogScramble, rotation);
 }
 
 async function newScramble() {
   const scramble = await randomScrambleForEvent('333');
+  const str = scramble.toString();
+  const rotation = getRandomRotation();
   TimerStore.setState(state => ({
     ...state,
-    originalScramble: scramble.toString(),
+    originalSolvedRotation: solveRotation(rotation).join(' '),
+    originalScramble: str,
+    rotation,
   }));
-  await updateScrambleFromCubeState(scramble.toString());
+  await updateScrambleFromCubeState(str, rotation);
 }
 
 export default function useCubeTimer() {
@@ -264,8 +265,7 @@ export default function useCubeTimer() {
       }
     );
 
-    if (TimerStore.state.originalScramble)
-      updateScrambleFromCubeState(TimerStore.state.originalScramble);
+    if (TimerStore.state.originalScramble) updateScrambleFromCubeState(TimerStore.state.originalScramble, TimerStore.state.rotation);
 
     return () => {
       subscription?.unsubscribe();
