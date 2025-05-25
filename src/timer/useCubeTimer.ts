@@ -30,10 +30,11 @@ async function updateScrambleFromCubeState(scramble: string, rotation: string) {
   }));
 }
 
-async function processScramblingMove(ev: CubeMoveEvent) {
+async function processScramblingMove(ev: CubeMoveEvent) {  
   const ogScramble = TimerStore.state.originalScramble;
   const rotation = TimerStore.state.rotation;
   const scrambleMoves = TimerStore.state.scramble.split(' ');
+  
   if (scrambleMoves.length === 0) {
     if (ogScramble.length > 0) await updateScrambleFromCubeState(ogScramble, rotation);
     return;
@@ -62,19 +63,24 @@ async function processScramblingMove(ev: CubeMoveEvent) {
     adjustedMove.length == 2 &&
     adjustedMove[1] === '2' &&
     ev.move[0] === adjustedMove[0]
-  ) {
+  ) {    
     const didPrime = ev.move.endsWith("'");
     const editedScramble = [...scrambleMoves];
     editedScramble[currentIdx] = currentMove.replace("2", didPrime ? "'" : "");
 
-    const editedRotation = [...TimerStore.state.solvedRotation.split(' ')];
-    const actualMove = editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
-    const inv = actualMove.replace('2', didPrime ? "" : "'");
-    editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1] = inv;
+    let solvedRotation = TimerStore.state.solvedRotation;
+    if (isWideMove) {
+      const editedRotation = [...solvedRotation.split(' ')];
+      const actualMove = editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1];
+      const inv = actualMove.replace('2', didPrime ? "" : "'");
+      editedRotation[editedRotation.length === 1 ? 0 : isLastMove ? 0 : 1] = inv;
+      solvedRotation = editedRotation.join(' ');
+    }
+    
     TimerStore.setState(state => ({
       ...state,
       scramble: editedScramble.join(' '),
-      solvedRotation: editedRotation.join(' '),
+      solvedRotation,
     }));
 
     return;
@@ -85,7 +91,6 @@ async function processScramblingMove(ev: CubeMoveEvent) {
       ...state,
       scrambleIdx: state.scrambleIdx + 1,
     }));
-
     return;
   }
 
