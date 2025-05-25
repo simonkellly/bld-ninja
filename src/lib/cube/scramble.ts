@@ -2,7 +2,7 @@ import { Alg } from 'cubing/alg';
 import { KPattern, KPuzzle } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
-import { removeRotations } from '@/lib/analysis/solutionParser';
+import { removeRotations } from '@/lib/cube/solutionParser';
 
 // Possible Rotations
 // none

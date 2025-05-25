@@ -43,10 +43,14 @@ export function AlgTable({ solve }: { solve: Solve }) {
         <TableBody>
           {solve.algs.map(alg => {
             const moveIdx = alg[2];
-            console.log(time, solve.solution[moveIdx]?.cubeTimestamp, solve.solution[moveIdx]?.cubeTimestamp ?? 0 - time);
+            console.log(
+              time,
+              solve.solution[moveIdx]?.cubeTimestamp,
+              solve.solution[moveIdx]?.cubeTimestamp ?? 0 - time
+            );
             const algTime =
               ((solve.solution[moveIdx]?.cubeTimestamp ?? 0) - time) / 1000;
-            time = (solve.solution[moveIdx]?.cubeTimestamp ?? 0);
+            time = solve.solution[moveIdx]?.cubeTimestamp ?? 0;
 
             return (
               <Tooltip key={alg[2] + algTime}>

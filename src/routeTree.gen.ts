@@ -11,18 +11,11 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as TrainerImport } from './routes/trainer'
 import { Route as TimerImport } from './routes/timer'
 import { Route as DevImport } from './routes/dev'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
-
-const TrainerRoute = TrainerImport.update({
-  id: '/trainer',
-  path: '/trainer',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const TimerRoute = TimerImport.update({
   id: '/timer',
@@ -67,13 +60,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TimerImport
       parentRoute: typeof rootRoute
     }
-    '/trainer': {
-      id: '/trainer'
-      path: '/trainer'
-      fullPath: '/trainer'
-      preLoaderRoute: typeof TrainerImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -83,14 +69,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dev': typeof DevRoute
   '/timer': typeof TimerRoute
-  '/trainer': typeof TrainerRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dev': typeof DevRoute
   '/timer': typeof TimerRoute
-  '/trainer': typeof TrainerRoute
 }
 
 export interface FileRoutesById {
@@ -98,15 +82,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dev': typeof DevRoute
   '/timer': typeof TimerRoute
-  '/trainer': typeof TrainerRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dev' | '/timer' | '/trainer'
+  fullPaths: '/' | '/dev' | '/timer'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dev' | '/timer' | '/trainer'
-  id: '__root__' | '/' | '/dev' | '/timer' | '/trainer'
+  to: '/' | '/dev' | '/timer'
+  id: '__root__' | '/' | '/dev' | '/timer'
   fileRoutesById: FileRoutesById
 }
 
@@ -114,14 +97,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DevRoute: typeof DevRoute
   TimerRoute: typeof TimerRoute
-  TrainerRoute: typeof TrainerRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DevRoute: DevRoute,
   TimerRoute: TimerRoute,
-  TrainerRoute: TrainerRoute,
 }
 
 export const routeTree = rootRoute
@@ -136,8 +117,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dev",
-        "/timer",
-        "/trainer"
+        "/timer"
       ]
     },
     "/": {
@@ -148,9 +128,6 @@ export const routeTree = rootRoute
     },
     "/timer": {
       "filePath": "timer.tsx"
-    },
-    "/trainer": {
-      "filePath": "trainer.tsx"
     }
   }
 }

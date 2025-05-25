@@ -3,7 +3,7 @@ import { CheckCircle, XCircle, AlertTriangle, HelpCircle } from 'lucide-react';
 import { Cell, Pie, PieChart } from 'recharts';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
-import { AnalysisResult } from '@/lib/analysis/dnfAnalyser';
+import { AnalysisResult } from '@/lib/cube/dnfAnalyser';
 import { Penalty, db } from '@/lib/db';
 
 const chartConfig = {

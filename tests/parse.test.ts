@@ -1,12 +1,12 @@
 import { expect, test, describe } from 'bun:test';
 import { cube3x3x3 } from 'cubing/puzzles';
-import { analyseSolveString, AnalysisResult } from '@/lib/analysis/dnfAnalyser';
+import { analyseSolveString, AnalysisResult } from '@/lib/cube/dnfAnalyser';
 import {
   convertToSliceMoves,
   extractAlgs,
   makeAlgToComm,
   removeRotations,
-} from '@/lib/analysis/solutionParser';
+} from '@/lib/cube/solutionParser';
 
 async function extractComm(alg: string[]) {
   const puzzle = await cube3x3x3.kpuzzle();

@@ -4,12 +4,12 @@ import {
   TimerRenderer,
 } from 'react-use-precision-timer';
 import { cn } from '@/lib/utils';
-import Placeholder from '@/timer/AnalysisChart';
-import DrawScrambleCard from '@/timer/DrawScrambleCard';
-import LiveCubeCard from '@/timer/LiveCubeCard';
-import Results from '@/timer/Results';
-import ScrambleDisplay from '@/timer/ScrambleDisplay';
-import TimerBar from '@/timer/TimerBar';
+import DrawScrambleCard from '@/timer/attempt/DrawScrambleCard';
+import LiveCubeCard from '@/timer/attempt/LiveCubeCard';
+import ScrambleDisplay from '@/timer/attempt/ScrambleDisplay';
+import TimerBar from '@/timer/page/TimerBar';
+import Placeholder from '@/timer/results/AnalysisChart';
+import Results from '@/timer/results/Results';
 import useCubeTimer, { HOLD_DOWN_TIME, TimerState } from '@/timer/useCubeTimer';
 
 export const Route = createFileRoute('/timer')({

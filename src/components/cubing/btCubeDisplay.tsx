@@ -3,7 +3,7 @@ import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { TwistyPlayer } from 'cubing/twisty';
 import { CubeMoveEvent } from 'qysc-web';
 import { useEffect, useRef, useState } from 'react';
-import { CubeStore } from '@/lib/smartCube';
+import { CubeStore } from '@/lib/cube/smartCube';
 import { cn } from '@/lib/utils';
 import cubeImage from '/cube-colors.png';
 

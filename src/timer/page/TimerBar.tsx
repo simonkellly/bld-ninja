@@ -8,7 +8,7 @@ import {
   RotateCcw,
   Sun,
 } from 'lucide-react';
-import CubeName from '@/components/cubing/cubeName';
+import { useTheme } from '@/components/theme-provider';
 import {
   ActionBar,
   ActionStart,
@@ -16,9 +16,8 @@ import {
   ActionMiddle,
   ActionEnd,
   ActionIcon,
-} from '@/components/layout/ActionBar';
-import { useTheme } from '@/components/theme-provider';
-import { CubeStore, connect, reset } from '@/lib/smartCube';
+} from '@/components/ui/action-bar';
+import { CubeStore, connect, reset } from '@/lib/cube/smartCube';
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -36,6 +35,11 @@ function ThemeToggle() {
       icon={actualTheme === 'dark' ? Sun : Moon}
     />
   );
+}
+
+function CubeName() {
+  const cube = useStore(CubeStore, state => state.cube);
+  return <>{cube ? (cube?.name ?? 'Connected') : 'Disconnected'}</>;
 }
 
 export default function TimerBar() {

@@ -5,7 +5,7 @@ import {
   adjustScramble,
   getRandomRotation,
   possibleRotations,
-} from '@/lib/scramble';
+} from '@/lib/cube/scramble';
 
 describe('Scramble', async () => {
   const puzzle = await cube3x3x3.kpuzzle();

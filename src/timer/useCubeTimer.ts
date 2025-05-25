@@ -3,14 +3,14 @@ import { randomScrambleForEvent } from 'cubing/scramble';
 import { CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
-import { AnalysisResult, analyseSolve } from '@/lib/analysis/dnfAnalyser';
-import { Penalty, Solve, db } from '@/lib/db';
+import { AnalysisResult, analyseSolve } from '@/lib/cube/dnfAnalyser';
 import {
   adjustScramble,
   getRandomRotation,
   solveRotation,
-} from '@/lib/scramble';
-import { CubeStore } from '@/lib/smartCube';
+} from '@/lib/cube/scramble';
+import { CubeStore } from '@/lib/cube/smartCube';
+import { Penalty, Solve, db } from '@/lib/db';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { TimerStore } from './timerStore';
 

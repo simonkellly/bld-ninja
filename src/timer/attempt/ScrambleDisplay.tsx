@@ -1,7 +1,7 @@
 import { useStore } from '@tanstack/react-store';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { TimerStore } from './timerStore';
+import { TimerStore } from '../timerStore';
 
 export default function ScrambleDisplay() {
   const scramble = useStore(TimerStore, state => state.scramble);
