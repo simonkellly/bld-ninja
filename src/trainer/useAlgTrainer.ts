@@ -70,7 +70,6 @@ export default function useAlgTrainer() {
       }
     } finally {
       isProcessing.current = false;
-      // Process next move in queue if any
       processNextMove();
     }
   }, [algs]);

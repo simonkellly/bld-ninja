@@ -158,82 +158,10 @@ function SolveDialog({
   );
 }
 
-// TODO: This should be virtualized
-export function ResultsOld() {
-  const data = useLiveQuery(() => db.solves.reverse().toArray()) ?? [];
-
-  const padAmountForIdx = data.length.toString().length;
-
-  const [selectedSolve, setSelectedSolve] = useState<number | null>(null);
-
-  return (
-    <>
-      <ScrollArea className="flex-1 min-h-0">
-        {data?.map((solve, idx) => {
-          const timeText = convertSolveToText(solve);
-
-          const reverseIdx = data.length - idx - 1;
-
-          let mo3: string | undefined;
-          if (reverseIdx < 2) mo3 = '-';
-          else {
-            const prevSolves = data.slice(idx, idx + 3);
-
-            let sum = 0;
-            for (const solve of prevSolves) {
-              if (solve.penalty === Penalty.DNF) {
-                mo3 = 'DNF';
-                break;
-              }
-              sum +=
-                solve.penalty === Penalty.PLUS_TWO
-                  ? solve.time + 2000
-                  : solve.time;
-            }
-
-            if (mo3 !== 'DNF') mo3 = convertTimeToText(sum / 3);
-          }
-
-          const showModal = () => setSelectedSolve(idx);
-
-          return (
-            <div
-              key={idx}
-              className="flex gap-2 rounded-md text-sm my-1 py-1 px-2 hover:bg-primary hover:text-primary-foreground cursor-pointer group"
-              data-index={idx}
-              onClick={showModal}
-            >
-              <div className="">
-                <pre>
-                  <span className="text-primary group-hover:text-primary-foreground">
-                    {(reverseIdx + 1).toString().padStart(padAmountForIdx, ' ')}
-                    .
-                  </span>
-                  <span>{timeText.padStart(7, ' ')}</span>
-                  <span>{mo3.padStart(7, ' ')}</span>
-                </pre>
-              </div>
-            </div>
-          );
-        })}
-      </ScrollArea>
-      {selectedSolve !== null && (
-        <SolveDialog
-          solve={data[selectedSolve]}
-          idx={data.length - 1 - selectedSolve}
-          close={open => setSelectedSolve(open ? selectedSolve : null)}
-        />
-      )}
-    </>
-  );
-}
-
-// this is the same functionality as Results, but as a data-table
 export default function Results() {
   const data = useLiveQuery(() => db.solves.reverse().toArray()) ?? [];
   const [selectedSolve, setSelectedSolve] = useState<number | null>(null);
 
-  // Calculate mean of 3 for a given solve index
   const calculateMo3 = (idx: number): string => {
     const reverseIdx = data.length - idx - 1;
     if (reverseIdx < 2) return '-';
@@ -289,7 +217,6 @@ export default function Results() {
     },
   ];
 
-  // Add original index to each solve for proper calculations
   const dataWithIndex = data.map((solve, idx) => ({
     ...solve,
     originalIndex: idx,

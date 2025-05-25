@@ -4,9 +4,9 @@ import {
   TimerRenderer,
 } from 'react-use-precision-timer';
 import { cn } from '@/lib/utils';
+import Placeholder from '@/timer/AnalysisChart';
 import DrawScrambleCard from '@/timer/DrawScrambleCard';
 import LiveCubeCard from '@/timer/LiveCubeCard';
-import Placeholder from '@/timer/Placeholder';
 import Results from '@/timer/Results';
 import ScrambleDisplay from '@/timer/ScrambleDisplay';
 import TimerBar from '@/timer/TimerBar';

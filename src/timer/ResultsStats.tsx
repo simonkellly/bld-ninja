@@ -46,27 +46,21 @@ function calculateAverage(solves: Solve[], count: number): string {
   const recentSolves = solves.slice(0, count);
   const times: (number | null)[] = recentSolves.map(getSolveTime);
 
-  // Count DNFs
   const dnfCount = times.filter(time => time === null).length;
 
-  // For ao5 and above, remove best and worst times
   if (count >= 5) {
-    // If more than 1 DNF, it's a DNF average
     if (dnfCount > 1) return 'DNF';
 
-    // Remove DNFs and sort valid times
     const validTimes = times.filter(time => time !== null) as number[];
-    if (validTimes.length < count - 1) return 'DNF'; // Not enough valid times
+    if (validTimes.length < count - 1) return 'DNF';
 
     validTimes.sort((a, b) => a - b);
 
-    // Remove best and worst time for averaging
     const trimmedTimes = validTimes.slice(1, -1);
     const sum = trimmedTimes.reduce((acc, time) => acc + time, 0);
 
     return convertTimeToText(sum / trimmedTimes.length);
   } else {
-    // For mo3, any DNF makes it DNF
     if (dnfCount > 0) return 'DNF';
 
     const validTimes = times.filter(time => time !== null) as number[];
@@ -81,7 +75,6 @@ function calculateBestAverage(solves: Solve[], count: number): string {
 
   let bestAvg: number | null = null;
 
-  // Calculate rolling averages
   for (let i = 0; i <= solves.length - count; i++) {
     const window = solves.slice(i, i + count);
     const times: (number | null)[] = window.map(getSolveTime);

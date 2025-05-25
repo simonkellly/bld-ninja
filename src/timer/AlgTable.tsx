@@ -30,7 +30,7 @@ export function AlgTable({ solve }: { solve: Solve }) {
   let time = solve.solution[0]?.cubeTimestamp ?? 0;
 
   return (
-    <ScrollArea className="h-64 w-full rounded-md border">
+    <ScrollArea className="h-64 w-full rounded-md border p-2">
       <Table>
         <TableHeader>
           <TableRow>
