@@ -51,9 +51,19 @@ function SolveDialog({
   close: (open: boolean) => void;
 }) {
   const analyse = async () => {
-    const { result: analysis, extractedAlgs: algs, reason } = await analyseSolve(solve);
-    db.solves.update(solve.id, { algs, dnfReason: analysis + (reason ? ": " + reason : "") });
-    navigator.clipboard.writeText(solve.scramble + " == " + solve.solution.map(s => s.move).join(' '));
+    const {
+      result: analysis,
+      extractedAlgs: algs,
+      reason,
+    } = await analyseSolve(solve);
+    db.solves.update(solve.id, {
+      algs,
+      dnfResult: analysis,
+      dnfReason: reason,
+    });
+    navigator.clipboard.writeText(
+      solve.scramble + ' == ' + solve.solution.map(s => s.move).join(' ')
+    );
   };
 
   const deleteSolve = () => {
@@ -72,9 +82,12 @@ function SolveDialog({
     'https://alg.cubing.net/?' +
     new URLSearchParams({
       setup: solve.scramble,
-      alg: solve.algs?.map(a => {
-        return `${a[0]} // ${a[1]} - ${a[2]}`
-      }).join('\n') || solutionStr,
+      alg:
+        solve.algs
+          ?.map(a => {
+            return `${a[0]} // ${a[1]} - ${a[2]}`;
+          })
+          .join('\n') || solutionStr,
     }).toString();
 
   const exec = solve.solution[0]?.localTimestamp
@@ -111,7 +124,7 @@ function SolveDialog({
         <AlgTable solve={solve} />
         {solve.penalty == Penalty.DNF && (
           <p className="font-medium">
-            DNF Reason: {solve.dnfReason || 'Not analysed'}
+            DNF Reason: {solve.dnfResult + (solve.dnfReason ? ': ' + solve.dnfReason : '') || 'Not analysed'}
           </p>
         )}
         <DialogFooter>

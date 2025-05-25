@@ -3,17 +3,16 @@ import {
   Timer as PrecisionTimer,
   TimerRenderer,
 } from 'react-use-precision-timer';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import DrawScrambleCard from '@/timer/DrawScrambleCard';
-import LiveCubeCard from '@/timer/LiveCubeCard';
-import ResultsCard from '@/timer/ResultsCard';
+import Results from '@/timer/Results';
 import ScrambleDisplay from '@/timer/ScrambleDisplay';
 import TimerBar from '@/timer/TimerBar';
 import useCubeTimer, { HOLD_DOWN_TIME, TimerState } from '@/timer/useCubeTimer';
+import DrawScrambleCard from '@/timer/DrawScrambleCard';
+import LiveCubeCard from '@/timer/LiveCubeCard';
 
 export const Route = createFileRoute('/timer')({
-  component: Timer,
+  component: NewTimer,
 });
 
 function TimeDisplay(cubeTimer: ReturnType<typeof useCubeTimer>) {
@@ -41,31 +40,41 @@ function TimeDisplay(cubeTimer: ReturnType<typeof useCubeTimer>) {
   };
 }
 
-function Timer() {
+function NewTimer() {
   const cubeTimer = useCubeTimer();
 
   return (
-    <div className="flex flex-col justify-between h-dvh w-screen p-2">
+    <div className="flex flex-col justify-between h-dvh w-screen p-2 gap-2">
       <TimerBar />
-      <div className="bg-card rounded-lg border w-full relative grow mt-2">
-        <ScrambleDisplay />
-        <div className="absolute top-0 left-0 w-full h-full flex">
-          <h1 className="m-auto text-6xl sm:text-7xl md:text-9xl font-extrabold select-none">
-            <TimerRenderer
-              timer={cubeTimer.stopwatch}
-              renderRate={40}
-              render={TimeDisplay(cubeTimer)}
-            />
-          </h1>
+      <div id="timer" className="flex gap-2 flex-1 min-h-0">
+        <div
+          id="sidebar"
+          className="flex flex-col w-72 flex-none bg-card rounded-lg border"
+        >
+          <Results />
+        </div>
+        <div id="main" className="flex flex-col gap-2 grow">
+          <div
+            id="time-view"
+            className="bg-card rounded-lg border grow relative"
+          >
+            <ScrambleDisplay />
+            <div className="absolute top-0 left-0 w-full h-full flex">
+              <h1 className="m-auto text-6xl sm:text-7xl md:text-9xl font-extrabold select-none">
+                <TimerRenderer
+                  timer={cubeTimer.stopwatch}
+                  renderRate={40}
+                  render={TimeDisplay(cubeTimer)}
+                />
+              </h1>
+            </div>
+          </div>
+          <div id="bottom-bar" className="flex gap-2 h-64">
+            <LiveCubeCard />
+            <DrawScrambleCard />
+          </div>
         </div>
       </div>
-      <ScrollArea className="h-72 rounded-lg">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          <LiveCubeCard />
-          <ResultsCard />
-          <DrawScrambleCard />
-        </div>
-      </ScrollArea>
     </div>
   );
 }

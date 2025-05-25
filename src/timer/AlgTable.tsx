@@ -1,3 +1,4 @@
+import { TooltipPortal } from '@radix-ui/react-tooltip';
 import DrawScramble from '@/components/cubing/drawScramble';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -14,7 +15,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Solve } from '@/lib/db';
-import { TooltipPortal } from '@radix-ui/react-tooltip';
 
 export function AlgTable({ solve }: { solve: Solve }) {
   const solutionStr = solve.solution.map(s => s.move).join(' ');
@@ -55,9 +55,9 @@ export function AlgTable({ solve }: { solve: Solve }) {
                     <TableCell className="text-left">{alg[1]}</TableCell>
                   </TableRow>
                 </TooltipTrigger>
-                <TooltipPortal> 
+                <TooltipPortal>
                   <TooltipContent>
-                  <DrawScramble
+                    <DrawScramble
                       scramble={alg[0]}
                       className="w-32 h-32 mx-auto"
                       reverse

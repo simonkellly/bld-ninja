@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as TrainerImport } from './routes/trainer'
 import { Route as TimerImport } from './routes/timer'
+import { Route as DevImport } from './routes/dev'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -27,6 +28,11 @@ const TimerRoute = TimerImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DevRoute = DevImport.update({
+  path: '/dev',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
@@ -38,6 +44,10 @@ declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/dev': {
+      preLoaderRoute: typeof DevImport
       parentRoute: typeof rootRoute
     }
     '/timer': {
@@ -55,6 +65,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
+  DevRoute,
   TimerRoute,
   TrainerRoute,
 ])

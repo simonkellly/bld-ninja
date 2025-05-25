@@ -20,10 +20,13 @@ export const ActionButton = forwardRef<
     size={null}
     className={cn('h-full aspect-square p-1', className)}
     onClick={e => {
-      e.currentTarget.blur();
+      // set current focus to nothing
       if (props.onClick) {
         props.onClick(e);
       }
+    }}
+    onMouseUp={e => {
+      e.currentTarget.blur();
     }}
     {...props}
   >

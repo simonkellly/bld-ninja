@@ -2,6 +2,7 @@ import { useStore } from '@tanstack/react-store';
 import { Alg } from 'cubing/alg';
 import { randomScrambleForEvent } from 'cubing/scramble';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
+import { CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
 import { Key } from 'ts-key-enum';
@@ -10,7 +11,6 @@ import { Penalty, Solve, db } from '@/lib/db';
 import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { TimerStore } from './timerStore';
-import { CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
 
 export enum TimerState {
   Inactive = 'INACTIVE',
@@ -97,7 +97,7 @@ async function processScramblingMove(ev: CubeMoveEvent) {
 }
 
 async function newScramble() {
-  const scramble =  await randomScrambleForEvent('333');
+  const scramble = await randomScrambleForEvent('333');
   TimerStore.setState(state => ({
     ...state,
     originalScramble: scramble.toString(),
@@ -133,11 +133,11 @@ export default function useCubeTimer() {
         newEventSub!.unsubscribe();
         newMovesSub.unsubscribe();
       });
-      
+
       await cube.freshState();
       while (!newEventHappened) {
         await new Promise(resolve => setTimeout(resolve, 25));
-      } 
+      }
     }
 
     const solutionMoves = cubeTimestampLinearFit(moves.current);
@@ -150,9 +150,14 @@ export default function useCubeTimer() {
       solution: solutionMoves,
     };
 
-    const { result: analysis, extractedAlgs: parsedAlgs, reason } = await analyseSolve(solve);
+    const {
+      result: analysis,
+      extractedAlgs: parsedAlgs,
+      reason,
+    } = await analyseSolve(solve);
 
-    solve.dnfReason = analysis + (reason ? ": " + reason : "");
+    solve.dnfResult = analysis;
+    solve.dnfReason = reason;
     solve.algs = parsedAlgs;
 
     solve.penalty =
@@ -212,7 +217,10 @@ export default function useCubeTimer() {
         ev.preventDefault();
         ev.stopImmediatePropagation();
         updateStateFromSpaceBar(true);
-      } else if (ev.key.length === 1 && ev.key.toUpperCase() !== ev.key.toLowerCase()) {
+      } else if (
+        ev.key.length === 1 &&
+        ev.key.toUpperCase() !== ev.key.toLowerCase()
+      ) {
         if (state.current === TimerState.Active) {
           updateStateFromSpaceBar(true);
         }
@@ -247,13 +255,15 @@ export default function useCubeTimer() {
   }, [stopwatch, updateStateFromSpaceBar]);
 
   useEffect(() => {
-    const subscription = cube?.events.moves.subscribe((event: CubeMoveEvent) => {
-      if (stopwatch.isRunning()) {
-        moves.current.push(event);
-        return;
+    const subscription = cube?.events.moves.subscribe(
+      (event: CubeMoveEvent) => {
+        if (stopwatch.isRunning()) {
+          moves.current.push(event);
+          return;
+        }
+        processScramblingMove(event);
       }
-      processScramblingMove(event);
-    });
+    );
 
     if (TimerStore.state.originalScramble)
       updateScrambleFromCubeState(TimerStore.state.originalScramble);

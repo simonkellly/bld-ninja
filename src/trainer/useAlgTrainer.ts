@@ -1,5 +1,6 @@
 import { useStore } from '@tanstack/react-store';
 import { cube3x3x3 } from 'cubing/puzzles';
+import { CubeMoveEvent } from 'qysc-web';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { Key } from 'ts-key-enum';
 import { extractAlgs } from '@/lib/analysis/solutionParser';
@@ -7,7 +8,6 @@ import { CubeStore } from '@/lib/smartCube';
 import { shouldIgnoreEvent } from '@/lib/utils';
 import { AlgSheet, fetchGoogleSheet } from './algSheet';
 import { TrainerStore } from './trainerStore';
-import { CubeMoveEvent } from 'qysc-web';
 
 function randomAlg(sheet: AlgSheet) {
   const randomLetter =
@@ -85,9 +85,11 @@ export default function useAlgTrainer() {
   );
 
   useEffect(() => {
-    const subscription = cube?.events.moves.subscribe((event: CubeMoveEvent) => {
-      processMove(event);
-    });
+    const subscription = cube?.events.moves.subscribe(
+      (event: CubeMoveEvent) => {
+        processMove(event);
+      }
+    );
 
     return () => {
       subscription?.unsubscribe();

@@ -1,12 +1,12 @@
 import { expect, test, describe } from 'bun:test';
+import { cube3x3x3 } from 'cubing/puzzles';
+import { analyseSolveString, AnalysisResult } from '@/lib/analysis/dnfAnalyser';
 import {
   convertToSliceMoves,
   extractAlgs,
   makeAlgToComm,
   removeRotations,
 } from '@/lib/analysis/solutionParser';
-import { cube3x3x3 } from 'cubing/puzzles';
-import { analyseSolveString, AnalysisResult } from '@/lib/analysis/dnfAnalyser';
 
 async function extractComm(alg: string[]) {
   const puzzle = await cube3x3x3.kpuzzle();
@@ -111,7 +111,8 @@ describe('Extract Comms', () => {
 describe('Analyse Solve', () => {
   test('Valid solve', async () => {
     const scramble = "R2 B2 U2 R B D2 F' U2 R D2 F2 U B2 L2 U2 R2 D' R2 L2 U";
-    const solution = "D' U' R' D R U R' D' R D U' R D' R' U R' D R U R' D' R U' R D R' U' R' U' R D' R' U' R D R' U U R U R U' R' R' B F' U U F B' U R' L' U U L F' B D' L D F B' L' U L R' R' F B' D F D' B F' R F' R R L' B R B' L R' L R' F R' F' R L' U R' F' R F' B U' F U B' F U' R F' D R' U' R D' R' U R F R' L R' F R' B F' U U F B' R' F' R L' R' D U' B U' B' U D' R U R U R' F' R U R' U' R' F R R U' R' U'";
+    const solution =
+      "D' U' R' D R U R' D' R D U' R D' R' U R' D R U R' D' R U' R D R' U' R' U' R D' R' U' R D R' U U R U R U' R' R' B F' U U F B' U R' L' U U L F' B D' L D F B' L' U L R' R' F B' D F D' B F' R F' R R L' B R B' L R' L R' F R' F' R L' U R' F' R F' B U' F U B' F U' R F' D R' U' R D' R' U R F R' L R' F R' B F' U U F B' R' F' R L' R' D U' B U' B' U D' R U R U R' F' R U R' U' R' F R R U' R' U'";
     const analysis = await analyseSolveString(scramble, solution);
     expect(analysis.result).toBe(AnalysisResult.SOLVED);
     expect(analysis.extractedAlgs.length).toBe(12);
@@ -119,15 +120,18 @@ describe('Analyse Solve', () => {
 
   test('One move mistake', async () => {
     const scramble = "R2 B2 U2 R B D2 F' U2 R D2 F2 U B2 L2 U2 R2 D' R2 L2 U";
-    const solution = "D' U' R' D R U R' D' R D U' R D' R' U R' D R U R D' R U' R D R' U' R' U' R D' R' U' R D R' U U R U R U' R' R' B F' U U F B' U R' L' U U L F' B D' L D F B' L' U L R' R' F B' D F D' B F' R F' R R L' B R B' L R' L R' F R' F' R L' U R' F' R F' B U' F U B' F U' R F' D R' U' R D' R' U R F R' L R' F R' B F' U U F B' R' F' R L' R' D U' B U' B' U D' R U R U R' F' R U R' U' R' F R R U' R' U'";
+    const solution =
+      "D' U' R' D R U R' D' R D U' R D' R' U R' D R U R D' R U' R D R' U' R' U' R D' R' U' R D R' U U R U R U' R' R' B F' U U F B' U R' L' U U L F' B D' L D F B' L' U L R' R' F B' D F D' B F' R F' R R L' B R B' L R' L R' F R' F' R L' U R' F' R F' B U' F U B' F U' R F' D R' U' R D' R' U R F R' L R' F R' B F' U U F B' R' F' R L' R' D U' B U' B' U D' R U R U R' F' R U R' U' R' F R R U' R' U'";
     const analysis = await analyseSolveString(scramble, solution);
     expect(analysis.result).toBe(AnalysisResult.ONE_MOVE);
     expect(analysis.extractedAlgs.length).toBe(12);
   });
 
   test('Another one move mistake', async () => {
-    const scramble = "F2 U2 R2 U' R' L' D' F' U2 B D2 F2 U2 R2 F' R2 U2 F2 D R2 F2";
-    const solution = "U2 M U2' M' L' U L2 S' L' S U' L L F' R' F M F' R F M' L' L' B' M' B2 M B2' B L U' E' R E' R2 E R2' R' E U R' U' E' R E R2 E' R2' R' E U R U2 S U' S U' S U' S' U' S U' S U' S U' S' U R' B D' R U R' D R U' R' B' R U' D' R' U' R' D R U R' D' R R D U R U' R' R' U R D R' U' R D' R U R' D' R D' R' U' R D R' U D R' D R U R' D' R U'";
+    const scramble =
+      "F2 U2 R2 U' R' L' D' F' U2 B D2 F2 U2 R2 F' R2 U2 F2 D R2 F2";
+    const solution =
+      "U2 M U2' M' L' U L2 S' L' S U' L L F' R' F M F' R F M' L' L' B' M' B2 M B2' B L U' E' R E' R2 E R2' R' E U R' U' E' R E R2 E' R2' R' E U R U2 S U' S U' S U' S' U' S U' S U' S U' S' U R' B D' R U R' D R U' R' B' R U' D' R' U' R' D R U R' D' R R D U R U' R' R' U R D R' U' R D' R U R' D' R D' R' U' R D R' U D R' D R U R' D' R U'";
     const analysis = await analyseSolveString(scramble, solution);
     expect(analysis.result).toBe(AnalysisResult.ONE_MOVE);
     expect(analysis.extractedAlgs.length).toBe(12);
@@ -135,7 +139,8 @@ describe('Analyse Solve', () => {
 
   test('Inverse comm', async () => {
     const scramble = "R2 B2 U2 R B D2 F' U2 R D2 F2 U B2 L2 U2 R2 D' R2 L2 U";
-    const solution = "D' U' R' D R U R' D' R D U' R D' R' U R' D R U R' D' R U' R D R' U' R' U' R D' R' U' R D R' U U R U R U' R' R' B F' U U F B' U R' L' U U L F' B D' L D F B' L' U L R' R' F B' D F D' B F' R F' R R L' B R B' L R' L R' F R' F' R L' U R' F' R F' B U' F U B' F U' R F' R' U' R D R' U R D' F R' L R' F R' B F' U U F B' R' F' R L' R' D U' B U' B' U D' R U R U R' F' R U R' U' R' F R R U' R' U'";
+    const solution =
+      "D' U' R' D R U R' D' R D U' R D' R' U R' D R U R' D' R U' R D R' U' R' U' R D' R' U' R D R' U U R U R U' R' R' B F' U U F B' U R' L' U U L F' B D' L D F B' L' U L R' R' F B' D F D' B F' R F' R R L' B R B' L R' L R' F R' F' R L' U R' F' R F' B U' F U B' F U' R F' R' U' R D R' U R D' F R' L R' F R' B F' U U F B' R' F' R L' R' D U' B U' B' U D' R U R U R' F' R U R' U' R' F R R U' R' U'";
     const analysis = await analyseSolveString(scramble, solution);
     expect(analysis.result).toBe(AnalysisResult.INVERSE_ALG);
     expect(analysis.extractedAlgs.length).toBe(12);

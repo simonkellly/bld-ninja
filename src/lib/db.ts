@@ -1,6 +1,6 @@
 import Dexie, { Table } from 'dexie';
-import { ExtractedAlg } from './analysis/solutionParser';
 import { CubeMoveEvent } from 'qysc-web';
+import { ExtractedAlg } from './analysis/solutionParser';
 
 export enum Penalty {
   SOLVED = 0,
@@ -16,6 +16,7 @@ export interface Solve {
   scramble: string;
   solution: CubeMoveEvent[];
   algs?: ExtractedAlg[];
+  dnfResult?: string;
   dnfReason?: string;
   penalty?: Penalty;
 }
