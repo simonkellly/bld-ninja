@@ -29,6 +29,7 @@ export function AlgTable({ solve }: { solve: Solve }) {
 
   let time = solve.solution[0]?.cubeTimestamp ?? 0;
 
+  console.log(solve);
   return (
     <ScrollArea className="h-64 w-full rounded-md border p-2">
       <Table>
@@ -42,9 +43,10 @@ export function AlgTable({ solve }: { solve: Solve }) {
         <TableBody>
           {solve.algs.map(alg => {
             const moveIdx = alg[2];
+            console.log(time, solve.solution[moveIdx]?.cubeTimestamp, solve.solution[moveIdx]?.cubeTimestamp ?? 0 - time);
             const algTime =
-              (solve.solution[moveIdx]?.cubeTimestamp ?? 0 - time) / 1000;
-            time = solve.solution[moveIdx]?.cubeTimestamp ?? 0;
+              ((solve.solution[moveIdx]?.cubeTimestamp ?? 0) - time) / 1000;
+            time = (solve.solution[moveIdx]?.cubeTimestamp ?? 0);
 
             return (
               <Tooltip key={alg[2] + algTime}>
