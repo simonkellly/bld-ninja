@@ -10,6 +10,7 @@ import ScrambleDisplay from './attempt/ScrambleDisplay';
 import TimerBar from './page/TimerBar';
 import Results from './results/Results';
 import useCubeTimer, { TimerState, HOLD_DOWN_TIME } from './useCubeTimer';
+import setup from './results/static';
 
 function TimeDisplay(cubeTimer: ReturnType<typeof useCubeTimer>) {
   return (timer: PrecisionTimer) => {
@@ -39,6 +40,7 @@ function TimeDisplay(cubeTimer: ReturnType<typeof useCubeTimer>) {
 export default function Timer() {
   const cubeTimer = useCubeTimer();
 
+  setup();
   return (
     <div className="flex flex-col justify-between h-dvh w-screen p-2 gap-2">
       <TimerBar />

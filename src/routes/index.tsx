@@ -85,6 +85,13 @@ function Index() {
           </p>
           <br />
           <p>
+            Setup alg integration{' '}
+            <Link to="/algs" className="underline">
+              here
+            </Link>
+          </p>
+          <br />
+          <p>
             See dev options and settings{' '}
             <Link to="/dev" className="underline">
               here
