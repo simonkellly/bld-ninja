@@ -79,8 +79,20 @@ async function processCubeMoves(kpuzzle: KPuzzle, moves: CubeMoveEvent[]) {
     AlgStore.setState((prev) => ({ ...prev, currentAlgIdx: prev.currentAlgIdx + 1, retries: 0 }));
   }
 
-  // TODO: We should be able to use more moves from the cube to get a better fit
-  const solutionMoves = cubeTimestampLinearFit(moves);
+  const lastMoves = CubeStore.state.lastMoves;
+  const startIdx = lastMoves?.indexOf(moves[0]);
+  const endIdx = lastMoves?.indexOf(moves[moves.length - 1]);
+  let solutionMoves = (lastMoves && startIdx !== undefined && endIdx !== undefined) ? cubeTimestampLinearFit(lastMoves).slice(startIdx, endIdx) : cubeTimestampLinearFit(moves);
+
+  if (!lastMoves || startIdx === undefined || endIdx === undefined) console.log("No last moves");
+  else {
+    const modMoves = cubeTimestampLinearFit(moves);
+    const newTime = solutionMoves[solutionMoves.length - 1].cubeTimestamp - solutionMoves[0].cubeTimestamp;
+    const oldTime = modMoves[modMoves.length - 1].cubeTimestamp - modMoves[0].cubeTimestamp;
+    const plainTime = moves[moves.length - 1]!.cubeTimestamp! - moves[0]!.cubeTimestamp!;
+    const localTime = solutionMoves[solutionMoves.length - 1].localTimestamp! - solutionMoves[0].localTimestamp!;
+    console.log(`Local time: ${localTime}, Plain time: ${plainTime}, New time: ${newTime} (${newTime - plainTime}), old time: ${oldTime} (${oldTime - plainTime})`);
+  }
 
   const algAttempt: AlgAttempt = {
     set: AlgStore.state.currentSet,

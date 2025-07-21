@@ -6,7 +6,7 @@ import { algDb } from "../logic/alg-db";
 import { useMemo } from "react";
 
 // Development flag: true for median, false for fastest time
-const USE_MEDIAN = false;
+const USE_MEDIAN = true;
 
 export default function HotColdDisplay() {
   const currentSet = useStore(AlgStore, state => state.currentSet);
@@ -17,7 +17,6 @@ export default function HotColdDisplay() {
   const filteredAttempts = useMemo(() => {
     if (!attempts) return [];
     
-    // If no cases are selected, show all attempts
     if (selectedCases.length === 0) return attempts;
     
     return attempts.filter(att => 
@@ -80,9 +79,8 @@ export default function HotColdDisplay() {
       <CardHeader className="grid grid-cols-2 gap-4 text-2xl font-bold">
         <h3 className="mr-auto">Fast</h3>
         <div className="flex flex-row gap-4">
-          <h3 className="mr-auto">Slow</h3>
-          <Button size="sm" variant="bordered" onPress={trainCases}>
-            Train
+          <Button size="md" variant="bordered" onPress={trainCases} className="font-bold">
+            Train Slow
           </Button>
         </div>
       </CardHeader>

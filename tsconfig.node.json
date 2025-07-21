@@ -11,7 +11,6 @@
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"moduleDetection": "force",
-		"noEmit": true,
 
 		/* Linting */
 		"strict": true,
@@ -21,9 +20,11 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true,
 
+		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
-		}
+		},
+		"composite": true
 	},
 	"include": ["vite.config.ts"]
 }

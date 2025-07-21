@@ -41,13 +41,14 @@ export default function StatDisplay() {
     }
   })();
   
-  const allCases = algs.filter(alg => selected.includes(alg.case.first) || (inverse && selected.includes(alg.case.second)));
+  const validCases = algs.filter(alg => selected.includes(alg.case.first) || (inverse && selected.includes(alg.case.second)));
+  const allCases = validCases.length > 0 ? validCases : algs;
 
   const results = useLiveQuery(() =>
     algDb.algAttempts
       .where("set").equals(currentSet)
       .and(x => x.timestamp > minTimestamp)
-      .and(x => selected.includes(x.case[0]) || (inverse && selected.includes(x.case[1])))
+      .and(x => selected.length > 0 ? (selected.includes(x.case[0]) || (inverse && selected.includes(x.case[1]))) : true)
       .toArray(), [currentSet, minTimestamp, selected, inverse]);
 
   const minCaseTime = (results || []).reduce((acc, attempt) => {

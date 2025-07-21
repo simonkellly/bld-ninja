@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
+import { AlgStore } from './alg-store';
 
 interface AlgAttempt {
   id?: number;
@@ -53,8 +54,42 @@ algDb.version(1).stores({
     acc[curr.case] = (acc[curr.case] || 0) + curr.retries;
     return acc;
   }, {} as Record<string, number>);
+
   const sortedAlgAttemptsRetriesCount = Object.entries(algAttemptsRetriesCount).sort((a, b) => b[1] - a[1]);
   console.log(sortedAlgAttemptsRetriesCount.slice(0, 10));
+
+    // print the top 10 cases that are slowest by median (show how many attempts this case was for)
+    const setAttempts = await algDb.algAttempts.where('set').equals(AlgStore.state.currentSet).toArray();
+    const algAttemptsGroupedByCase = setAttempts.reduce((acc, curr) => {
+      if (!acc[curr.case]) {
+        acc[curr.case] = [];
+      }
+      acc[curr.case].push(curr.time);
+      return acc;
+    }, {} as Record<string, number[]>);
+
+    const casesWithMedianTime = Object.entries(algAttemptsGroupedByCase)
+      .filter(([_, times]) => times.length >= 4) // Only include cases with at least 4 attempts
+      .map(([caseName, times]) => {
+        const sortedTimes = times.sort((a, b) => a - b);
+        const length = sortedTimes.length;
+        const median = length % 2 === 0 
+          ? (sortedTimes[length / 2 - 1] + sortedTimes[length / 2]) / 2
+          : sortedTimes[Math.floor(length / 2)];
+        
+        return {
+          case: caseName,
+          medianTime: median,
+          attemptCount: length
+        };
+      });
+
+    const sortedByMedianTime = casesWithMedianTime.sort((a, b) => b.medianTime - a.medianTime);
+    console.log('Top 10 slowest cases by median time:');
+    console.log(sortedByMedianTime.slice(0, 10).map(item => 
+      `${item.case}: ${item.medianTime.toFixed(2)}ms (${item.attemptCount} attempts)`
+    ));
+
 };
 
 export type { AlgAttempt };

@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
+		"dev": "vite --port 5174",
 		"build": "tsc -b && vite build",
 		"preview": "vite preview"
 	},
@@ -24,6 +24,7 @@
 		"qysc-web": "^1.0.3",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
+		"react-use-precision-timer": "^3.5.6",
 		"recharts": "^3.1.0",
 		"tailwindcss": "^4.1.11"
 	},

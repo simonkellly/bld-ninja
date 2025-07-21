@@ -2,7 +2,7 @@ import { AlgStore } from "@/algs/logic/alg-store";
 import { algDb } from "@/algs/logic/alg-db";
 import { useStore } from "@tanstack/react-store";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Button, Card, CardBody, CardHeader, cn, ScrollShadow } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Chip, cn, ScrollShadow } from "@heroui/react";
 import { Trash } from "lucide-react";
 
 const colors = {
@@ -26,8 +26,6 @@ const colors = {
     '1.0': 'dark:text-green-100',
     '1.1': 'dark:text-orange-200',
     '1.2': 'dark:text-orange-300',
-    '1.3': 'dark:text-red-400',
-    '1.4': 'dark:text-red-500',
     '1.5': 'dark:text-red-600',
   }
 }
@@ -68,8 +66,14 @@ function ResultsList() {
           const colorClass = getTimeColor(timeInSeconds);
           
           return (
-            <div key={result.id} className={cn("flex items-center justify-between", colorClass.light, colorClass.dark)}>
-              <p>{result.case} - {timeInSeconds.toFixed(2)}s</p>
+            <div key={result.id} className="flex items-center justify-between">
+              <Chip
+                className={cn(colorClass.dark, colorClass.light)}
+                variant="faded"
+                size="md"
+              >
+                {result.case}: {timeInSeconds.toFixed(2)}s
+              </Chip>
               <Button
                 variant="bordered"
                 size="sm"
