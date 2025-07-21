@@ -1,5 +1,10 @@
-import { TooltipPortal } from '@radix-ui/react-tooltip';
+import { PopoverPortal } from '@radix-ui/react-popover';
 import DrawScramble from '@/components/cubing/drawScramble';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
@@ -9,11 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { Solve } from '@/lib/db';
 
 export function AlgTable({ solve }: { solve: Solve }) {
@@ -29,7 +29,6 @@ export function AlgTable({ solve }: { solve: Solve }) {
 
   let time = solve.solution[0]?.cubeTimestamp ?? 0;
 
-  console.log(solve);
   return (
     <ScrollArea className="h-64 w-full rounded-md border p-2">
       <Table>
@@ -43,34 +42,29 @@ export function AlgTable({ solve }: { solve: Solve }) {
         <TableBody>
           {solve.algs.map(alg => {
             const moveIdx = alg[2];
-            console.log(
-              time,
-              solve.solution[moveIdx]?.cubeTimestamp,
-              solve.solution[moveIdx]?.cubeTimestamp ?? 0 - time
-            );
             const algTime =
               ((solve.solution[moveIdx]?.cubeTimestamp ?? 0) - time) / 1000;
             time = solve.solution[moveIdx]?.cubeTimestamp ?? 0;
 
             return (
-              <Tooltip key={alg[2] + algTime}>
-                <TooltipTrigger asChild>
+              <Popover key={alg[2] + algTime}>
+                <PopoverTrigger asChild>
                   <TableRow>
                     <TableCell>{algTime.toFixed(2)}s</TableCell>
                     <TableCell>{alg[0]}</TableCell>
                     <TableCell className="text-left">{alg[1]}</TableCell>
                   </TableRow>
-                </TooltipTrigger>
-                <TooltipPortal>
-                  <TooltipContent>
+                </PopoverTrigger>
+                <PopoverPortal>
+                  <PopoverContent side="right" hideWhenDetached>
                     <DrawScramble
                       scramble={alg[0]}
                       className="w-32 h-32 mx-auto"
                       reverse
                     />
-                  </TooltipContent>
-                </TooltipPortal>
-              </Tooltip>
+                  </PopoverContent>
+                </PopoverPortal>
+              </Popover>
             );
           })}
         </TableBody>

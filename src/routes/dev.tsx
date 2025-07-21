@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { analyseSolve } from '@/lib/cube/dnfAnalyser';
+import { analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { Solve, db } from '@/lib/db';
 
 export const Route = createFileRoute('/dev')({

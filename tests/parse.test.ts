@@ -1,6 +1,7 @@
 import { expect, test, describe } from 'bun:test';
 import { cube3x3x3 } from 'cubing/puzzles';
-import { analyseSolveString, AnalysisResult } from '@/lib/cube/dnfAnalyser';
+import { AnalysisResult } from '@/lib/analysis/analysisResults';
+import { analyseSolveString } from '@/lib/analysis/dnf3BLD';
 import {
   convertToSliceMoves,
   extractAlgs,

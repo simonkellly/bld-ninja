@@ -8,7 +8,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Dialog } from '@/components/ui/dialog';
-import { analyseSolve } from '@/lib/cube/dnfAnalyser';
+import { AnalysisResult } from '@/lib/analysis/analysisResults';
+import { analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import { convertSolveToText, convertTimeToText } from '@/lib/cube/solution';
 import { db, Penalty, Solve } from '@/lib/db';
 import { AlgTable } from './AlgTable';
@@ -31,6 +32,12 @@ export default function SolveDialog({
     db.solves.update(solve.id, {
       algs,
       dnfReason: analysis + (reason ? ': ' + reason : ''),
+      penalty:
+        analysis == AnalysisResult.SOLVED
+          ? Penalty.SOLVED
+          : analysis == AnalysisResult.PLUS_TWO
+            ? Penalty.PLUS_TWO
+            : Penalty.DNF,
     });
     navigator.clipboard.writeText(
       solve.scramble + ' == ' + solve.solution.map(s => s.move).join(' ')

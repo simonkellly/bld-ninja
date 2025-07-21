@@ -1,3 +1,4 @@
+import { useStore } from '@tanstack/react-store';
 import { ColumnDef } from '@tanstack/react-table';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
@@ -8,12 +9,25 @@ import {
   DNFReasonShorthand,
 } from '@/lib/cube/solution';
 import { Penalty, Solve, db } from '@/lib/db';
+import { SessionStore } from '../sessionStore';
 import SolveDialog from '../solve/SolveViewer';
 import ResultsStats from './ResultsStats';
 import { DataTable } from './data-table';
 
 export default function Results() {
-  const data = useLiveQuery(() => db.solves.reverse().toArray()) ?? [];
+  const activeSession = useStore(SessionStore, state => state.activeSession);
+
+  const data =
+    useLiveQuery(
+      () =>
+        db.solves
+          .where('sessionId')
+          .equals(activeSession?.id ?? -1)
+          .reverse()
+          .toArray(),
+      [activeSession?.id]
+    ) ?? [];
+
   const [selectedSolve, setSelectedSolve] = useState<number | null>(null);
 
   const calculateMo3 = (idx: number): string => {

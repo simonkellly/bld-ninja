@@ -1,28 +1,19 @@
 import { Alg } from 'cubing/alg';
 import { KPattern, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
+import {
+  ExtractedAlg,
+  extractAlgs,
+  makeAlgToComm,
+} from '../cube/solutionParser';
 import { type Solve } from '../db';
-import { ExtractedAlg, extractAlgs, makeAlgToComm } from './solutionParser';
+import { AnalysisResult } from './analysisResults';
 
 function checkIsSolved(pattern: KPattern) {
   return pattern.experimentalIsSolved({
     ignoreCenterOrientation: true,
     ignorePuzzleOrientation: true,
   });
-}
-
-export enum AnalysisResult {
-  SOLVED = 'Solved',
-  PLUS_TWO = '+2',
-  UNKNOWN = 'Unknown',
-  NO_MOVES = 'No recorded moves',
-  ONE_MOVE = 'One move mistake',
-  MISSED_TWIST = 'Missed twist',
-  MISSED_FLIP = 'Missed flip',
-  INVERSE_ALG = 'Inverse alg',
-  // TODO
-  // WRONG_ORDER = 'Wrong order',
-  // TWIST_WRONG = 'Wrong twist direction
 }
 
 function check1MoveOff(
@@ -306,7 +297,7 @@ export async function analyseSolveString(
   };
 }
 
-export async function analyseSolve(solve: Solve): Promise<SolveAnalysis> {
+export async function analyse3BLD(solve: Solve): Promise<SolveAnalysis> {
   const solutionMoves = solve.solution.map(s => s.move);
   const solutionStr = solutionMoves.join(' ');
 

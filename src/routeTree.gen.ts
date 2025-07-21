@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as TimerImport } from './routes/timer'
 import { Route as DevImport } from './routes/dev'
+import { Route as AnalysisImport } from './routes/analysis'
 import { Route as AlgsImport } from './routes/algs'
 import { Route as IndexImport } from './routes/index'
 
@@ -27,6 +28,12 @@ const TimerRoute = TimerImport.update({
 const DevRoute = DevImport.update({
   id: '/dev',
   path: '/dev',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AnalysisRoute = AnalysisImport.update({
+  id: '/analysis',
+  path: '/analysis',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -60,6 +67,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlgsImport
       parentRoute: typeof rootRoute
     }
+    '/analysis': {
+      id: '/analysis'
+      path: '/analysis'
+      fullPath: '/analysis'
+      preLoaderRoute: typeof AnalysisImport
+      parentRoute: typeof rootRoute
+    }
     '/dev': {
       id: '/dev'
       path: '/dev'
@@ -82,6 +96,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/algs': typeof AlgsRoute
+  '/analysis': typeof AnalysisRoute
   '/dev': typeof DevRoute
   '/timer': typeof TimerRoute
 }
@@ -89,6 +104,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/algs': typeof AlgsRoute
+  '/analysis': typeof AnalysisRoute
   '/dev': typeof DevRoute
   '/timer': typeof TimerRoute
 }
@@ -97,22 +113,24 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/algs': typeof AlgsRoute
+  '/analysis': typeof AnalysisRoute
   '/dev': typeof DevRoute
   '/timer': typeof TimerRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/algs' | '/dev' | '/timer'
+  fullPaths: '/' | '/algs' | '/analysis' | '/dev' | '/timer'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/algs' | '/dev' | '/timer'
-  id: '__root__' | '/' | '/algs' | '/dev' | '/timer'
+  to: '/' | '/algs' | '/analysis' | '/dev' | '/timer'
+  id: '__root__' | '/' | '/algs' | '/analysis' | '/dev' | '/timer'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlgsRoute: typeof AlgsRoute
+  AnalysisRoute: typeof AnalysisRoute
   DevRoute: typeof DevRoute
   TimerRoute: typeof TimerRoute
 }
@@ -120,6 +138,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlgsRoute: AlgsRoute,
+  AnalysisRoute: AnalysisRoute,
   DevRoute: DevRoute,
   TimerRoute: TimerRoute,
 }
@@ -136,6 +155,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/algs",
+        "/analysis",
         "/dev",
         "/timer"
       ]
@@ -145,6 +165,9 @@ export const routeTree = rootRoute
     },
     "/algs": {
       "filePath": "algs.tsx"
+    },
+    "/analysis": {
+      "filePath": "analysis.tsx"
     },
     "/dev": {
       "filePath": "dev.tsx"

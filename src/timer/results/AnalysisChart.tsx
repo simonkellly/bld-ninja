@@ -1,10 +1,12 @@
+import { useStore } from '@tanstack/react-store';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { CheckCircle, XCircle, AlertTriangle, HelpCircle } from 'lucide-react';
 import { Cell, Pie, PieChart } from 'recharts';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
-import { AnalysisResult } from '@/lib/cube/dnfAnalyser';
+import { AnalysisResult } from '@/lib/analysis/analysisResults';
 import { Penalty, db } from '@/lib/db';
+import { SessionStore } from '../sessionStore';
 
 const chartConfig = {
   noMoves: {
@@ -98,7 +100,18 @@ function getResultIcon(key: string) {
 }
 
 export default function DNFDistributionChart() {
-  const solves = useLiveQuery(() => db.solves.toArray()) ?? [];
+  const activeSession = useStore(SessionStore, state => state.activeSession);
+
+  const solves =
+    useLiveQuery(
+      () =>
+        db.solves
+          .where('sessionId')
+          .equals(activeSession?.id ?? -1)
+          .reverse()
+          .toArray(),
+      [activeSession?.id]
+    ) ?? [];
 
   const solveCounts = solves.reduce(
     (acc, solve) => {

@@ -1,5 +1,5 @@
+import { AnalysisResult } from '../analysis/analysisResults';
 import { Penalty, Solve } from '../db';
-import { AnalysisResult } from './dnfAnalyser';
 
 export function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';

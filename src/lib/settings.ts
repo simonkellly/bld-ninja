@@ -1,10 +1,10 @@
-import { Store, useStore } from "@tanstack/react-store";
+import { Store, useStore } from '@tanstack/react-store';
 
 const SETTINGS_KEY = 'ninja-settings';
-const DEFAULT_LETTERS = "ABCDYRSTEFGHIJKLMNOPUVW"
+const DEFAULT_LETTERS = 'ABCDYRSTEFGHIJKLMNOPUVW';
 
-const cornerBuffers = "UFR UBR UFL UBL DFR DBR DFL DBL"
-const edgeBuffers = "UF UR UL UB FR FL BR BL DF DR DB DL"
+const cornerBuffers = 'UFR UBR UFL UBL DFR DBR DFL DBL';
+const edgeBuffers = 'UF UR UL UB FR FL BR BL DF DR DB DL';
 
 interface Settings {
   cornerScheme: string;
@@ -18,7 +18,7 @@ let settingStore: null | Store<Partial<Settings>> = null;
 function getSettingsStore() {
   if (settingStore) return settingStore;
   const strVal = localStorage.getItem(SETTINGS_KEY);
-  const settings: Partial<Settings> = strVal ? JSON.parse(strVal) : {}; 
+  const settings: Partial<Settings> = strVal ? JSON.parse(strVal) : {};
   settingStore = new Store(settings);
   return settingStore;
 }
@@ -34,10 +34,14 @@ export function settingsWithDefaults(partialSettings: Partial<Settings>) {
     edgeScheme: partialSettings.edgeScheme || DEFAULT_LETTERS,
     cornerBufferOrder: partialSettings.cornerBufferOrder || cornerBuffers,
     edgeBufferOrder: partialSettings.edgeBufferOrder || edgeBuffers,
-  } satisfies Settings
+  } satisfies Settings;
 }
 
-export function useLiveSettings(selector?: Parameters<typeof useStore<Partial<Settings>, Partial<Settings>>>['1']) {
+export function useLiveSettings(
+  selector?: Parameters<
+    typeof useStore<Partial<Settings>, Partial<Settings>>
+  >['1']
+) {
   const store = useStore(getSettingsStore(), selector);
   return settingsWithDefaults(store);
 }
@@ -47,6 +51,6 @@ export function updateSettings(partSettings: Partial<Settings>) {
   const newSettings = {
     ...settings,
     ...partSettings,
-  }
+  };
   setSettings(newSettings);
 }

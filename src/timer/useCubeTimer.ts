@@ -3,7 +3,8 @@ import { randomScrambleForEvent } from 'cubing/scramble';
 import { CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
-import { AnalysisResult, analyseSolve } from '@/lib/cube/dnfAnalyser';
+import { AnalysisResult } from '@/lib/analysis/analysisResults';
+import { analyseSolve } from '@/lib/analysis/dnfAnalyser';
 import {
   adjustScramble,
   getRandomRotation,
@@ -12,6 +13,7 @@ import {
 import { CubeStore } from '@/lib/cube/smartCube';
 import { Penalty, Solve, db } from '@/lib/db';
 import { shouldIgnoreEvent } from '@/lib/utils';
+import { SessionStore } from './sessionStore';
 import { TimerStore } from './timerStore';
 
 export enum TimerState {
@@ -138,6 +140,8 @@ export default function useCubeTimer() {
     moves.current = [];
   }, []);
 
+  const activeSession = useStore(SessionStore, state => state.activeSession);
+
   const finishSolve = useCallback(async () => {
     const endTime = stopwatch.getElapsedRunningTime();
 
@@ -164,6 +168,8 @@ export default function useCubeTimer() {
     const solutionMoves = cubeTimestampLinearFit(moves.current);
 
     const solve: Solve = {
+      sessionId: activeSession?.id ?? -1,
+      type: activeSession?.type ?? '3BLD',
       time: endTime,
       timeStamp: Date.now(),
       now: now(),
@@ -191,7 +197,7 @@ export default function useCubeTimer() {
     newScramble();
 
     await db.solves.add(solve);
-  }, [stopwatch]);
+  }, [stopwatch, activeSession]);
 
   const updateStateFromSpaceBar = useCallback(
     (holdingDown: boolean) => {

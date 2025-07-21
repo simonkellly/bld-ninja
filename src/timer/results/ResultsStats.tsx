@@ -1,14 +1,7 @@
+import { useStore } from '@tanstack/react-store';
 import { useLiveQuery } from 'dexie-react-hooks';
-import {
-  Select,
-  SelectGroup,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-} from '@/components/ui/select';
 import { Penalty, Solve, db } from '@/lib/db';
+import { SessionStore } from '../sessionStore';
 
 function convertTimeToText(time: number) {
   if (time == -1) return 'DNF';
@@ -178,30 +171,19 @@ const averageConfigs = [
   { count: 2000, label: 'ao2000' },
 ];
 
-export function SessionSelector() {
-  return (
-    <Select value="3bld">
-      <SelectTrigger className="max-w-40 h-full py-0">
-        <SelectValue placeholder="Sessions" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Sessions</SelectLabel>
-          <SelectItem value="3bld">3BLD</SelectItem>
-          <SelectItem value="edges" disabled>
-            Edges
-          </SelectItem>
-          <SelectItem value="corners" disabled>
-            Corners
-          </SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  );
-}
-
 export default function ResultsStats() {
-  const data = useLiveQuery(() => db.solves.reverse().toArray()) ?? [];
+  const activeSession = useStore(SessionStore, state => state.activeSession);
+
+  const data =
+    useLiveQuery(
+      () =>
+        db.solves
+          .where('sessionId')
+          .equals(activeSession?.id ?? -1)
+          .reverse()
+          .toArray(),
+      [activeSession?.id]
+    ) ?? [];
   const solveCount = data.length;
 
   const relevantAverages = averageConfigs.filter(
@@ -213,10 +195,11 @@ export default function ResultsStats() {
 
   const mean = calculateMean(data);
   const successes = data.filter(solve => solve.penalty !== Penalty.DNF).length;
+
   return (
     <div className="flex flex-col gap-2 p-4">
       <div className="flex justify-between items-center mb-3">
-        <h3 className="font-semibold text-lg">3BLD</h3>
+        <h3 className="font-semibold text-lg">{activeSession?.type}</h3>
         <div className="flex gap-4 text-sm font-semibold text-muted-foreground">
           <span className="w-16 text-right">Current</span>
           <span className="w-16 text-right">Best</span>

@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import Algs from '@/algs';
+import Analysis from '@/analysis/analysis';
 
-export const Route = createFileRoute('/algs')({
+export const Route = createFileRoute('/analysis')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <Algs />;
+  return <Analysis />;
 }

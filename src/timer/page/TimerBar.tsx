@@ -18,6 +18,7 @@ import {
   ActionIcon,
 } from '@/components/ui/action-bar';
 import { CubeStore, connect, reset } from '@/lib/cube/smartCube';
+import { SessionEditor } from './SessionEditor';
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -42,7 +43,11 @@ function CubeName() {
   return <>{cube ? (cube?.name ?? 'Connected') : 'Disconnected'}</>;
 }
 
-export default function TimerBar() {
+export default function TimerBar({
+  showSessionEditor = true,
+}: {
+  showSessionEditor?: boolean;
+}) {
   const cube = useStore(CubeStore, state => state.cube);
 
   return (
@@ -55,7 +60,7 @@ export default function TimerBar() {
         </ActionButton>
         <ThemeToggle />
       </ActionStart>
-      <ActionMiddle />
+      <ActionMiddle>{showSessionEditor && <SessionEditor />}</ActionMiddle>
       <ActionEnd>
         <ActionButton
           className="gap-2 sm:aspect-auto sm:px-2"
