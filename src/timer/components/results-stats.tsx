@@ -85,9 +85,6 @@ function calculateHistoricalBests(results: Solve[]) {
   let pbMo3 = null;
   let pbAo5 = null;
   
-  // Use sliding window approach - much more efficient than nested loops
-  const validSolves = results.filter(solve => solve.solveState === 'SOLVED');
-  
   // For Mo3 - check every possible window of 3 consecutive solves
   for (let i = 2; i < results.length; i++) {
     const window = results.slice(i - 2, i + 1);

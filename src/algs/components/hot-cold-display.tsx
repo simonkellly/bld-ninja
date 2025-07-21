@@ -5,6 +5,8 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { algDb } from "../logic/alg-db";
 import { useMemo } from "react";
 
+
+
 // Development flag: true for median, false for fastest time
 const USE_MEDIAN = true;
 

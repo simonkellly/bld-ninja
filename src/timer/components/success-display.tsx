@@ -11,7 +11,7 @@ export default function SuccessDisplay() {
 
   return (
     <Card className="w-full h-full">
-      <CardHeader className="text-2xl font-bold">Success Rate</CardHeader>
+      <CardHeader className="text-2xl font-bold">Success Tracker</CardHeader>
       <div className="flex flex-row h-3/4 w-full gap-1 p-4 pt-0">
         {paddedSuccesses.map((success, idx) => (
           <div
