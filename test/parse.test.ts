@@ -187,3 +187,5 @@ describe('Analyse Solve', () => {
     expect(analysis.extractedAlgs.length).toBe(12);
   });
 });
+
+// TODO: check solve.json as it is parsing wrong

@@ -7,7 +7,6 @@ import { useStore } from '@tanstack/react-store';
 import ResultsDisplay from '@/algs/components/results-display';
 import StatDisplay from '@/algs/components/stat-display';
 import HotColdDisplay from '@/algs/components/hot-cold-display';
-import { Card } from '@heroui/react';
 
 export const Route = createFileRoute('/algs')({
   component: Algs,
