@@ -60,8 +60,7 @@ export function deleteSession(session: Session) {
   if (!session.id) return;
 
   timerDb.sessions.delete(session.id);
-  // TODO: Delete solves
-  // timerDb.solves.where('sessionId').equals(session.id).delete();
+  timerDb.solves.where('sessionId').equals(session.id).delete();
   
   SessionStore.setState(state => {
     const remainingSessions = state.sessions.filter(s => s.id !== session.id);

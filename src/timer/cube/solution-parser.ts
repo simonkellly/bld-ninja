@@ -3,7 +3,7 @@ import type { KPuzzle, KTransformation } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import commutator from '@/lib/vendor/commutator';
 
-const ALG_TYPES = ['Edge', 'Corner', 'Twist/Flip', '2E2C', 'Unknown'] as const;
+const ALG_TYPES = ['Edge', 'Corner', 'Twist', 'Flip', '2E2C', 'Unknown'] as const;
 
 export type AlgType = (typeof ALG_TYPES)[number];
 
@@ -238,6 +238,7 @@ function checkTransformationIsAlg(
   isCorner3Cycle: boolean,
   is2E2C: boolean,
   isTwist: boolean,
+  isFlip: boolean,
 ] {
   const corners = transformation.transformationData['CORNERS'];
   const edges = transformation.transformationData['EDGES'];
@@ -269,11 +270,11 @@ function checkTransformationIsAlg(
     (edgeFlip == 0 &&
       cornerTwist == 2 &&
       edgeCount == 12 &&
-      cornerCount == 6) ||
-      (edgeFlip == 2 &&
-        cornerTwist == 0 &&
-        edgeCount == 10 &&
-        cornerCount == 8),
+      cornerCount == 6),
+    (edgeFlip == 2 &&
+      cornerTwist == 0 &&
+      edgeCount == 10 &&
+      cornerCount == 8),
   ];
 }
 
@@ -286,6 +287,7 @@ function uncancelTransformation(
   isCorner: boolean;
   is2E2C: boolean;
   isTwist: boolean;
+  isFlip: boolean;
   length: number;
 } {
   const initialCheck = checkTransformationIsAlg(transformation);
@@ -293,7 +295,8 @@ function uncancelTransformation(
     initialCheck[0] ||
     initialCheck[1] ||
     initialCheck[2] ||
-    initialCheck[3]
+    initialCheck[3] ||
+    initialCheck[4]
   ) {
     return {
       alg: '',
@@ -301,6 +304,7 @@ function uncancelTransformation(
       isCorner: initialCheck[1],
       is2E2C: initialCheck[2],
       isTwist: initialCheck[3],
+      isFlip: initialCheck[4],
       length: 0,
     };
   }
@@ -323,6 +327,7 @@ function uncancelTransformation(
             isCorner: check[1],
             is2E2C: check[2],
             isTwist: check[3],
+            isFlip: check[4],
             length: depth,
           };
         }
@@ -350,8 +355,6 @@ export function simplify(alg: string) {
   });
 }
 
-// TODO: Handle AUF +2
-// TODO: Try collapsing algs to see if they are just solving one case
 export async function extractAlgs(
   moveSet: string[],
   allowCheckInverse = true
@@ -363,6 +366,7 @@ export async function extractAlgs(
     isCorner: boolean,
     is2E2C: boolean,
     isTwist: boolean,
+    isFlip: boolean,
   ][] = [];
   const solutionLength = moveSet.length;
 
@@ -395,6 +399,7 @@ export async function extractAlgs(
       uncancelled.isCorner,
       uncancelled.is2E2C,
       uncancelled.isTwist,
+      uncancelled.isFlip,
     ]);
 
     count = uncancelled.length;
@@ -405,16 +410,16 @@ export async function extractAlgs(
 
   let inverseAlgs: ExtractedAlg[] = [];
   if (moves.length > 0) {
-    const [isEdge, isCorner, is2E2C, isTwist] = checkTransformationIsAlg(
+    const [isEdge, isCorner, is2E2C, isTwist, isFlip] = checkTransformationIsAlg(
       puzzle.algToTransformation(moves)
     );
-    const isAnyAlg = isEdge || isCorner || isTwist || is2E2C;
+    const isAnyAlg = isEdge || isCorner || isTwist || isFlip || is2E2C;
     if (!isAnyAlg && allowCheckInverse) {
       inverseAlgs = await extractAlgs(
         new Alg(moves).invert().toString().split(' '),
         false
       );
-    } else comms.push([moves, moveIdx, isEdge, isCorner, is2E2C, isTwist]);
+    } else comms.push([moves, moveIdx, isEdge, isCorner, is2E2C, isTwist, isFlip]);
   }
 
   const mappedComms = comms.map(val => {
@@ -424,6 +429,7 @@ export async function extractAlgs(
     const isCornerComm = val[3];
     const is2E2C = val[4];
     const isTwist = val[5];
+    const isFlip = val[6];
 
     const isAnyAlg = isEdgeComm || isCornerComm || isTwist || is2E2C;
     const comment = !isAnyAlg
@@ -433,7 +439,9 @@ export async function extractAlgs(
         : isCornerComm
           ? 'Corner'
           : isTwist
-            ? 'Twist/Flip'
+            ? 'Twist'
+            : isFlip
+              ? 'Flip'
             : '2E2C';
 
     return [simplify(comm).toString(), comment, moveIdx] satisfies [
@@ -480,7 +488,7 @@ export function makeAlgToComm(
   if (algType == '2E2C' || algType == 'Unknown')
     return [simplifiedComm.toString(), algType, moveIdx];
 
-  if (algType == 'Edge' || algType == 'Twist/Flip') {
+  if (algType == 'Edge' || algType == 'Flip') {
     const slicesWithRotations = convertToSliceMoves(
       simplifiedComm.toString().split(' ')
     );
@@ -499,7 +507,7 @@ export function makeAlgToComm(
     foundComm = foundComm.replaceAll('l', 'Lw');
     foundComm = foundComm.replaceAll('d', 'Dw');
 
-    if (algType == 'Twist/Flip') {
+    if (algType == 'Flip') {
       return [
         (!foundComm.includes(',') ? fixedAlg.join(' ') : foundComm)
           .replaceAll(',', ', ')
@@ -561,22 +569,22 @@ function tryCombineAlgs(
   
   // Check what type the combined algorithm is
   const transformation = puzzle.algToTransformation(simplifiedCombined);
-  const [isEdge, isCorner, is2E2C, isTwist] = checkTransformationIsAlg(transformation);
+  const [isEdge, isCorner, is2E2C, isTwist, isFlip] = checkTransformationIsAlg(transformation);
   
-  if (!isEdge && !isCorner && !is2E2C && !isTwist) {
+  if (!isEdge && !isCorner && !is2E2C && !isTwist && !isFlip) {
     return null; // Combined alg is not a valid algorithm type
   }
 
   // SPECIAL CASE: If the combination results in a twist/flip, convert each algorithm 
   // to a commutator separately and concatenate them (higher priority than standard combining)
-  if (isTwist) {
+  if (isTwist || isFlip) {
     const comm1 = makeAlgToComm(alg1, puzzle);
     const comm2 = makeAlgToComm(alg2, puzzle);
     
     // Only proceed if both commutators were successfully generated (contain a comma)
     if (comm1[0].includes(',') && comm2[0].includes(',')) {
       const combinedCommutators = `${comm1[0]} ${comm2[0]}`;
-      return [combinedCommutators, 'Twist/Flip', alg1[2]];
+      return [combinedCommutators, isTwist ? 'Twist' : 'Flip', alg1[2]];
     }
   }
 
@@ -589,7 +597,8 @@ function tryCombineAlgs(
   let algType: AlgType;
   if (isEdge) algType = 'Edge';
   else if (isCorner) algType = 'Corner';
-  else if (isTwist) algType = 'Twist/Flip';
+  else if (isTwist) algType = 'Twist';
+  else if (isFlip) algType = 'Flip';
   else if (is2E2C) algType = '2E2C';
   else return null;
 

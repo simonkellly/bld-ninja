@@ -4,6 +4,8 @@ import { useStore } from "@tanstack/react-store";
 import { useMemo } from "react";
 import type { Solve } from "../logic/timer-db";
 
+// TODO: These stats are calculated wrong
+
 function BigCard({ title, time }: { title: string, time: string }) {
   return (
     <Card className="row-span-2">
@@ -85,7 +87,6 @@ function calculateHistoricalBests(results: Solve[]) {
   
   // Use sliding window approach - much more efficient than nested loops
   const validSolves = results.filter(solve => solve.solveState === 'SOLVED');
-  const solveMap = new Map(validSolves.map(solve => [solve.timestamp, solve.solveTime]));
   
   // For Mo3 - check every possible window of 3 consecutive solves
   for (let i = 2; i < results.length; i++) {
