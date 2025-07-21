@@ -53,13 +53,13 @@ function calculateRecentStats(results: Solve[]) {
   const recent = results.slice(-5); // Only need last 5 for both Mo3 and Ao5
   const validRecent = recent.filter(solve => solve.solveState === 'SOLVED');
   
-  let currentMo3 = null;
-  let currentAo5 = null;
+  let currentMo3 = 'DNF' as string | number;
+  let currentAo5 = 'DNF' as string | number;
   
   // Current Mo3 (last 3 solves)
   if (recent.length >= 3) {
     const last3Valid = recent.slice(-3).filter(solve => solve.solveState === 'SOLVED');
-    if (last3Valid.length > 0) {
+    if (last3Valid.length === 3) {
       currentMo3 = last3Valid.reduce((sum, solve) => sum + solve.solveTime, 0) / last3Valid.length;
     }
   }
@@ -93,7 +93,7 @@ function calculateHistoricalBests(results: Solve[]) {
     const window = results.slice(i - 2, i + 1);
     const validInWindow = window.filter(solve => solve.solveState === 'SOLVED');
     
-    if (validInWindow.length > 0) {
+    if (validInWindow.length === 3) {
       const mean = validInWindow.reduce((sum, solve) => sum + solve.solveTime, 0) / validInWindow.length;
       if (pbMo3 === null || mean < pbMo3) {
         pbMo3 = mean;
@@ -151,7 +151,7 @@ export default function ResultsStats() {
     
     // Current time
     const lastSolve = results[results.length - 1];
-    const currentTime = lastSolve?.solveState === 'SOLVED' ? lastSolve.solveTime : null;
+    const currentTime = lastSolve?.solveState === 'SOLVED' ? lastSolve.solveTime : 'DNF';
     
     // Recent stats (Mo3, Ao5)
     const recentStats = calculateRecentStats(results);
@@ -184,9 +184,9 @@ export default function ResultsStats() {
           <SmallCard title="PB Ao5" time={convertTimeToText(stats.pbAo5)} />
         </div>
         <div className="grid grid-rows-4 gap-2">
-          <SmallCard title="Now" time={convertTimeToText(stats.currentTime)} />
-          <SmallCard title="Mo3" time={convertTimeToText(stats.currentMo3)} />
-          <SmallCard title="Ao5" time={convertTimeToText(stats.currentAo5)} />
+          <SmallCard title="Now" time={stats.currentTime === 'DNF' ? stats.currentTime : convertTimeToText(stats.currentTime as number)} />
+          <SmallCard title="Mo3" time={stats.currentMo3 === 'DNF' ? stats.currentMo3 : convertTimeToText(stats.currentMo3 as number)} />
+          <SmallCard title="Ao5" time={stats.currentAo5 === 'DNF' ? stats.currentAo5 : convertTimeToText(stats.currentAo5 as number)} />
           <SmallCard title="All" time={convertTimeToText(stats.allTimeAverage)} />
         </div>
       </div>

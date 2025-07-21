@@ -5,10 +5,11 @@
 
 import { cube3x3x3 } from "cubing/puzzles";
 import type { Solve } from "@/timer/logic/timer-db";
-import type { KPattern } from "cubing/kpuzzle";
+import { KPattern } from "cubing/kpuzzle";
 import { extractAlgs, makeAlgToComm, removeRotations } from "@/timer/cube/solution-parser";
 import { Alg } from "cubing/alg";
 import type { Comm, AnalysisResult } from "@/timer/logic/timer-db";
+import { experimentalSolve3x3x3IgnoringCenters } from "cubing/search";
 
 type AnalysisCandidate = Omit<Solve, 'solveState' | 'analysis'>;
 
@@ -117,10 +118,16 @@ async function standardAnalysis(solve: AnalysisCandidate, additionalMoves: MoveA
     const alg = parsedSolution[i];
     let moveIdx = alg[2];
     let endingTimestamp = -1;
-    while (endingTimestamp === -1) {
+    while (endingTimestamp === -1 && moveIdx < rotationlessSolution.length) {
       endingTimestamp = rotationlessSolution[moveIdx].timestamp;
       moveIdx++;
     }
+    
+    // If we couldn't find a valid timestamp, use the current time as fallback
+    if (endingTimestamp === -1) {
+      endingTimestamp = currentTime;
+    }
+    
     const duration = endingTimestamp - currentTime;
     durations.push(duration);
     currentTime = endingTimestamp;
@@ -221,9 +228,114 @@ function checkAlgOrder(scramble: KPattern, algs: Comm[]) {
   return false;
 }
 
-export async function processNewSolve(solve: AnalysisCandidate): Promise<Solve> {
+function swapForEdges(pattern: KPattern) {
+  const copy = new KPattern(pattern.kpuzzle, pattern.patternData);
+  [copy.patternData['EDGES'].pieces[0], copy.patternData['EDGES'].pieces[1]]
+    = [copy.patternData['EDGES'].pieces[1], copy.patternData['EDGES'].pieces[0]];
+  
+  [copy.patternData['EDGES'].orientation[0], copy.patternData['EDGES'].orientation[1]]
+    = [copy.patternData['EDGES'].orientation[1], copy.patternData['EDGES'].orientation[0]];
+  return copy;
+}
+
+function swapForCorners(pattern: KPattern, pos1: number, pos2: number, orientation: number) {
+  const copy = new KPattern(pattern.kpuzzle, pattern.patternData);
+  [copy.patternData['EDGES'].pieces[pos1], copy.patternData['EDGES'].pieces[pos2]]
+    = [copy.patternData['EDGES'].pieces[pos2], copy.patternData['EDGES'].pieces[pos1]];
+  
+  [copy.patternData['EDGES'].orientation[pos1], copy.patternData['EDGES'].orientation[pos2]] = [orientation, orientation];
+  return copy;
+}
+
+async function preprocessSolve(solve: AnalysisCandidate) {
+  // NOTE: This only works for UF UR swap currently
+  // TODO: Add support for other swaps (maybe we just brute force all them??);
+  const solveCopy = { ...solve };
+
   const puzzle = await cube3x3x3.kpuzzle();
   
+  const scramble = solve.scramble;
+  const scrambleTransformation = puzzle.algToTransformation(scramble);
+  const scrambleHasParity = (solve.scramble.split(' ').filter(s => s.length === 1 || s[1] !== '2').length % 2) === 1
+
+  if (solve.mode === 'Corners') {
+    // solve edges first
+    let edgesSolved = new KPattern(puzzle, {
+      EDGES: {
+        pieces: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+      CORNERS: {
+        pieces: [0, 1, 2, 3, 4, 5, 6, 7],
+        orientation: [0, 0, 0, 0, 0, 0, 0, 0],
+      },
+      CENTERS: {
+        pieces: [0, 1, 2, 3, 4, 5],
+        orientation: [0, 0, 0, 0, 0, 0],
+        orientationMod: [1, 1, 1, 1, 1, 1],
+      },
+    });
+      
+    if (scrambleHasParity) {
+      edgesSolved = swapForEdges(edgesSolved);
+    } 
+
+    edgesSolved = edgesSolved.applyTransformation(scrambleTransformation);
+    
+    edgesSolved.patternData['CORNERS'] = {
+      pieces: [0, 1, 2, 3, 4, 5, 6, 7],
+      orientation: [0, 0, 0, 0, 0, 0, 0, 0],
+    }
+
+    const edgesSolution = await experimentalSolve3x3x3IgnoringCenters(edgesSolved);
+    solveCopy.scramble = (solveCopy.scramble + ' ' + edgesSolution.toString()).trim();
+  }
+
+  if (solve.mode === 'Edges') {
+    let cornersSolved = new KPattern(puzzle, {
+      EDGES: {
+        pieces: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+      CORNERS: {
+        pieces: [0, 1, 2, 3, 4, 5, 6, 7],
+        orientation: [0, 0, 0, 0, 0, 0, 0, 0],
+      },
+      CENTERS: {
+        pieces: [0, 1, 2, 3, 4, 5],
+        orientation: [0, 0, 0, 0, 0, 0],
+        orientationMod: [1, 1, 1, 1, 1, 1],
+      },
+    });    
+
+    cornersSolved = cornersSolved.applyTransformation(scrambleTransformation);
+  
+    const edgesData = cornersSolved.patternData['EDGES'];
+
+    const pos1 = edgesData.pieces.indexOf(0);
+    const pos2 = edgesData.pieces.indexOf(1);  
+
+    const orientation = edgesData.orientation[pos1] === edgesData.orientation[pos2] ? 0 : 1;
+
+    cornersSolved.patternData['EDGES'] = {
+      pieces: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    };
+
+    if (scrambleHasParity) {
+      cornersSolved = swapForCorners(cornersSolved, pos1, pos2, orientation);
+    }
+
+    const cornersSolution = await experimentalSolve3x3x3IgnoringCenters(cornersSolved);
+    solveCopy.scramble = (solveCopy.scramble + ' ' + cornersSolution.toString()).trim();
+  }
+
+  return solveCopy;
+}
+
+async function analyseSolve(solve: AnalysisCandidate): Promise<Solve> {
+  const puzzle = await cube3x3x3.kpuzzle();
+
   const solutionMoves = solve.moves.map(m => m.move);
   const solutionStr = solutionMoves.join(' ');
 
@@ -283,16 +395,10 @@ export async function processNewSolve(solve: AnalysisCandidate): Promise<Solve> 
     };
   }
 
-
   const totalMisoriented = cornersMisoriented + edgesMisoriented;
   const totalMissed = missedCornerTwists + missedEdgeFlips;
   const allPiecesInCorrectPosition = (cornersSolved + cornersMisoriented === 8) && (edgesSolved + edgesMisoriented === 12);
   
-  console.log(
-    "cornersSolved", cornersSolved,
-    "cornersMisoriented", cornersMisoriented,
-    "missedCornerTwists", missedCornerTwists, "edgesSolved", edgesSolved, "edgesMisoriented", edgesMisoriented, "missedEdgeFlips" , missedEdgeFlips, "totalMisoriented", totalMisoriented, "totalMissed", totalMissed);
-
   const missedOffByOneOrZero = (totalMisoriented - totalMissed) === 0 || (totalMisoriented - totalMissed) === 1;
 
   if (allPiecesInCorrectPosition && missedOffByOneOrZero && totalMissed > 0) {
@@ -362,4 +468,13 @@ export async function processNewSolve(solve: AnalysisCandidate): Promise<Solve> 
       dnfReason: 'Unknown',
     }
   };
+}
+
+export async function processNewSolve(rawSolve: AnalysisCandidate): Promise<Solve> {
+  const solve = await preprocessSolve(rawSolve);
+  const analysedSolve = await analyseSolve(solve);
+  return {
+    ...analysedSolve,
+    scramble: rawSolve.scramble,
+  }
 }

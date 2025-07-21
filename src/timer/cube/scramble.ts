@@ -14,7 +14,6 @@ import { removeRotations } from '@/timer/cube/solution-parser';
 // [RL] -> z, z y, z y2, z y'
 // [LR] -> z', z' y, z' y2, z' y'
 export const possibleRotations = [
-  '',
   'y',
   'y2',
   "y'",
@@ -93,10 +92,10 @@ export async function adjustScramble(
     .applyAlg(new Alg(solvedRotation).invert());
   const altScramPattern = preMoveState.applyAlg(new Alg(scramble).invert());
 
-  const solved = await experimentalSolve3x3x3IgnoringCenters(
-    pattern ?? puzzle.defaultPattern()
-  );
+
+  const solved = pattern ? await experimentalSolve3x3x3IgnoringCenters(pattern) : new Alg();
   const solvedPattern = altScramPattern.applyAlg(solved.invert());
+
 
   const sol = await experimentalSolve3x3x3IgnoringCenters(solvedPattern);
   return {

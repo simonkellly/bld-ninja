@@ -5,4 +5,4 @@ export const ResultsStore = new Store({
   results: [] as Solve[],
 });
 
-globalThis.ResultsStore = ResultsStore;
+(globalThis as any).ResultsStore = ResultsStore;

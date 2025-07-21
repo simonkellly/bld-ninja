@@ -1,0 +1,278 @@
+{
+  "sessionId": 11,
+  "timestamp": 1753134800842,
+  "mode": "Corners",
+  "scramble": "U2 B2 D F D' L U' L2 B' U2 B' U2 R2 F2 L2 D2 B L2 B L F'",
+  "solveTime": 11579,
+  "execTime": 7320,
+  "finishTimestamp": 1574691,
+  "moves": [
+      {
+          "move": "R'",
+          "timestamp": 0
+      },
+      {
+          "move": "R'",
+          "timestamp": 69
+      },
+      {
+          "move": "D",
+          "timestamp": 143
+      },
+      {
+          "move": "D",
+          "timestamp": 231
+      },
+      {
+          "move": "D",
+          "timestamp": 880
+      },
+      {
+          "move": "R",
+          "timestamp": 1037
+      },
+      {
+          "move": "U'",
+          "timestamp": 1088
+      },
+      {
+          "move": "R'",
+          "timestamp": 1181
+      },
+      {
+          "move": "D",
+          "timestamp": 1240
+      },
+      {
+          "move": "R",
+          "timestamp": 1315
+      },
+      {
+          "move": "U",
+          "timestamp": 1408
+      },
+      {
+          "move": "R'",
+          "timestamp": 1473
+      },
+      {
+          "move": "D",
+          "timestamp": 1541
+      },
+      {
+          "move": "R",
+          "timestamp": 1637
+      },
+      {
+          "move": "R",
+          "timestamp": 1679
+      },
+      {
+          "move": "D",
+          "timestamp": 1930
+      },
+      {
+          "move": "U",
+          "timestamp": 1943
+      },
+      {
+          "move": "R",
+          "timestamp": 2135
+      },
+      {
+          "move": "D",
+          "timestamp": 2178
+      },
+      {
+          "move": "R'",
+          "timestamp": 2271
+      },
+      {
+          "move": "U",
+          "timestamp": 2379
+      },
+      {
+          "move": "U",
+          "timestamp": 2451
+      },
+      {
+          "move": "R",
+          "timestamp": 2509
+      },
+      {
+          "move": "D'",
+          "timestamp": 2592
+      },
+      {
+          "move": "R'",
+          "timestamp": 2703
+      },
+      {
+          "move": "U",
+          "timestamp": 2794
+      },
+      {
+          "move": "D'",
+          "timestamp": 2841
+      },
+      {
+          "move": "U'",
+          "timestamp": 3282
+      },
+      {
+          "move": "R",
+          "timestamp": 3346
+      },
+      {
+          "move": "D'",
+          "timestamp": 3422
+      },
+      {
+          "move": "R'",
+          "timestamp": 3510
+      },
+      {
+          "move": "U",
+          "timestamp": 3587
+      },
+      {
+          "move": "R'",
+          "timestamp": 3670
+      },
+      {
+          "move": "D",
+          "timestamp": 3725
+      },
+      {
+          "move": "R",
+          "timestamp": 3810
+      },
+      {
+          "move": "U",
+          "timestamp": 3901
+      },
+      {
+          "move": "R'",
+          "timestamp": 3952
+      },
+      {
+          "move": "D'",
+          "timestamp": 3997
+      },
+      {
+          "move": "R",
+          "timestamp": 4119
+      },
+      {
+          "move": "U'",
+          "timestamp": 4201
+      },
+      {
+          "move": "R",
+          "timestamp": 4434
+      },
+      {
+          "move": "D",
+          "timestamp": 4530
+      },
+      {
+          "move": "R'",
+          "timestamp": 4633
+      },
+      {
+          "move": "B",
+          "timestamp": 4839
+      },
+      {
+          "move": "F'",
+          "timestamp": 4861
+      },
+      {
+          "move": "L'",
+          "timestamp": 5429
+      },
+      {
+          "move": "U",
+          "timestamp": 5566
+      },
+      {
+          "move": "L",
+          "timestamp": 5660
+      },
+      {
+          "move": "U'",
+          "timestamp": 5750
+      },
+      {
+          "move": "U'",
+          "timestamp": 5844
+      },
+      {
+          "move": "F",
+          "timestamp": 5959
+      },
+      {
+          "move": "U",
+          "timestamp": 5996
+      },
+      {
+          "move": "B'",
+          "timestamp": 6036
+      },
+      {
+          "move": "U",
+          "timestamp": 6154
+      },
+      {
+          "move": "R",
+          "timestamp": 6239
+      },
+      {
+          "move": "U",
+          "timestamp": 6922
+      },
+      {
+          "move": "R'",
+          "timestamp": 7012
+      },
+      {
+          "move": "U'",
+          "timestamp": 7121
+      }
+  ],
+  "solveState": "DNF",
+  "analysis": {
+      "algs": [
+          {
+              "alg": "[R2 D': [D', R U' R']]",
+              "issue": "NONE",
+              "type": "Corner",
+              "startIdx": 15,
+              "duration": 1610
+          },
+          {
+              "alg": "[U D: [R D R', U2]]",
+              "issue": "NONE",
+              "type": "Corner",
+              "startIdx": 27,
+              "duration": 1162
+          },
+          {
+              "alg": "[U', R D' R' U R' D R]",
+              "issue": "NONE",
+              "type": "Corner",
+              "startIdx": 43,
+              "duration": 1792
+          },
+          {
+              "alg": "B F' L' U L U2 F U B' U R U R' U'",
+              "issue": "NONE",
+              "type": "2E2C",
+              "startIdx": 58,
+              "duration": 2488
+          }
+      ],
+      "dnfReason": "One Move"
+  },
+  "id": 164
+}

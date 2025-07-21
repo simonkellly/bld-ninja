@@ -6,7 +6,7 @@ import { ResultsStore } from "../logic/result-store";
 
 export default function SuccessDisplay() {
   const results = useStore(ResultsStore, res => res.results);
-  const successes = results.slice(0, 12).map(r => r.solveState !== 'DNF');
+  const successes = results.slice(-12).map(r => r.solveState !== 'DNF');
   const paddedSuccesses = [...Array(12 - successes.length).fill(null), ...successes];
 
   return (

@@ -431,7 +431,7 @@ export async function extractAlgs(
     const isTwist = val[5];
     const isFlip = val[6];
 
-    const isAnyAlg = isEdgeComm || isCornerComm || isTwist || is2E2C;
+    const isAnyAlg = isEdgeComm || isCornerComm || isTwist || isFlip || is2E2C;
     const comment = !isAnyAlg
       ? 'Unknown'
       : isEdgeComm
