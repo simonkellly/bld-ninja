@@ -1,21 +1,28 @@
-import tailwindcss from '@tailwindcss/vite';
-import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
-import react from '@vitejs/plugin-react-swc';
-import path from 'path';
-import { defineConfig } from 'vite';
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
+import path from "path";
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
+// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), TanStackRouterVite(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-  base: '/bld-ninja/',
+	plugins: [
+		react(),
+		tailwindcss(),
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: false,
+    }),
+	],
   worker: {
-    format: 'es',
+    format: "es",
   },
   optimizeDeps: {
-    exclude: ['cubing'],
+    exclude: ["cubing"],
   },
+	resolve: {
+		alias: {
+			"@": path.resolve(__dirname, "./src"),
+		},
+	},
 });

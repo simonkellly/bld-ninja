@@ -8,173 +8,88 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TimerRouteImport } from './routes/timer'
+import { Route as AlgsRouteImport } from './routes/algs'
+import { Route as IndexRouteImport } from './routes/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as TimerImport } from './routes/timer'
-import { Route as DevImport } from './routes/dev'
-import { Route as AnalysisImport } from './routes/analysis'
-import { Route as AlgsImport } from './routes/algs'
-import { Route as IndexImport } from './routes/index'
-
-// Create/Update Routes
-
-const TimerRoute = TimerImport.update({
+const TimerRoute = TimerRouteImport.update({
   id: '/timer',
   path: '/timer',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DevRoute = DevImport.update({
-  id: '/dev',
-  path: '/dev',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AnalysisRoute = AnalysisImport.update({
-  id: '/analysis',
-  path: '/analysis',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AlgsRoute = AlgsImport.update({
+const AlgsRoute = AlgsRouteImport.update({
   id: '/algs',
   path: '/algs',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/algs': typeof AlgsRoute
+  '/timer': typeof TimerRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/algs': typeof AlgsRoute
+  '/timer': typeof TimerRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/algs': typeof AlgsRoute
+  '/timer': typeof TimerRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/algs' | '/timer'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/algs' | '/timer'
+  id: '__root__' | '/' | '/algs' | '/timer'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  AlgsRoute: typeof AlgsRoute
+  TimerRoute: typeof TimerRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
+    '/timer': {
+      id: '/timer'
+      path: '/timer'
+      fullPath: '/timer'
+      preLoaderRoute: typeof TimerRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/algs': {
       id: '/algs'
       path: '/algs'
       fullPath: '/algs'
-      preLoaderRoute: typeof AlgsImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AlgsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/analysis': {
-      id: '/analysis'
-      path: '/analysis'
-      fullPath: '/analysis'
-      preLoaderRoute: typeof AnalysisImport
-      parentRoute: typeof rootRoute
-    }
-    '/dev': {
-      id: '/dev'
-      path: '/dev'
-      fullPath: '/dev'
-      preLoaderRoute: typeof DevImport
-      parentRoute: typeof rootRoute
-    }
-    '/timer': {
-      id: '/timer'
-      path: '/timer'
-      fullPath: '/timer'
-      preLoaderRoute: typeof TimerImport
-      parentRoute: typeof rootRoute
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
-}
-
-// Create and export the route tree
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/algs': typeof AlgsRoute
-  '/analysis': typeof AnalysisRoute
-  '/dev': typeof DevRoute
-  '/timer': typeof TimerRoute
-}
-
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/algs': typeof AlgsRoute
-  '/analysis': typeof AnalysisRoute
-  '/dev': typeof DevRoute
-  '/timer': typeof TimerRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/algs': typeof AlgsRoute
-  '/analysis': typeof AnalysisRoute
-  '/dev': typeof DevRoute
-  '/timer': typeof TimerRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/algs' | '/analysis' | '/dev' | '/timer'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/algs' | '/analysis' | '/dev' | '/timer'
-  id: '__root__' | '/' | '/algs' | '/analysis' | '/dev' | '/timer'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AlgsRoute: typeof AlgsRoute
-  AnalysisRoute: typeof AnalysisRoute
-  DevRoute: typeof DevRoute
-  TimerRoute: typeof TimerRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlgsRoute: AlgsRoute,
-  AnalysisRoute: AnalysisRoute,
-  DevRoute: DevRoute,
   TimerRoute: TimerRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/algs",
-        "/analysis",
-        "/dev",
-        "/timer"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/algs": {
-      "filePath": "algs.tsx"
-    },
-    "/analysis": {
-      "filePath": "analysis.tsx"
-    },
-    "/dev": {
-      "filePath": "dev.tsx"
-    },
-    "/timer": {
-      "filePath": "timer.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */
