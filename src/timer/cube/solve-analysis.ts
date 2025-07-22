@@ -248,6 +248,8 @@ function swapForCorners(pattern: KPattern, pos1: number, pos2: number, orientati
 }
 
 async function preprocessSolve(solve: AnalysisCandidate) {
+  if (solve.mode === '3BLD') return solve;
+
   // NOTE: This only works for UF UR swap currently
   // TODO: Add support for other swaps (maybe we just brute force all them??);
   const solveCopy = { ...solve };
