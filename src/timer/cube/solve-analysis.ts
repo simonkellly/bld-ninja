@@ -1,6 +1,7 @@
 /* Ideas for analysis:
 - We can see if we in memo swapped to the wrong side of a piece
 - Combining algs for twists/flips
+- We should be able to print a full report in the reconstruction
 */
 
 import { cube3x3x3 } from "cubing/puzzles";

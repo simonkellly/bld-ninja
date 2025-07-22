@@ -1,3 +1,4 @@
+// TODO: make a way to be able to use the 3d drag view of the scramble
 import { useLiveQuery } from "dexie-react-hooks";
 import { 
   Button, 
