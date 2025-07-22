@@ -1,5 +1,4 @@
 import { Box } from 'lucide-react';
-import { useState } from 'react';
 import { Card, cn } from '@heroui/react';
 import BTCubeDisplay from '@/components/shared/bt-cube-display';
 import { TimerStore } from '../logic/timer-store';
