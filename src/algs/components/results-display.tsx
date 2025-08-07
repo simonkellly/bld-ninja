@@ -59,44 +59,62 @@ function ResultsList() {
   );
 
   return (
-    <ScrollShadow hideScrollBar size={20}>
-      <div className="flex flex-col gap-2 font-medium font-mono">
-        {results?.slice(-20)?.map((result) => {
-          const timeInSeconds = result.time / 1000;
-          const colorClass = getTimeColor(timeInSeconds);
-          
-          return (
-            <div key={result.id} className="flex items-center justify-between">
-              <Chip
-                className={cn(colorClass.dark, colorClass.light)}
-                variant="faded"
-                size="md"
-              >
-                {result.case}: {timeInSeconds.toFixed(2)}s
-              </Chip>
-              <Button
-                variant="bordered"
-                size="sm"
-                isIconOnly
-                onPress={() => {
-                  algDb.algAttempts?.delete(result.id);
-                }}
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            </div>
-          );
-        }).reverse()}
-      </div>
-    </ScrollShadow>
+    <>
+      <ScrollShadow hideScrollBar size={20}>
+        <div className="flex flex-col gap-2 font-medium font-mono">
+          {results?.slice(-20)?.map((result) => {
+            const timeInSeconds = result.time / 1000;
+            const colorClass = getTimeColor(timeInSeconds);
+            
+            return (
+              <div key={result.id} className="flex items-center justify-between">
+                <Chip
+                  className={cn(colorClass.dark, colorClass.light)}
+                  variant="faded"
+                  size="md"
+                >
+                  {result.case}: {timeInSeconds.toFixed(2)}s
+                </Chip>
+                <Button
+                  variant="bordered"
+                  size="sm"
+                  isIconOnly
+                  onPress={() => {
+                    algDb.algAttempts?.delete(result.id);
+                  }}
+                >
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </div>
+            );
+          }).reverse()}
+        </div>
+      </ScrollShadow>
+      {results && results.length > 0 && (
+        <div className="mt-2 text-sm text-default-500">
+          Showing {Math.min(results.length, 20)} of {results.length} results
+        </div>
+      )}
+    </>
   );
 }
 
 export default function ResultsDisplay() {  
+  const currentSet = useStore(AlgStore, state => state.currentSet);
+  const results = useLiveQuery(() => 
+    algDb.algAttempts.where("set").equals(currentSet).sortBy("timestamp"), 
+    [currentSet]
+  );
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="justify-between">
         <h3 className="text-2xl font-bold">Results</h3>
+        {results && results.length > 0 && (
+          <Chip variant="flat" color="primary" size="sm">
+            {results.length}
+          </Chip>
+        )}
       </CardHeader>
       <CardBody className="pt-0">
         <ResultsList />

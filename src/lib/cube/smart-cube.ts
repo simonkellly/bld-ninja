@@ -2,10 +2,10 @@ import { Store } from '@tanstack/react-store';
 import { KPattern, KPuzzle } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
-import { connectQYSC, type CubeMoveEvent, type QYSC } from 'qysc-web';
+import { connectSmartCube, type CubeMoveEvent, type SmartCube } from 'btcube-web';
 
 export type CubeStoreType = {
-  cube?: QYSC | null;
+  cube?: SmartCube | null;
   startingState?: string;
   lastMoves?: CubeMoveEvent[];
   kpattern?: KPattern;
@@ -32,7 +32,7 @@ async function handleMoveEvent(event: CubeMoveEvent) {
 
 export const reset = async () => {
   CubeStore.setState(state => ({ ...state, lastMoves: [] }));
-  await CubeStore.state.cube?.sync();
+  await CubeStore.state.cube?.commands.sync();
 };
 
 export const connect = async () => {
@@ -40,10 +40,10 @@ export const connect = async () => {
 
   if (conn) {
     CubeStore.setState(() => ({}) as CubeStoreType);
-    conn.disconnect();
+    conn.commands.disconnect();
     CubeStore.setState(() => ({}) as CubeStoreType);
   } else {
-    const newConn = await connectQYSC();
+    const newConn = await connectSmartCube();
 
     let startingState: string | undefined;
     const sub = newConn.events.state.subscribe(async ev => {
@@ -54,12 +54,11 @@ export const connect = async () => {
       startingState = scramble.toString();
     });
 
-    await newConn.freshState();
+    newConn.commands.freshState && (await newConn.commands.freshState());
 
     const kpuzzle = await cube3x3x3.kpuzzle();
 
-    while (startingState === undefined)
-      await new Promise(r => setTimeout(r, 20));
+    while (startingState === undefined) await new Promise(r => setTimeout(r, 20));
 
     const kpattern = kpuzzle.defaultPattern().applyAlg(startingState);
 

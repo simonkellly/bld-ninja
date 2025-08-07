@@ -1,7 +1,7 @@
 import { useStore } from '@tanstack/react-store';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { TwistyPlayer } from 'cubing/twisty';
-import { type CubeMoveEvent } from 'qysc-web';
+import { type CubeMoveEvent } from 'btcube-web';
 import { useEffect, useRef, useState } from 'react';
 import cubeImage from '/cube-colors.png';
 import { CubeStore } from '@/lib/cube/smart-cube';

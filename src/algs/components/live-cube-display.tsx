@@ -6,7 +6,7 @@ import cubeImage from '/cube-colors.png';
 import { cn } from '@heroui/react';
 import { MoveStore } from "../logic/use-alg-trainer";
 import { useStore } from "@tanstack/react-store";
-import type { CubeMoveEvent } from "qysc-web";
+import type { CubeMoveEvent } from "btcube-web";
 
 function DrawLiveMoves({
   className,

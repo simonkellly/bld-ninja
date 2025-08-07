@@ -1,6 +1,6 @@
 import { useStore } from '@tanstack/react-store';
 import { randomScrambleForEvent } from 'cubing/scramble';
-import { type CubeMoveEvent, cubeTimestampLinearFit, now } from 'qysc-web';
+import { type CubeMoveEvent, interpolateMoves, now } from 'btcube-web';
 import { useCallback, useEffect, useRef } from 'react';
 import { useStopwatch } from 'react-use-precision-timer';
 import {
@@ -143,25 +143,26 @@ export default function useCubeTimer() {
 
     const cube = CubeStore.state.cube;
     if (cube) {
+      const hasFreshState = cube.commands.freshState !== undefined;
       let newEventHappened = false;
-      const newMovesSub = cube.events.moves.subscribe(sub => {
+      const newMovesSub = hasFreshState && cube.events.moves.subscribe(sub => {
         moves.current.push(sub);
       });
 
-      const newEventSub = cube.events.state.subscribe(sub => {
+      const newEventSub = hasFreshState && cube.events.state.subscribe(sub => {
         if (sub.type !== 'freshState') return;
         newEventHappened = true;
-        newEventSub!.unsubscribe();
-        newMovesSub.unsubscribe();
+        newEventSub && newEventSub.unsubscribe();
+        newMovesSub && newMovesSub.unsubscribe();
       });
 
-      await cube.freshState();
-      while (!newEventHappened) {
-        await new Promise(resolve => setTimeout(resolve, 25));
-      }
+      hasFreshState && (await cube.commands.freshState());
+      do {
+        await new Promise(resolve => setTimeout(resolve, hasFreshState ? 25 : 200));
+      } while (!newEventHappened && hasFreshState);
     }
 
-    const solutionMoves = cubeTimestampLinearFit(moves.current);
+    const solutionMoves = interpolateMoves(moves.current);
 
     let solveMoves = solutionMoves.map(move => ({
       move: move.move,
@@ -177,7 +178,7 @@ export default function useCubeTimer() {
       solveTime: endTime,
       execTime: moves.current[0]?.localTimestamp ? (nowTime - moves.current[0].localTimestamp) : undefined,
       finishTimestamp: nowTime,
-      moves: solveMoves,
+      moves: solveMoves as Parameters<typeof processNewSolve>[0]['moves'],
     };
 
     const processedSolve = await processNewSolve(solve);

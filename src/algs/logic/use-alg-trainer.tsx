@@ -1,6 +1,6 @@
 import { CubeStore } from "@/lib/cube/smart-cube";
 import { useStore } from "@tanstack/react-store";
-import { cubeTimestampLinearFit, type CubeMoveEvent } from "qysc-web";
+import { interpolateMoves, type CubeMoveEvent } from "btcube-web";
 import { useCallback, useEffect } from "react";
 import { AlgStore, nextAlgs } from "@/algs/logic/alg-store";
 import { cube3x3x3 } from "cubing/puzzles";
@@ -82,15 +82,15 @@ async function processCubeMoves(kpuzzle: KPuzzle, moves: CubeMoveEvent[]) {
   const lastMoves = CubeStore.state.lastMoves;
   const startIdx = lastMoves?.indexOf(moves[0]);
   const endIdx = lastMoves?.indexOf(moves[moves.length - 1]);
-  let solutionMoves = (lastMoves && startIdx !== undefined && endIdx !== undefined) ? cubeTimestampLinearFit(lastMoves).slice(startIdx, endIdx) : cubeTimestampLinearFit(moves);
+  let solutionMoves = (lastMoves && startIdx !== undefined && endIdx !== undefined) ? interpolateMoves(lastMoves).slice(startIdx, endIdx) : interpolateMoves(moves);
 
   if (!lastMoves || startIdx === undefined || endIdx === undefined) console.log("No last moves");
   else {
-    const modMoves = cubeTimestampLinearFit(moves);
-    const newTime = solutionMoves[solutionMoves.length - 1].cubeTimestamp - solutionMoves[0].cubeTimestamp;
-    const oldTime = modMoves[modMoves.length - 1].cubeTimestamp - modMoves[0].cubeTimestamp;
+    const modMoves = interpolateMoves(moves);
+    const newTime = solutionMoves[solutionMoves.length - 1]!.cubeTimestamp! - solutionMoves[0]!.cubeTimestamp!;
+    const oldTime = modMoves[modMoves.length - 1]!.cubeTimestamp! - modMoves[0]!.cubeTimestamp!;
     const plainTime = moves[moves.length - 1]!.cubeTimestamp! - moves[0]!.cubeTimestamp!;
-    const localTime = solutionMoves[solutionMoves.length - 1].localTimestamp! - solutionMoves[0].localTimestamp!;
+    const localTime = solutionMoves[solutionMoves.length - 1]!.localTimestamp! - solutionMoves[0]!.localTimestamp!;
     console.log(`Local time: ${localTime}, Plain time: ${plainTime}, New time: ${newTime} (${newTime - plainTime}), old time: ${oldTime} (${oldTime - plainTime})`);
   }
 
@@ -100,7 +100,14 @@ async function processCubeMoves(kpuzzle: KPuzzle, moves: CubeMoveEvent[]) {
     firstCase: currentAlgIdx === 0,
     retries,
     timestamp: Date.now(),
-    time: solutionMoves[solutionMoves.length - 1].cubeTimestamp - solutionMoves[0].cubeTimestamp,
+    time: solutionMoves[solutionMoves.length - 1]!.cubeTimestamp! - solutionMoves[0]!.cubeTimestamp!,
+  }
+
+  if (algAttempt.time < 0) {
+    console.error("anomaly detected")
+    console.log(solutionMoves.map(m => m.cubeTimestamp));
+    console.log((lastMoves && startIdx !== undefined && endIdx !== undefined));
+    console.warn("end of the logs");
   }
 
   await algDb.algAttempts.add(algAttempt);

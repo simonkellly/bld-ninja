@@ -67,6 +67,17 @@ export default function StatDisplay() {
 
   const casesWithNoResults = allCases.length - Object.keys(minCaseTime).length;
 
+  // Log cases with no results
+  const casesWithResults = new Set(Object.keys(minCaseTime));
+  const casesWithoutResults = allCases.filter(alg => {
+    const caseKey = alg.case.first + alg.case.second;
+    return !casesWithResults.has(caseKey);
+  });
+  
+  if (casesWithoutResults.length > 0) {
+    console.log("Cases with no results:", casesWithoutResults.map(alg => alg.case.first + alg.case.second));
+  }
+
   const chartData = categories.map((category, index) => ({
     name: category,
     value: index < caseMinsInRange.length ? (caseMinsInRange[index] || 0) : casesWithNoResults

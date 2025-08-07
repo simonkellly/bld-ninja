@@ -41,7 +41,7 @@ function CubeButton() {
           <DropdownTrigger>
             <Button radius="full" variant="flat">
               <Icon className="h-4 w-4" />
-              {cube.name}
+              {cube.device.name}
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Cube actions">
