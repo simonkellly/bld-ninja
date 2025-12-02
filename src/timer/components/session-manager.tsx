@@ -13,6 +13,7 @@ function CreateSessionModal({ isOpen, onOpenChange }: { isOpen: boolean, onOpenC
 
   const handleCreate = async () => {
     if (!sessionName.trim()) return;
+    if (sessionName.trim().toLowerCase().includes('archive')) return;
     
     setIsCreating(true);
     try {
@@ -33,7 +34,8 @@ function CreateSessionModal({ isOpen, onOpenChange }: { isOpen: boolean, onOpenC
     }
   };
 
-  const isFormValid = sessionName.trim().length > 0;
+  const isFormValid = sessionName.trim().length > 0 && !sessionName.trim().toLowerCase().includes('archive');
+  const hasArchiveInName = sessionName.trim().toLowerCase().includes('archive');
 
   return (
     <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
@@ -50,6 +52,8 @@ function CreateSessionModal({ isOpen, onOpenChange }: { isOpen: boolean, onOpenC
                 value={sessionName}
                 onValueChange={setSessionName}
                 isRequired
+                isInvalid={hasArchiveInName}
+                errorMessage={hasArchiveInName ? "Session names cannot contain 'Archive'" : ""}
               />
                              <Select
                  label="Timer Mode"
@@ -132,6 +136,7 @@ export default function SessionManager() {
                   isIconOnly
                   color="secondary"
                   onPress={() => archiveSession(session)}
+                  isDisabled={session.name.includes('Archive')}
                 >
                   <Archive className="w-4 h-4" />
                 </Button>

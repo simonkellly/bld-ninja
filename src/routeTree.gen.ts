@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimerRouteImport } from './routes/timer'
+import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlgsRouteImport } from './routes/algs'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TimerRoute = TimerRouteImport.update({
   id: '/timer',
   path: '/timer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalysisRoute = AnalysisRouteImport.update({
+  id: '/analysis',
+  path: '/analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlgsRoute = AlgsRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/algs': typeof AlgsRoute
+  '/analysis': typeof AnalysisRoute
   '/timer': typeof TimerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/algs': typeof AlgsRoute
+  '/analysis': typeof AnalysisRoute
   '/timer': typeof TimerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/algs': typeof AlgsRoute
+  '/analysis': typeof AnalysisRoute
   '/timer': typeof TimerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/algs' | '/timer'
+  fullPaths: '/' | '/algs' | '/analysis' | '/timer'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/algs' | '/timer'
-  id: '__root__' | '/' | '/algs' | '/timer'
+  to: '/' | '/algs' | '/analysis' | '/timer'
+  id: '__root__' | '/' | '/algs' | '/analysis' | '/timer'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlgsRoute: typeof AlgsRoute
+  AnalysisRoute: typeof AnalysisRoute
   TimerRoute: typeof TimerRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/timer'
       fullPath: '/timer'
       preLoaderRoute: typeof TimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analysis': {
+      id: '/analysis'
+      path: '/analysis'
+      fullPath: '/analysis'
+      preLoaderRoute: typeof AnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/algs': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlgsRoute: AlgsRoute,
+  AnalysisRoute: AnalysisRoute,
   TimerRoute: TimerRoute,
 }
 export const routeTree = rootRouteImport

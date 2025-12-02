@@ -93,6 +93,11 @@ export function deleteSession(session: Session) {
 export async function archiveSession(session: Session) {
   if (!session.id) return;
 
+  // Don't allow archiving sessions that are already archive sessions
+  if (session.name.includes('Archive')) {
+    return;
+  }
+
   const archiveSession = SessionStore.state.sessions.find(s => s.type === session.type && s.name === `${session.type} Archive`);
   let archiveSessionId = archiveSession?.id;
   if (!archiveSession) {

@@ -2,7 +2,7 @@ import { Store } from '@tanstack/react-store';
 import { KPattern, KPuzzle } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
-import { connectSmartCube, type CubeMoveEvent, type SmartCube } from 'btcube-web';
+import { connectSmartCube, type CubeInfoEvent, type CubeMoveEvent, type SmartCube } from 'btcube-web';
 
 export type CubeStoreType = {
   cube?: SmartCube | null;
@@ -10,6 +10,9 @@ export type CubeStoreType = {
   lastMoves?: CubeMoveEvent[];
   kpattern?: KPattern;
   puzzle?: KPuzzle;
+  info?: {
+    battery?: number;
+  }
 };
 
 export const CubeStore = new Store({} as CubeStoreType);
@@ -30,6 +33,19 @@ async function handleMoveEvent(event: CubeMoveEvent) {
   });
 }
 
+function handleInfoEvent(ev: CubeInfoEvent) {
+  console.log(ev);
+  if (ev.type === 'battery') {
+    CubeStore.setState(state => ({
+      ...state,
+      info: {
+        ...state.info,
+        battery: ev.battery,
+      },
+    }));
+  }
+}
+
 export const reset = async () => {
   CubeStore.setState(state => ({ ...state, lastMoves: [] }));
   await CubeStore.state.cube?.commands.sync();
@@ -44,6 +60,8 @@ export const connect = async () => {
     CubeStore.setState(() => ({}) as CubeStoreType);
   } else {
     const newConn = await connectSmartCube();
+
+    newConn.events.info.subscribe(handleInfoEvent);
 
     let startingState: string | undefined;
     const sub = newConn.events.state.subscribe(async ev => {

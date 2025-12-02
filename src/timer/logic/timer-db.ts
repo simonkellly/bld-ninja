@@ -55,4 +55,3 @@ timerDb.version(1).stores({
   sessions: '++id, name, lastUsed, type',
   solves: '++id, sessionId, timestamp, mode, scramble, solveTime, execTime, finishTimestamp, moves, solveState, analysis'
 });
-

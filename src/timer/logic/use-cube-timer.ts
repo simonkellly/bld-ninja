@@ -150,15 +150,24 @@ export default function useCubeTimer() {
       });
 
       const newEventSub = hasFreshState && cube.events.state.subscribe(sub => {
-        if (sub.type !== 'freshState') return;
+        if (sub.type !== 'freshState' && sub.type !== 'status') return;
         newEventHappened = true;
+
+        // check to make sure the cube matches the new state
+        const newPattern = sub.pattern;
+        const currentPattern = CubeStore.state.kpattern;
+        newPattern!.patternData['CENTERS'] = currentPattern!.patternData['CENTERS'];
+        if (!newPattern.isIdentical(currentPattern!)) {
+          console.error('cube does not match new state');
+          return;
+        }
         newEventSub && newEventSub.unsubscribe();
         newMovesSub && newMovesSub.unsubscribe();
       });
 
       hasFreshState && (await cube.commands.freshState());
       do {
-        await new Promise(resolve => setTimeout(resolve, hasFreshState ? 25 : 200));
+        await new Promise(resolve => setTimeout(resolve, hasFreshState ? 25 : 300));
       } while (!newEventHappened && hasFreshState);
     }
 
@@ -270,9 +279,17 @@ export default function useCubeTimer() {
     };
   }, [stopwatch, updateStateFromSpaceBar]);
 
+  let steps = -1;
+
   useEffect(() => {
     const subscription = cube?.events.moves.subscribe(
       (event: CubeMoveEvent) => {
+        console.log(event.step);
+        if (steps !== -1 && !(steps == 255 && event.step == 0) && (event.step ?? 0) - 1 !== steps) {
+          console.error('step mismatch', event.step, steps);
+        }
+        steps = event.step ?? 0;
+
         if (stopwatch.isRunning()) {
           moves.current.push(event);
           return;

@@ -33,6 +33,8 @@ function CubeButton() {
   const cube = useStore(CubeStore, state => state.cube);
   const Icon = cube ? BluetoothConnected : Bluetooth;
 
+  const battery = useStore(CubeStore, state => state.info?.battery);
+
   if (cube) {
     return (
       <NavbarItem className="ml-2 !flex gap-2">
@@ -45,6 +47,11 @@ function CubeButton() {
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Cube actions">
+            {battery !== undefined ? (
+              <DropdownItem key="battery">
+                Battery: {battery}%
+              </DropdownItem>
+            ) : null}
             <DropdownItem 
               key="reset" 
               startContent={<RotateCcw className="h-4 w-4" />}
@@ -82,7 +89,8 @@ function CubeButton() {
 
 const navLinks = [
   { name: 'Timer', path: '/timer' },
-  { name: 'Algs', path: '/algs' }
+  { name: 'Algs', path: '/algs' },
+  { name: 'Analysis', path: '/analysis' }
 ] as const;
 
 export default function Component(props: NavbarProps) {

@@ -11,7 +11,7 @@
         "@tanstack/react-router-devtools": "^1.128.0",
         "@tanstack/react-store": "^0.7.3",
         "@tanstack/react-virtual": "^3.13.12",
-        "btcube-web": "^1.1.1",
+        "btcube-web": "^1.1.3",
         "cubing": "0.57.2",
         "dexie": "^4.0.11",
         "dexie-react-hooks": "^1.1.7",
@@ -709,7 +709,7 @@
 
     "browserslist": ["browserslist@4.25.1", "", { "dependencies": { "caniuse-lite": "^1.0.30001726", "electron-to-chromium": "^1.5.173", "node-releases": "^2.0.19", "update-browserslist-db": "^1.1.3" }, "bin": { "browserslist": "cli.js" } }, "sha512-KGj0KoOMXLpSNkkEI6Z6mShmQy0bc1I+T7K9N81k4WWMrfz+6fQ6es80B/YLAeRoKvjYE1YSHHOW1qe9xIVzHw=="],
 
-    "btcube-web": ["btcube-web@1.1.1", "", { "dependencies": { "@astronautlabs/bitstream": "^4.2.2", "aes-js": "^3.1.2", "crypto-js": "^4.2.0", "cubing": "0.57.2", "rxjs": "^7.8.2" } }, "sha512-0ndKCl9QokFqmzMuFdDD/CeCDf9EJilXLXvVYM0r0Egdkis97S/wTZYCYHQB6T4l1qvrjma7Ap303nQL/VwpHA=="],
+    "btcube-web": ["btcube-web@1.1.3", "", { "dependencies": { "@astronautlabs/bitstream": "^4.2.2", "aes-js": "^3.1.2", "crypto-js": "^4.2.0", "cubing": "0.57.2", "rxjs": "^7.8.2" } }, "sha512-0vZALbOWAxecLK+maC6yJnxGkJOLOHKac5M9iiJIkDaMaddcRFRhR4yidflaTqKFPPDBm24vV9RLhleAywroQA=="],
 
     "buffer-from": ["buffer-from@1.1.2", "", {}, "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ=="],
 
