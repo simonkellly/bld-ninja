@@ -16,7 +16,7 @@
 		"@tanstack/react-router-devtools": "^1.128.0",
 		"@tanstack/react-store": "^0.7.3",
 		"@tanstack/react-virtual": "^3.13.12",
-		"btcube-web": "^1.1.3",
+		"btcube-web": "^1.1.4",
 		"cubing": "0.57.2",
 		"dexie": "^4.0.11",
 		"dexie-react-hooks": "^1.1.7",
