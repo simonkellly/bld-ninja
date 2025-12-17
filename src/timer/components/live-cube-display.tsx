@@ -19,7 +19,7 @@ export default function LiveCubeCard() {
       <BTCubeDisplay className={cn("w-full h-full m-auto", {
         "hidden group-hover:block": shouldHide,
         "block": !shouldHide,
-      })} />
+      })!} />
       <div className={cn("w-full h-full m-auto flex-col items-center justify-center gap-2", {
         "flex group-hover:hidden": shouldHide,
         "hidden": !shouldHide,
