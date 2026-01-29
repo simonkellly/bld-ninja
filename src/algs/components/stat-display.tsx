@@ -96,8 +96,8 @@ export default function StatDisplay() {
   }
 
   return (
-    <Card>
-      <CardHeader className="justify-between">
+    <Card className="overflow-hidden">
+      <CardHeader className="shrink-0 justify-between">
         <h3 className="text-2xl font-bold">Speed</h3>
         <Select
           aria-label="Time range"
@@ -116,13 +116,14 @@ export default function StatDisplay() {
           <SelectItem key="last-month">Month</SelectItem>
         </Select>
       </CardHeader>
-      <div className="flex h-full flex-wrap items-center justify-center gap-x-2 lg:flex-nowrap">
-        <ResponsiveContainer
-          className="[&_.recharts-surface]:outline-none"
-          height="100%"
-          width="100%"
-        >
-          <PieChart accessibilityLayer margin={{top: 0, right: 0, left: 0, bottom: 0}}>
+      <div className="flex min-h-0 h-full flex-wrap items-center justify-center gap-x-1 lg:flex-nowrap">
+        <div className="h-[200px] w-0 min-w-[200px] shrink-0">
+          <ResponsiveContainer
+            className="[&_.recharts-surface]:outline-none"
+            width="100%"
+            height={200}
+          >
+          <PieChart accessibilityLayer margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
             <Tooltip
               content={({label, payload}) => (
                 <div className="flex h-8 min-w-[120px] items-center gap-x-2 rounded-medium bg-background px-1 text-tiny shadow-small">
@@ -160,7 +161,7 @@ export default function StatDisplay() {
               dataKey="value"
               innerRadius="68%"
               nameKey="name"
-              paddingAngle={-20}
+              paddingAngle={0}
               strokeWidth={0}
             >
               {chartData.map((_, index) => (
@@ -180,9 +181,10 @@ export default function StatDisplay() {
               </text>
             </g>
           </PieChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </div>
 
-        <div className="flex w-full flex-col justify-center gap-4 p-4 text-tiny text-default-500 lg:p-0">
+        <div className="flex flex-col justify-center gap-0.5 py-1 text-medium text-default-500 lg:py-0">
           {categories.map((category, index) => (
             <div key={index} className="flex items-center gap-2">
               <span
