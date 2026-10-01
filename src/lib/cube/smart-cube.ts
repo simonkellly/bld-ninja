@@ -1,5 +1,6 @@
 import { Store } from '@tanstack/react-store';
-import type { KPattern, KPuzzle } from 'cubing/kpuzzle';
+import { KPattern, type KPuzzle } from 'cubing/kpuzzle';
+import { cube3x3x3 } from 'cubing/puzzles';
 import { connectSmartCube, type CubeInfoEvent, type CubeMoveEvent, type SmartCube } from 'btcube-web';
 
 export type CubeStoreType = {
@@ -13,6 +14,7 @@ export type CubeStoreType = {
 };
 
 export const CubeStore = new Store({} as CubeStoreType);
+const puzzleReady = cube3x3x3.kpuzzle();
 
 let connecting = false;
 const subscriptions: { unsubscribe(): void }[] = [];
@@ -97,10 +99,15 @@ export const connect = async () => {
       const newConn = await connectSmartCube({
         requestMacAddress: async device => window.prompt(`Bluetooth MAC for ${device.name ?? 'cube'}`),
       });
+      const puzzle = await puzzleReady;
       CubeStore.setState(() => ({ cube: newConn, lastMoves: [] }));
       subscriptions.push(
         newConn.events.state.subscribe(({ pattern }) => {
-          CubeStore.setState(state => ({ ...state, puzzle: pattern.kpuzzle, kpattern: pattern }));
+          CubeStore.setState(state => ({
+            ...state,
+            puzzle,
+            kpattern: new KPattern(puzzle, pattern.patternData),
+          }));
         }),
         newConn.events.info.subscribe(handleInfoEvent),
         newConn.events.moves.subscribe(handleMoveEvent),

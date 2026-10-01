@@ -1,5 +1,6 @@
 import { useStore } from '@tanstack/react-store';
 import { TwistyPlayer } from 'cubing/twisty';
+import type { KPattern } from 'cubing/kpuzzle';
 import { useEffect, useRef, useState } from 'react';
 import cubeImage from '/cube-colors.png';
 import { CubeStore } from '@/lib/cube/smart-cube';
@@ -41,14 +42,16 @@ export default function BTCubeDisplay({ className }: { className: string }) {
     if (!player || !cube) return;
 
     player.alg = '';
-    const sub = cube.events.state.subscribe(({ pattern }) => {
+    let displayedPattern: KPattern | undefined;
+    const updatePattern = () => {
+      const pattern = CubeStore.state.kpattern;
+      if (!pattern || pattern === displayedPattern) return;
+      displayedPattern = pattern;
       const transformation = pattern.experimentalToTransformation();
       if (transformation) player.experimentalModel.setupTransformation.set(transformation);
-    });
-
-    return () => {
-      sub.unsubscribe();
     };
+    updatePattern();
+    return CubeStore.subscribe(updatePattern);
   }, [player, cube]);
 
   const classes = cn('flex', className);
