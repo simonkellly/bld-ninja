@@ -8,7 +8,7 @@ import {
   getRandomRotation,
   solveRotation,
 } from '@/timer/cube/scramble';
-import { CubeStore } from '@/lib/cube/smart-cube';
+import { CubeStore, refreshCube } from '@/lib/cube/smart-cube';
 import { shouldIgnoreEvent } from '@/lib/ui/keyboard';
 import { TimerStore } from './timer-store';
 import { SessionStore } from './session-store';
@@ -143,32 +143,11 @@ export default function useCubeTimer() {
 
     const cube = CubeStore.state.cube;
     if (cube) {
-      const hasFreshState = cube.commands.freshState !== undefined;
-      let newEventHappened = false;
-      const newMovesSub = hasFreshState && cube.events.moves.subscribe(sub => {
-        moves.current.push(sub);
-      });
-
-      const newEventSub = hasFreshState && cube.events.state.subscribe(sub => {
-        if (sub.type !== 'freshState' && sub.type !== 'status') return;
-        newEventHappened = true;
-
-        // check to make sure the cube matches the new state
-        const newPattern = sub.pattern;
-        const currentPattern = CubeStore.state.kpattern;
-        newPattern!.patternData['CENTERS'] = currentPattern!.patternData['CENTERS'];
-        if (!newPattern.isIdentical(currentPattern!)) {
-          console.error('cube does not match new state');
-          return;
-        }
-        newEventSub && newEventSub.unsubscribe();
-        newMovesSub && newMovesSub.unsubscribe();
-      });
-
-      hasFreshState && (await cube.commands.freshState());
-      do {
-        await new Promise(resolve => setTimeout(resolve, hasFreshState ? 25 : 300));
-      } while (!newEventHappened && hasFreshState);
+      try {
+        await refreshCube(cube, event => moves.current.push(event));
+      } catch (error) {
+        console.warn('Could not refresh cube after solve', error);
+      }
     }
 
     const solutionMoves = interpolateMoves(moves.current);

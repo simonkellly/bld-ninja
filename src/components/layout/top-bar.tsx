@@ -11,6 +11,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  addToast,
 } from "@heroui/react";
 import { useTheme } from "@heroui/use-theme";
 import { useLocation } from "@tanstack/react-router";
@@ -34,6 +35,17 @@ function CubeButton() {
   const Icon = cube ? BluetoothConnected : Bluetooth;
 
   const battery = useStore(CubeStore, state => state.info?.battery);
+  const handleConnect = async () => {
+    try {
+      await connect();
+    } catch (error) {
+      addToast({
+        title: 'Cube connection failed',
+        description: error instanceof Error ? error.message : String(error),
+        color: 'danger',
+      });
+    }
+  };
 
   if (cube) {
     return (
@@ -66,7 +78,7 @@ function CubeButton() {
               className="text-danger" 
               color="danger"
               startContent={<Power className="h-4 w-4" />}
-              onPress={connect}
+              onPress={handleConnect}
             >
               Disconnect
             </DropdownItem>
@@ -79,7 +91,7 @@ function CubeButton() {
   return (
     <NavbarItem className="ml-2 !flex gap-2">
       <ThemeButton />
-      <Button radius="full" variant="flat" onPress={connect}>
+      <Button radius="full" variant="flat" onPress={handleConnect}>
         <Icon className="h-4 w-4" />
         Disconnected
       </Button>

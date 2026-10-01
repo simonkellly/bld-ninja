@@ -1,12 +1,9 @@
 import { Store } from '@tanstack/react-store';
-import { KPattern, KPuzzle } from 'cubing/kpuzzle';
-import { cube3x3x3 } from 'cubing/puzzles';
-import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
+import type { KPattern, KPuzzle } from 'cubing/kpuzzle';
 import { connectSmartCube, type CubeInfoEvent, type CubeMoveEvent, type SmartCube } from 'btcube-web';
 
 export type CubeStoreType = {
   cube?: SmartCube | null;
-  startingState?: string;
   lastMoves?: CubeMoveEvent[];
   kpattern?: KPattern;
   puzzle?: KPuzzle;
@@ -17,7 +14,15 @@ export type CubeStoreType = {
 
 export const CubeStore = new Store({} as CubeStoreType);
 
-async function handleMoveEvent(event: CubeMoveEvent) {
+let connecting = false;
+const subscriptions: { unsubscribe(): void }[] = [];
+
+function clearConnection() {
+  for (const subscription of subscriptions.splice(0)) subscription.unsubscribe();
+  CubeStore.setState(() => ({}));
+}
+
+function handleMoveEvent(event: CubeMoveEvent) {
   CubeStore.setState(state => {
     let lastMoves = state.lastMoves ?? [];
     lastMoves = [...lastMoves, event];
@@ -28,13 +33,11 @@ async function handleMoveEvent(event: CubeMoveEvent) {
     return {
       ...state,
       lastMoves,
-      kpattern: state.kpattern?.applyMove(event.move),
     };
   });
 }
 
 function handleInfoEvent(ev: CubeInfoEvent) {
-  console.log(ev);
   if (ev.type === 'battery') {
     CubeStore.setState(state => ({
       ...state,
@@ -51,44 +54,63 @@ export const reset = async () => {
   await CubeStore.state.cube?.commands.sync();
 };
 
+export async function refreshCube(cube: SmartCube, onMove: (event: CubeMoveEvent) => void) {
+  let refreshing = false;
+  let resolveState: () => void = () => undefined;
+  const receivedState = new Promise<void>(resolve => {
+    resolveState = resolve;
+  });
+  const movesSubscription = cube.events.moves.subscribe(onMove);
+  const stateSubscription = cube.events.state.subscribe({
+    next: event => {
+      if (refreshing && (event.type === 'status' || event.type === 'freshState')) resolveState();
+    },
+    complete: () => resolveState(),
+  });
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    refreshing = true;
+    await cube.commands.freshState();
+    await Promise.race([
+      receivedState,
+      new Promise<void>(resolve => {
+        timeout = setTimeout(resolve, 1500);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timeout);
+    stateSubscription.unsubscribe();
+    movesSubscription.unsubscribe();
+  }
+}
+
 export const connect = async () => {
+  if (connecting) return;
   const conn = CubeStore.state.cube;
 
   if (conn) {
-    CubeStore.setState(() => ({}) as CubeStoreType);
-    conn.commands.disconnect();
-    CubeStore.setState(() => ({}) as CubeStoreType);
+    clearConnection();
+    await conn.commands.disconnect();
   } else {
-    const newConn = await connectSmartCube();
-
-    newConn.events.info.subscribe(handleInfoEvent);
-
-    let startingState: string | undefined;
-    const sub = newConn.events.state.subscribe(async ev => {
-      if (startingState && (ev.type === 'state' || ev.type === 'freshState'))
-        return;
-      const solution = await experimentalSolve3x3x3IgnoringCenters(ev.pattern);
-      const scramble = solution.invert();
-      startingState = scramble.toString();
-    });
-
-    newConn.commands.freshState && (await newConn.commands.freshState());
-
-    const kpuzzle = await cube3x3x3.kpuzzle();
-
-    while (startingState === undefined) await new Promise(r => setTimeout(r, 20));
-
-    const kpattern = kpuzzle.defaultPattern().applyAlg(startingState);
-
-    sub.unsubscribe();
-
-    CubeStore.setState(() => ({
-      cube: newConn,
-      startingState,
-      puzzle: kpuzzle,
-      kpattern: kpattern,
-    }));
-
-    newConn.events.moves.subscribe(handleMoveEvent);
+    connecting = true;
+    try {
+      const newConn = await connectSmartCube({
+        requestMacAddress: async device => window.prompt(`Bluetooth MAC for ${device.name ?? 'cube'}`),
+      });
+      CubeStore.setState(() => ({ cube: newConn, lastMoves: [] }));
+      subscriptions.push(
+        newConn.events.state.subscribe(({ pattern }) => {
+          CubeStore.setState(state => ({ ...state, puzzle: pattern.kpuzzle, kpattern: pattern }));
+        }),
+        newConn.events.info.subscribe(handleInfoEvent),
+        newConn.events.moves.subscribe(handleMoveEvent),
+      );
+      const connectionSubscription = newConn.events.connection?.subscribe(({ type }) => {
+        if (type === 'disconnected' && CubeStore.state.cube === newConn) clearConnection();
+      });
+      if (connectionSubscription) subscriptions.push(connectionSubscription);
+    } finally {
+      connecting = false;
+    }
   }
 };

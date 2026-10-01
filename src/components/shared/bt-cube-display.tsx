@@ -1,7 +1,5 @@
 import { useStore } from '@tanstack/react-store';
-import { experimentalSolve3x3x3IgnoringCenters } from 'cubing/search';
 import { TwistyPlayer } from 'cubing/twisty';
-import { type CubeMoveEvent } from 'btcube-web';
 import { useEffect, useRef, useState } from 'react';
 import cubeImage from '/cube-colors.png';
 import { CubeStore } from '@/lib/cube/smart-cube';
@@ -12,7 +10,6 @@ export default function BTCubeDisplay({ className }: { className: string }) {
   const [player, setPlayer] = useState<TwistyPlayer | null>(null);
 
   const cube = useStore(CubeStore, state => state.cube);
-  const startingState = useStore(CubeStore, state => state.startingState);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -37,37 +34,22 @@ export default function BTCubeDisplay({ className }: { className: string }) {
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(newPlayer);
     setPlayer(newPlayer);
-  }, [containerRef]);
+    return () => newPlayer.remove();
+  }, []);
 
   useEffect(() => {
     if (!player || !cube) return;
 
-    player.alg = startingState ?? '';
-
-    const moves: CubeMoveEvent[] = [];
-    let sub = cube.events.moves.subscribe(ev => {
-      moves.push(ev);
+    player.alg = '';
+    const sub = cube.events.state.subscribe(({ pattern }) => {
+      const transformation = pattern.experimentalToTransformation();
+      if (transformation) player.experimentalModel.setupTransformation.set(transformation);
     });
-
-    experimentalSolve3x3x3IgnoringCenters(CubeStore.state.kpattern!).then(
-      solution => {
-        player.alg = solution.invert();
-
-        sub.unsubscribe();
-        moves.forEach(move => {
-          player.experimentalAddMove(move.move);
-        });
-
-        sub = cube.events.moves.subscribe(ev => {
-          player.experimentalAddMove(ev.move);
-        });
-      }
-    );
 
     return () => {
       sub.unsubscribe();
     };
-  }, [player, startingState, cube]);
+  }, [player, cube]);
 
   const classes = cn('flex', className);
 
